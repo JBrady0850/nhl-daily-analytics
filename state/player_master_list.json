@@ -747,6 +747,13 @@
 },
 {
 "team": "CBJ",
+"name": "Damon Severson",
+"player_id": "8476923",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CBJ",
 "name": "Dante Fabbro",
 "player_id": "8479371",
 "position": "D",
@@ -4256,13 +4263,6 @@
 "team": "STL",
 "name": "Robert Thomas",
 "player_id": "8480023",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "STL",
-"name": "Zach Dean",
-"player_id": "8482784",
 "position": "C",
 "role": "skater"
 },
