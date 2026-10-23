@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-10-23",
-"count": 800,
+"count": 801,
 "players": [
 {
 "team": "ANA",
@@ -2725,6 +2725,13 @@
 "player_id": "8482684",
 "position": "D",
 "role": "skater"
+},
+{
+"team": "NJD",
+"name": "Connor Hellebuyck",
+"player_id": "8476945",
+"position": "G",
+"role": "goalie"
 },
 {
 "team": "NJD",

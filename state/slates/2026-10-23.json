@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "MTL @ CHI",
-   "home_win_prob": 0.3612,
+   "home_win_prob": 0.391,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.4024,
-    "away_prob": 0.5976,
+    "home_prob": 0.4029,
+    "away_prob": 0.5971,
     "books": 6
    },
    "home_pillars": {
@@ -21,11 +21,11 @@
    },
    "away_pillars": {
     "p1_form": 8.183,
-    "p2_absence": -1.323,
+    "p2_absence": -6.192,
     "p3_motivation": 0.0,
     "p4_gvi": -2.138,
     "p5_friction": -1.11,
-    "adj_raa": 53.612
+    "adj_raa": 48.742
    }
   },
   {
@@ -34,8 +34,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5312,
-    "away_prob": 0.4688,
+    "home_prob": 0.531,
+    "away_prob": 0.469,
     "books": 6
    },
    "home_pillars": {
