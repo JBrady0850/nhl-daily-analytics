@@ -9,8 +9,10 @@
 - The teams you follow, the stats window you picked (Last 10 or Season) and the last
   tab you opened are saved in your browser's local storage on your device. They never
   leave your device. **Settings > Clear my settings** removes them.
-- Links to Daily Faceoff, NHL.com and other sources open those sites in a new tab. Those
-  sites have their own privacy policies.
+- Links to Daily Faceoff, NHL.com and other sources open those sites in a new tab, and
+  player names open the player's NHL.com page in a separate window. The app sends
+  nothing to those sites; your browser simply opens the page. Those sites have their
+  own privacy policies.
 - GitHub hosts the app. GitHub may keep standard web server logs (such as IP address
   and time of request) under the
   [GitHub Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement).

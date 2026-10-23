@@ -60,7 +60,7 @@ def _goalie(g):
 
 
 def _absence(a):
-    return {k: a.get(k) for k in ("name", "position", "toi_share", "points_share", "source", "injury_note")
+    return {k: a.get(k) for k in ("player_id", "name", "position", "toi_share", "points_share", "source", "injury_note")
             if k in a}
 
 
@@ -179,7 +179,7 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
                 g["rank"] = k
             pool = [p for e in engines for side in ("home_team", "away_team") for p in e.payload[side]["players"][:10]]
             opp = {e.home: e.away for e in engines} | {e.away: e.home for e in engines}
-            keep = ("name", "team", "position", "avg_toi_min", "proj_goals", "proj_assists", "proj_points",
+            keep = ("player_id", "name", "team", "position", "avg_toi_min", "proj_goals", "proj_assists", "proj_points",
                     "proj_sog", "proj_blocks", "proj_hits", "dk_proj", "win_prob", "save_pct", "gsax")
             top_sk = [dict({k: p.get(k) for k in keep if k in p}, opp=opp.get(p.get("team")))
                       for p in sorted((p for p in pool if p["position"] != "G"), key=lambda p: -p["dk_proj"])[:30]]

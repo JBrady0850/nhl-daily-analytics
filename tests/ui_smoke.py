@@ -61,6 +61,8 @@ def main():
         for url in urls:
             for name, w, h, mob in SIZES:
                 ctx = b.new_context(viewport={"width": w, "height": h}, is_mobile=mob, has_touch=mob)
+                # player pages are stubbed: the test never leaves this machine
+                ctx.route("https://www.nhl.com/**", lambda r: r.fulfill(status=200, content_type="text/html", body="<title>NHL.com stub</title>"))
                 pg = ctx.new_page()
                 errs = []
                 pg.on("pageerror", lambda e: errs.append(str(e)))
@@ -125,6 +127,30 @@ def main():
                     pg.wait_for_timeout(50)
                     if pg.evaluate("document.getElementById('tipbox').hidden"):
                         fails.append(f"{name}: keyboard focus did not show the definition")
+                pg.click('#tabs button[data-tab="myteams"]')
+                links = pg.evaluate("[...document.querySelectorAll('main a.plink')].map(a => [a.getAttribute('href'), a.target, a.rel, a.childNodes[0].textContent])")
+                want = sum(1 for grp in ("lines", "pairs") for ln in sample["lines"]["FLA"][grp] for p in ln["players"] if p.get("nhl_id"))
+                if len(links) != want or want < 15:
+                    fails.append(f"{name}: {len(links)} player links on My Teams, expected {want}")
+                bad = [l for l in links if not re.match(r"^https://www\.nhl\.com/player/\d{6,8}$", l[0] or "") or l[1] != "_blank" or "noopener" not in (l[2] or "")]
+                if bad:
+                    fails.append(f"{name}: bad player links {bad[:2]}")
+                first = pg.locator("main a.plink").first
+                with ctx.expect_page() as info:
+                    (first.tap() if mob else first.click())
+                player_page = info.value
+                player_page.wait_for_load_state()
+                if not player_page.url.startswith("https://www.nhl.com/player/"):
+                    fails.append(f"{name}: player name opened {player_page.url}")
+                if not mob and player_page.evaluate("window.name") != "nhl-player":
+                    fails.append(f"{name}: player page did not open in its own window")
+                if not pg.url.endswith("index.html"):
+                    fails.append(f"{name}: the app itself navigated away to {pg.url}")
+                player_page.close()
+                for t2, sel in (("goalies", "main table tbody a.plink"), ("dfs", "main table tbody a.plink"), ("today", "article.game a.plink")):
+                    pg.click(f'#tabs button[data-tab="{t2}"]')
+                    if pg.locator(sel).count() == 0:
+                        fails.append(f"{name} {t2}: no player links")
                 pg.click('#tabs button[data-tab="myteams"]')
                 n_before = pg.evaluate("(JSON.parse(localStorage.getItem('nda:v1')||'{}').teams||[]).length")
                 pg.click('button.chip[data-arg="TBL"]')

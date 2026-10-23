@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.1.0";
+  const APP_VERSION = "1.2.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -100,6 +100,12 @@
     <path class="en-base" d="M38 132 H202"/>
     <g class="en-puck"><ellipse cx="190" cy="140" rx="13" ry="4.5"/><rect x="177" y="134.5" width="26" height="5.5"/><ellipse class="en-top" cx="190" cy="134.5" rx="13" ry="4.5"/></g>
   </svg>`;
+  // player names open the player's official NHL.com page (bio and full stats)
+  const NHL_PLAYER = "https://www.nhl.com/player/";
+  const pname = (name, id) => {
+    const pid = /^\d{6,8}$/.test(String(id == null ? "" : id)) ? String(id) : "";
+    return pid ? `<a class="plink" href="${NHL_PLAYER}${pid}" target="_blank" rel="noopener noreferrer">${esc(name)}<span class="sr"> (official NHL.com page and stats, opens in a new window)</span></a>` : esc(name);
+  };
   const emptyCard = (msg) => `<div class="card empty">${EMPTY_NET}<p>${msg}</p></div>`;
 
   // ---------- definitions: hover with a mouse, tap on a touch screen, or Tab to it ----------
@@ -267,6 +273,20 @@
     if (tipEl === el) hideTip(); else showTip(el);
   });
   document.addEventListener("keydown", e => { pointerFocus = false; if (e.key === "Escape") hideTip(); });
+  // with a mouse, a player's page opens in its own window, reused for the next
+  // name; on a phone or tablet, or if pop-ups are blocked, it opens in a new tab
+  document.addEventListener("click", e => {
+    const a = e.target.closest && e.target.closest("a.plink");
+    if (!a || e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || !isMouse(lastPointer)) return;
+    const w = Math.min(1200, (screen.availWidth || 1200) - 40), h = Math.min(950, (screen.availHeight || 950) - 40);
+    const left = Math.max(0, (screen.availWidth || w) - w - 20), top = 20;
+    let win = null;
+    try { win = window.open(a.href, "nhl-player", `popup=yes,width=${w},height=${h},left=${left},top=${top}`); } catch (x) { win = null; }
+    if (win) {
+      e.preventDefault();
+      try { win.opener = null; win.focus(); } catch (x) { /* another site's window */ }
+    }
+  });
   window.addEventListener("scroll", hideTip, true);
   window.addEventListener("resize", hideTip);
 
@@ -325,7 +345,7 @@
       <span class="l">${esc(g.away)} ${pct(pa)}</span><span class="r">${esc(g.home)} ${pct(ph)}</span></div>`;
   }
   function goalieLine(g) {
-    const one = (ab, gk) => gk && gk.name ? `${esc(gk.name)} <span class="muted">(${esc(ab)})</span> ${srcPill(gk.source)}` : `<span class="muted">${esc(ab)}: no starter yet</span>`;
+    const one = (ab, gk) => gk && gk.name ? `${pname(gk.name, gk.player_id)} <span class="muted">(${esc(ab)})</span> ${srcPill(gk.source)}` : `<span class="muted">${esc(ab)}: no starter yet</span>`;
     return `${one(g.away, g.away_side.goalie)} <span class="muted">vs</span> ${one(g.home, g.home_side.goalie)}`;
   }
   function gameCard(g) {
@@ -372,7 +392,7 @@
   }
   function absences(g) {
     const rows = [["away", g.away], ["home", g.home]].flatMap(([s, ab]) => (g[s + "_side"].absences || []).map(a =>
-      `<tr>${td(`<b>${esc(ab)}</b>`)}${td(esc(a.name))}${td(esc(a.position))}${td(pct(a.toi_share), "n hm")}${td(esc(a.injury_note || (a.source === "LINEUP_DIFF" ? "Did not dress in the last game" : "")), "small")}</tr>`)).join("");
+      `<tr>${td(`<b>${esc(ab)}</b>`)}${td(pname(a.name, a.player_id))}${td(esc(a.position))}${td(pct(a.toi_share), "n hm")}${td(esc(a.injury_note || (a.source === "LINEUP_DIFF" ? "Did not dress in the last game" : "")), "small")}</tr>`)).join("");
     return rows ? `<h3>Key absences</h3>${tbl(th("Team") + th("Player") + th("Pos") + th("TOI share", "n hm") + th("Note"), rows)}` : `<p class="small muted">No material absences found.</p>`;
   }
   function formTable(g) {
@@ -408,7 +428,7 @@
         const s = p[w] || {};
         const status = [p.gtd ? '<span class="pill projected">GTD</span>' : "", p.injury ? `<span class="pill bad">${esc(p.injury)}</span>` : ""].join(" ");
         const pimTag = topPim > 0 && s.pim === topPim ? ` <span class="pill bad">Most PIM${nTop > 1 ? " (tied)" : ""}</span>` : "";
-        return `<tr class="${lead.points ? "lead" : ""}">${td(i === 0 ? `<span class="unit">${esc(unit)}</span>` : "")}${td(esc(p.pos), "hm")}${td(esc(p.name) + " " + status + pimTag)}${td(esc(p.pp || ""), "hm")}
+        return `<tr class="${lead.points ? "lead" : ""}">${td(i === 0 ? `<span class="unit">${esc(unit)}</span>` : "")}${td(esc(p.pos), "hm")}${td(pname(p.name, p.nhl_id) + " " + status + pimTag)}${td(esc(p.pp || ""), "hm")}
           ${td(esc(s.gp ?? "-"), "n")}${td(esc(s.g ?? "-"), "n")}${td(esc(s.a ?? "-"), "n")}${td(`<b>${esc(s.p ?? "-")}</b>`, "n")}${td(esc(s.sog ?? "-"), "n")}${td(esc(s.ppp ?? "-"), "n hm")}${td(mmss(s.toi_sec_pg), "n hm")}${td(esc(s.pim ?? "-"), "n")}</tr>`;
       }).join("");
       const t = (x.totals || {})[w] || {};
@@ -456,7 +476,7 @@
     });
     if (!rows.length) return `${head("goalies", "Starting goalies")}${stamp()}${emptyCard("No games today.")}`;
     const body = rows.map(({ ab, g, gk }) => !gk.name ? `<tr>${td(badge(ab, "sm"))}<td colspan="8" class="muted">No starter found yet</td></tr>` :
-      `<tr class="${mine(ab) ? "lead" : ""}">${td(`${badge(ab, "sm")}<div class="tiny muted">${esc(g.away)} @ ${esc(g.home)}</div>`)}${td(esc(gk.name) + ((gk.window_toi_min || 0) < 180 ? ' <span class="pill thin">Thin</span>' : ""))}
+      `<tr class="${mine(ab) ? "lead" : ""}">${td(`${badge(ab, "sm")}<div class="tiny muted">${esc(g.away)} @ ${esc(g.home)}</div>`)}${td(pname(gk.name, gk.player_id) + ((gk.window_toi_min || 0) < 180 ? ' <span class="pill thin">Thin</span>' : ""))}
         ${td(sv(gk.season_sv_pct), "n")}${td(num(gk.gsax, 2), "n")}${td(sv(gk.hdsv_pct), "n hm")}${td(Math.round(gk.window_toi_min || 0) + "m", "n hm")}${td(esc(gk.days_rest ?? "-") + "d", "n")}${td(srcPill(gk.source))}
         ${td(gk.reported_by ? (gk.source_url ? `<a href="${esc(gk.source_url)}" target="_blank" rel="noopener">${esc(gk.reported_by)}</a>` : esc(gk.reported_by)) : "-", "hm small")}</tr>`).join("");
     return `${head("goalies", "Starting goalies")}${stamp()}<p class="small muted">Every probable starter tonight, highest season save percentage first (ties: GSAx, then high-danger save percentage). Projected starters often change by late afternoon; the evening update carries the later confirmations.</p>
@@ -505,8 +525,8 @@
   function vDfs() {
     const sk = (D.dfs || {}).skaters || [], gk = (D.dfs || {}).goalies || [];
     if (!sk.length) return `${head("dfs", "DFS projections")}${stamp()}${emptyCard("No games today.")}`;
-    const sRows = sk.map((p, i) => `<tr class="${mine(p.team) ? "lead" : ""}">${td(i + 1, "n")}${td(esc(p.name))}${td(badge(p.team, "sm"))}${td(esc(p.opp || ""), "hm")}${td(esc(p.position))}${td(`<b>${num(p.dk_proj, 1)}</b>`, "n")}${td(num(p.proj_goals, 2), "n")}${td(num(p.proj_assists, 2), "n")}${td(num(p.proj_sog, 1), "n hm")}${td(num(p.avg_toi_min, 1), "n hm")}</tr>`).join("");
-    const gRows = gk.map((p, i) => `<tr class="${mine(p.team) ? "lead" : ""}">${td(i + 1, "n")}${td(esc(p.name))}${td(badge(p.team, "sm"))}${td(esc(p.opp || ""), "hm")}${td(pct(p.win_prob), "n")}${td(sv(p.save_pct), "n")}${td(num(p.gsax, 1), "n hm")}${td(`<b>${num(p.dk_proj, 1)}</b>`, "n")}</tr>`).join("");
+    const sRows = sk.map((p, i) => `<tr class="${mine(p.team) ? "lead" : ""}">${td(i + 1, "n")}${td(pname(p.name, p.player_id))}${td(badge(p.team, "sm"))}${td(esc(p.opp || ""), "hm")}${td(esc(p.position))}${td(`<b>${num(p.dk_proj, 1)}</b>`, "n")}${td(num(p.proj_goals, 2), "n")}${td(num(p.proj_assists, 2), "n")}${td(num(p.proj_sog, 1), "n hm")}${td(num(p.avg_toi_min, 1), "n hm")}</tr>`).join("");
+    const gRows = gk.map((p, i) => `<tr class="${mine(p.team) ? "lead" : ""}">${td(i + 1, "n")}${td(pname(p.name, p.player_id))}${td(badge(p.team, "sm"))}${td(esc(p.opp || ""), "hm")}${td(pct(p.win_prob), "n")}${td(sv(p.save_pct), "n")}${td(num(p.gsax, 1), "n hm")}${td(`<b>${num(p.dk_proj, 1)}</b>`, "n")}</tr>`).join("");
     return `${head("dfs", "DFS projections")}${stamp()}<p class="small muted">Projected DraftKings fantasy points for tonight, from each player's season rates, recent ice time and his team's win probability. For research; check confirmed lineups before you set yours.</p>
       <section class="card"><h2 style="margin-top:0">Skaters</h2>${tbl(th("#", "n") + th("Skater") + th("Team") + th("Opp", "hm") + th("Pos") + th("DK", "n") + th("G", "n") + th("A", "n") + th("SOG", "n hm") + th("TOI", "n hm"), sRows)}</section>
       <section class="card"><h2 style="margin-top:0">Goalies</h2>${tbl(th("#", "n") + th("Goalie") + th("Team") + th("Opp", "hm") + th("Win %", "n") + th("SV%", "n") + th("GSAx", "n hm") + th("DK", "n"), gRows)}</section>`;
@@ -555,7 +575,7 @@
   // ---------- help ----------
   function vHelp() {
     const gloss = (window.NDA_GLOSSARY || []).map(([t, d]) => `<dt>${esc(t)}</dt><dd>${esc(d)}</dd>`).join("");
-    const tipNote = `<p class="small">Hover over, tap, or Tab to any colored tag, summary tile, column heading or dotted-underlined abbreviation to see what it means.</p>`;
+    const tipNote = `<p class="small">Hover over, tap, or Tab to any colored tag, summary tile, column heading or dotted-underlined abbreviation to see what it means. Click or tap a player's name to open his official NHL.com page with his full stats in a separate window.</p>`;
     return `${head("help", "How it works")}
       <section class="card"><p>Twice a day (at 14:05 and 22:20 UTC: about 9:05 AM and 5:20 PM US Central in daylight time, an hour earlier in standard time) a free GitHub workflow reads the NHL's public schedule, standings and game logs, MoneyPuck's season numbers, Daily Faceoff's starting goalies and line combinations, and Hockey-Reference's injury report. It scores every team on five pillars (form, missing players, playoff-race motivation, the starting goalie and rest), turns the gap between the two teams into a win probability, and publishes one data file that this app reads.</p>
       <p>Each morning it also settles the previous night's games, keeps the season record, and every 10 settled games tests whether a refit of the model would predict better. A refit is adopted only after it proves itself on games it has not seen.</p></section>

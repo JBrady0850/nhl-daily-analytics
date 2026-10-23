@@ -47,6 +47,14 @@ abbreviation to see what it means. On a phone or tablet, tap it; tap anywhere el
 close it. With a keyboard, press Tab to reach it. Team abbreviations show the full team
 name, and times show your device's time zone. The Help tab lists every term.
 
+## Open a player's official page
+
+Click or tap any player's name, in the lines tables, the goalie list, the game cards,
+the missing-player lists or the DFS board, to open his official NHL.com page with his
+bio and full stats. On a computer it opens in a separate window, and each name you
+click after that loads in the same window. On a phone or tablet it opens in a new tab.
+Names with a solid underline are links; a dotted underline marks a definition.
+
 ## Screenshots
 
 | Today on a computer | Today on a phone |

@@ -59,8 +59,11 @@ Each game:
 `venue_shot_share`), records (`l5_record`, `l3_record`), `ssn_goal_diff_pg`,
 `ssn_xgf_pct`, `rest_days`, `venue`, `venue_games` and `l3_vs_l5_momentum`.
 
-Each entry in `absences` holds `name`, `position`, `toi_share`, `points_share`,
-`source` and an `injury_note` when the injury report has one.
+Each entry in `absences` holds `player_id`, `name`, `position`, `toi_share`,
+`points_share`, `source` and an `injury_note` when the injury report has one.
+
+Every `player_id` and `nhl_id` is the NHL's own player id. The player's official page is
+`https://www.nhl.com/player/<id>`.
 
 ## `lines`
 
@@ -102,7 +105,7 @@ The full game-by-game record is `state/results_ledger.csv` in the repository.
 
 ## `dfs`
 
-Skaters: `name`, `team`, `opp`, `position`, `avg_toi_min`, `proj_goals`,
+Skaters: `player_id`, `name`, `team`, `opp`, `position`, `avg_toi_min`, `proj_goals`,
 `proj_assists`, `proj_points`, `proj_sog`, `proj_blocks`, `proj_hits`, `dk_proj`.
 
-Goalies: `name`, `team`, `opp`, `win_prob`, `save_pct`, `gsax`, `dk_proj`.
+Goalies: `player_id`, `name`, `team`, `opp`, `win_prob`, `save_pct`, `gsax`, `dk_proj`.

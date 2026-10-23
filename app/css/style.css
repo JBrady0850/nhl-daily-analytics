@@ -213,6 +213,13 @@ dl.gloss dt { font-weight: 700; margin-top: 8px; } dl.gloss dd { margin: 2px 0 0
 .foot a, .foot .linkish { color: var(--board-ink); font-weight: 600; min-height: 32px; display: inline-flex; align-items: center; }
 .foot-note { margin: 0; opacity: .85; }
 
+/* player names link to the official NHL.com page: a solid underline, unlike the
+   dotted one that marks a definition */
+a.plink { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px;
+  text-decoration-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+a.plink:hover { color: var(--accent); text-decoration-color: currentColor; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+
 /* definitions on hover, tap or keyboard focus */
 abbr.tip, th.has-tip, dt.has-tip, .tile.has-tip > span { text-decoration: underline dotted; text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, currentColor 55%, transparent); }
 abbr.tip { font-style: normal; }
