@@ -124,7 +124,10 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
 .winbar .cl { left: calc(50% - 2.5px); width: 5px; background: repeating-linear-gradient(180deg, var(--redline) 0 6px, rgba(255,255,255,.9) 6px 8px); opacity: .9; }
 .winbar .cc { left: 50%; top: 50%; bottom: auto; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.6); }
 .winbar .puck { left: var(--split); top: 50%; bottom: auto; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; z-index: 2;
-  background: radial-gradient(circle at 38% 32%, #545B64 0%, #1A1D22 45%, #070809 75%); box-shadow: 0 0 0 2px rgba(255,255,255,.95), 0 2px 5px rgba(0,0,0,.55); }
+  background: radial-gradient(circle at 38% 32%, #FFF6C2 0%, #FFD21F 48%, #E6A800 100%);
+  box-shadow: 0 0 0 2px #0A0D12, 0 0 0 3.5px rgba(255,255,255,.9), 0 2px 6px rgba(0,0,0,.55); }
+/* a white marker when either side is a gold club color, where yellow would fade */
+.winbar .puck.lt { background: radial-gradient(circle at 38% 32%, #FFFFFF 0%, #F2F5F8 55%, #CDD5DE 100%); }
 .winbar > span { position: absolute; top: 50%; transform: translateY(-50%); z-index: 3; padding: 3px 8px 1px; border-radius: 999px; background: rgba(7,9,12,.55);
   font: 600 1.02rem/1 var(--display); letter-spacing: .05em; color: #fff; white-space: nowrap; }
 .winbar .l { left: 6px; } .winbar .r { right: 6px; }

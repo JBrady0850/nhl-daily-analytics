@@ -162,6 +162,28 @@ def check_team_places(pg, sample, ab, mob):
     return out
 
 
+WIN_MARKER_JS = """() => [...document.querySelectorAll('main .winbar')].map(w => {
+  const p = w.querySelector('.puck'), bg = getComputedStyle(p).backgroundImage;
+  const rgb = h => [1, 3, 5].map(i => parseInt(h.trim().slice(i, i + 2), 16));
+  const gold = h => { const [r, g, b] = rgb(h); return r > 190 && g > 140 && b < 110; };
+  const ca = w.style.getPropertyValue('--ca'), cb = w.style.getPropertyValue('--cb');
+  return {sides: [ca.trim(), cb.trim()], white: p.classList.contains('lt'), wantWhite: gold(ca) || gold(cb),
+          yellow: bg.includes('rgb(255, 210, 31)'), whiteFill: bg.includes('rgb(255, 255, 255)')};
+})"""
+
+
+def check_win_marker(pg):
+    """Today: the win marker is yellow, or white where a side is a gold club color, so it
+    stands out on every pair of team colors (John, 2026-10-23)."""
+    pg.click('#tabs button[data-tab="today"]')
+    pg.wait_for_timeout(40)
+    out = []
+    for m in pg.evaluate(WIN_MARKER_JS):
+        if m["white"] != m["wantWhite"] or not (m["whiteFill"] if m["white"] else m["yellow"]):
+            out.append(f"win marker on {m['sides']}: white={m['white']} yellow={m['yellow']}")
+    return out[:3]
+
+
 GOALIE_ROWS_JS = """() => [...document.querySelectorAll('main article.game')].map(card => {
   const c = card.getBoundingClientRect(), g = card.querySelector('.gks');
   if (!g) return {missing: true};
@@ -265,6 +287,7 @@ def main():
                     fails.append(f"{name}: goalies not sorted by SV% {vals}")
                 fails.extend(f"{name}: {m}" for m in check_standings(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_goalie_rows(pg, len(sample["slate"]["games"])))
+                fails.extend(f"{name}: {m}" for m in check_win_marker(pg))
                 fails.extend(f"{name}: {m}" for m in check_team_places(pg, sample, "FLA", mob))
                 fails.extend(f"{name}: {m}" for m in check_lines_tab(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_dfs_goalies(pg, len(sample["dfs"]["goalies"])))

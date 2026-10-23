@@ -1,7 +1,7 @@
 /* Offline support for the app shell. Files come from the network first, so a
    connected device always gets the newest version and the newest data; the cached
    copy is used only when offline. Bump VERSION when the file list changes. */
-const VERSION = "nda-v1.6.1";
+const VERSION = "nda-v1.6.2";
 const FILES = ["./", "index.html", "css/style.css", "js/glossary.js", "js/app.js", "data/latest.js",
   "manifest.webmanifest", "icon.svg", "icon-180.png", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "qr-app.png"];
 self.addEventListener("install", e => e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES)).then(() => self.skipWaiting())));

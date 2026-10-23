@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.6.1";
+  const APP_VERSION = "1.6.2";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -353,12 +353,14 @@
   // ---------- Today ----------
   // the signature: each game is a sheet of ice split at the away team's win
   // probability; the puck sits on the split, pushed into the underdog's end
+  // the win marker is yellow; on a gold club color it turns white so it still stands out
+  const goldish = h => { const [r, g, b] = hexRgb(h); return r > 190 && g > 140 && b < 110; };
   function winbar(g) {
     const pa = g.away_win_prob, ph = g.home_win_prob;
     if (typeof ph !== "number") return `<p class="muted small">No probability: a starting goalie or team data was missing.</p>`;
     const [ca, cb] = sideColors(g.away, g.home);
     return `<div class="winbar" role="img" aria-label="${esc(teamName(g.away))} ${pct(pa)}, ${esc(teamName(g.home))} ${pct(ph)}" style="--ca:${ca};--cb:${cb};--split:${(pa * 100).toFixed(1)}%">
-      <i class="away"></i><i class="home"></i><i class="mk gl gl1"></i><i class="mk gl gl2"></i><i class="mk bl bl1"></i><i class="mk bl bl2"></i><i class="mk cl"></i><i class="mk cc"></i><i class="puck"></i>
+      <i class="away"></i><i class="home"></i><i class="mk gl gl1"></i><i class="mk gl gl2"></i><i class="mk bl bl1"></i><i class="mk bl bl2"></i><i class="mk cl"></i><i class="mk cc"></i><i class="puck${goldish(ca) || goldish(cb) ? " lt" : ""}"></i>
       <span class="l">${esc(g.away)} ${pct(pa)}</span><span class="r">${esc(g.home)} ${pct(ph)}</span></div>`;
   }
   function goalieLine(g) {
