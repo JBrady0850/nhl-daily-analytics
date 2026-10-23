@@ -1,0 +1,59 @@
+{
+ "date": "2026-10-23",
+ "games": [
+  {
+   "matchup": "MTL @ CHI",
+   "home_win_prob": 0.391,
+   "tier": "HIGH",
+   "gate_cleared": true,
+   "market": {
+    "home_prob": 0.4009,
+    "away_prob": 0.5991,
+    "books": 6
+   },
+   "home_pillars": {
+    "p1_form": -17.948,
+    "p2_absence": -1.676,
+    "p3_motivation": 0.0,
+    "p4_gvi": -0.785,
+    "p5_friction": 1.11,
+    "adj_raa": 30.7
+   },
+   "away_pillars": {
+    "p1_form": 8.183,
+    "p2_absence": -6.192,
+    "p3_motivation": 0.0,
+    "p4_gvi": -2.138,
+    "p5_friction": -1.11,
+    "adj_raa": 48.742
+   }
+  },
+  {
+   "matchup": "TBL @ COL",
+   "home_win_prob": 0.449,
+   "tier": "MODERATE",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.5342,
+    "away_prob": 0.4658,
+    "books": 6
+   },
+   "home_pillars": {
+    "p1_form": 5.099,
+    "p2_absence": 1.292,
+    "p3_motivation": 0.0,
+    "p4_gvi": -3.643,
+    "p5_friction": 0.0,
+    "adj_raa": 52.748
+   },
+   "away_pillars": {
+    "p1_form": 10.642,
+    "p2_absence": 1.26,
+    "p3_motivation": 0.0,
+    "p4_gvi": -0.235,
+    "p5_friction": 0.0,
+    "adj_raa": 61.667
+   }
+  }
+ ]
+}

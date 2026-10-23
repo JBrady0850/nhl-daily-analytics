@@ -1,0 +1,69 @@
+name: Daily data
+# Builds the day's data file twice a day on GitHub's free runners and publishes the
+# app to GitHub Pages. Free public sources only; no keys or secrets are used.
+# One-time setup: repository Settings > Pages > Build and deployment > Source: "GitHub Actions".
+on:
+  schedule:
+    - cron: "5 14 * * *"     # 14:05 UTC: 9:05 AM US Central in daylight time, 8:05 AM in standard time
+    - cron: "20 22 * * *"    # 22:20 UTC: 5:20 PM / 4:20 PM US Central, after most goalie confirmations
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: daily-data
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Build today's data
+        run: python -m nhlda build --state state --out app/data
+      - name: Check the data file
+        run: python -m nhlda check app/data/latest.json
+      - name: Save the data and the season state
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state app/data
+          if git diff --cached --quiet; then echo "No change"; exit 0; fi
+          git commit -q -m "Data: $(date -u +%Y-%m-%dT%H:%MZ)"
+          git pull -q --rebase
+          git push -q
+  pages:
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: enabled
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api "repos/${{ github.repository }}/pages" --silent 2>/dev/null; then
+            echo "on=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "on=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=GitHub Pages is off::Turn it on in Settings > Pages > Source: GitHub Actions."
+          fi
+      - if: steps.enabled.outputs.on == 'true'
+        uses: actions/checkout@v7
+        with:
+          ref: main
+      - if: steps.enabled.outputs.on == 'true'
+        uses: actions/configure-pages@v6
+      - if: steps.enabled.outputs.on == 'true'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: app
+      - if: steps.enabled.outputs.on == 'true'
+        id: deployment
+        uses: actions/deploy-pages@v5

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f2744">
+<title>NHL Daily Analytics</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="NHL Daily">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="description" content="Free daily NHL analytics: every game ranked by the projected winner's win probability, starting goalies, forward lines for your teams, results, model calibration and DFS projections.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><img src="icon.svg" alt="" width="30" height="30"><span>NHL Daily Analytics</span></div>
+  <nav id="tabs" role="tablist" aria-label="Sections">
+    <button data-tab="today" role="tab">Today</button>
+    <button data-tab="myteams" role="tab">My Teams</button>
+    <button data-tab="lines" role="tab">Lines</button>
+    <button data-tab="goalies" role="tab">Goalies</button>
+    <button data-tab="matchups" role="tab">Matchups</button>
+    <button data-tab="results" role="tab">Results</button>
+    <button data-tab="model" role="tab">Model</button>
+    <button data-tab="dfs" role="tab">DFS</button>
+    <span class="tab-gap" aria-hidden="true"></span>
+    <button data-tab="settings" role="tab">Settings</button>
+    <button data-tab="help" role="tab">Help</button>
+  </nav>
+</header>
+<div id="install" class="install" role="region" aria-label="Install this app" hidden></div>
+<main id="view" tabindex="-1"></main>
+<footer class="foot noprint">
+  <div class="foot-in">
+    <p class="foot-brand">NHL Daily Analytics <span class="small">version <span id="ver"></span></span></p>
+    <ul class="foot-links">
+      <li><button class="linkish" data-tab="help">How it works</button></li>
+      <li><a href="https://github.com/JBrady0850/nhl-daily-analytics/issues/new/choose" target="_blank" rel="noopener">Report a problem or suggest an idea</a></li>
+      <li><a href="https://github.com/JBrady0850/nhl-daily-analytics" target="_blank" rel="noopener">Project on GitHub</a></li>
+    </ul>
+    <p class="small foot-note">Free and open source (MIT). Not affiliated with or endorsed by the NHL. Data from the NHL's public web and stats feeds, MoneyPuck, Daily Faceoff and Hockey-Reference. Predictions are estimates for information and entertainment.</p>
+  </div>
+</footer>
+<div id="toast" role="status" aria-live="polite"></div>
+<noscript><p style="padding:16px">This app needs JavaScript turned on.</p></noscript>
+<script src="data/latest.js"></script>
+<script src="js/glossary.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

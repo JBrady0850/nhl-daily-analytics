@@ -1,0 +1,16 @@
+name: Suggest an idea
+description: A new feature or a change to an existing one.
+labels: [idea]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      description: What would you like the app to do, and why would it help?
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Data it would need
+      description: If you know a free public source for the data, name it here.

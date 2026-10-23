@@ -1,0 +1,5614 @@
+{
+"season": "20262027",
+"generated": "2026-10-23",
+"count": 801,
+"players": [
+{
+"team": "ANA",
+"name": "Leo Carlsson",
+"player_id": "8484153",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Mikael Granlund",
+"player_id": "8475798",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Nikita Nesterenko",
+"player_id": "8481754",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Ryan Poehling",
+"player_id": "8480068",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Tim Washe",
+"player_id": "8485512",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Drew Helleson",
+"player_id": "8481563",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Ian Moore",
+"player_id": "8482178",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Jackson LaCombe",
+"player_id": "8481605",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Nick Jensen",
+"player_id": "8475324",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Noah Warren",
+"player_id": "8483521",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Pavel Mintyukov",
+"player_id": "8483490",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Tristan Luneau",
+"player_id": "8483482",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Tyson Hinds",
+"player_id": "8482731",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Lukas Dostal",
+"player_id": "8480843",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "ANA",
+"name": "Ville Husso",
+"player_id": "8478024",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "ANA",
+"name": "A.J. Greer",
+"player_id": "8478421",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Alex Killorn",
+"player_id": "8473986",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Cutter Gauthier",
+"player_id": "8483445",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Jeff Malott",
+"player_id": "8482408",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Beckett Sennecke",
+"player_id": "8484762",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Frank Vatrano",
+"player_id": "8478366",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Judd Caulfield",
+"player_id": "8481538",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Nikita Klepov",
+"player_id": "8486052",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Sam Colangelo",
+"player_id": "8482118",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "Casey Mittelstadt",
+"player_id": "8479999",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "Elias Lindholm",
+"player_id": "8477496",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "Fraser Minten",
+"player_id": "8483489",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "James Hagens",
+"player_id": "8485395",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "Marat Khusnutdinov",
+"player_id": "8482177",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "Mark Kastelic",
+"player_id": "8480355",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "Matthew Poitras",
+"player_id": "8483505",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "Morgan Geekie",
+"player_id": "8479987",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "Pavel Zacha",
+"player_id": "8478401",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "Sean Kuraly",
+"player_id": "8476374",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "Charlie McAvoy",
+"player_id": "8479325",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "Connor Clifton",
+"player_id": "8477365",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "Frederic Brunet",
+"player_id": "8483017",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "Hampus Lindholm",
+"player_id": "8476854",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "Jonathan Aspirot",
+"player_id": "8481219",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "Mason Lohrei",
+"player_id": "8482511",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "Nikita Zadorov",
+"player_id": "8477507",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "Will Borgen",
+"player_id": "8478840",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "Jeremy Swayman",
+"player_id": "8480280",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "BOS",
+"name": "Michael DiPietro",
+"player_id": "8480022",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "BOS",
+"name": "Tanner Jeannot",
+"player_id": "8479661",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "David Pastrnak",
+"player_id": "8477956",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "JJ Peterka",
+"player_id": "8482175",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Jiri Kulich",
+"player_id": "8483468",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Josh Norris",
+"player_id": "8480064",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Konsta Helenius",
+"player_id": "8484797",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Noah Ostlund",
+"player_id": "8483500",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Peyton Krebs",
+"player_id": "8481522",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Ryan McLeod",
+"player_id": "8480802",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Sam Carrick",
+"player_id": "8475842",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Tage Thompson",
+"player_id": "8479420",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Tyson Kozak",
+"player_id": "8482896",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Conor Timmins",
+"player_id": "8479982",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Dennis Gilbert",
+"player_id": "8478502",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Louis Crevier",
+"player_id": "8481806",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Matt Grzelcyk",
+"player_id": "8476891",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Mattias Samuelsson",
+"player_id": "8480807",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Olen Zellweger",
+"player_id": "8482803",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Owen Power",
+"player_id": "8482671",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Rasmus Dahlin",
+"player_id": "8480839",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Zach Metsa",
+"player_id": "8484305",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Alex Lyon",
+"player_id": "8479312",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "BUF",
+"name": "Colten Ellis",
+"player_id": "8481551",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "BUF",
+"name": "Ukko-Pekka Luukkonen",
+"player_id": "8480045",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "BUF",
+"name": "Beck Malenstyn",
+"player_id": "8479359",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Jason Zucker",
+"player_id": "8475722",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Zach Benson",
+"player_id": "8484145",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Jack Quinn",
+"player_id": "8482097",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Josh Doan",
+"player_id": "8482659",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "BUF",
+"name": "Justin Danforth",
+"player_id": "8479941",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Jesperi Kotkaniemi",
+"player_id": "8480829",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Jordan Staal",
+"player_id": "8473533",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Logan Stankoven",
+"player_id": "8482702",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Sebastian Aho",
+"player_id": "8478427",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Skyler Brind'Amour",
+"player_id": "8480291",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Jaccob Slavin",
+"player_id": "8476958",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Jalen Chatfield",
+"player_id": "8478970",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Juuso V\u00e4lim\u00e4ki",
+"player_id": "8479976",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "K'Andre Miller",
+"player_id": "8480817",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Mike Reilly",
+"player_id": "8476422",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Sean Walker",
+"player_id": "8480336",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Shayne Gostisbehere",
+"player_id": "8476906",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Brandon Bussi",
+"player_id": "8483548",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "CAR",
+"name": "Pyotr Kochetkov",
+"player_id": "8481611",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "CAR",
+"name": "Eric Robinson",
+"player_id": "8480762",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Jordan Martinook",
+"player_id": "8476921",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Mark Jankowski",
+"player_id": "8476873",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Nicolas Deslauriers",
+"player_id": "8475235",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Nikolaj Ehlers",
+"player_id": "8477940",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Taylor Hall",
+"player_id": "8475791",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "William Carrier",
+"player_id": "8477478",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Andrei Svechnikov",
+"player_id": "8480830",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Felix Unger S\u00f6rum",
+"player_id": "8484392",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Jackson Blake",
+"player_id": "8482809",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "CAR",
+"name": "Seth Jarvis",
+"player_id": "8482093",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Adam Fantilli",
+"player_id": "8484166",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Charlie Coyle",
+"player_id": "8475745",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Cole Sillinger",
+"player_id": "8482705",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Kent Johnson",
+"player_id": "8482660",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Luca Del Bel Belluz",
+"player_id": "8483432",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Sean Monahan",
+"player_id": "8477497",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Carson Soucy",
+"player_id": "8477369",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Dante Fabbro",
+"player_id": "8479371",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Denton Mateychuk",
+"player_id": "8483485",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Emil Andrae",
+"player_id": "8482126",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Erik Gudbranson",
+"player_id": "8475790",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Ivan Provorov",
+"player_id": "8478500",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Jake Christiansen",
+"player_id": "8481161",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Zach Werenski",
+"player_id": "8478460",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Cam Talbot",
+"player_id": "8475660",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "CBJ",
+"name": "Jet Greaves",
+"player_id": "8482982",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "CBJ",
+"name": "Danton Heinen",
+"player_id": "8478046",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Dmitri Voronkov",
+"player_id": "8481716",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Matthew Knies",
+"player_id": "8482720",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Ryan Lomberg",
+"player_id": "8479066",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Conor Garland",
+"player_id": "8478856",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Mathieu Olivier",
+"player_id": "8479671",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Valeri Nichushkin",
+"player_id": "8477501",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Ben Jones",
+"player_id": "8480259",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Jonathan Castagna",
+"player_id": "8484154",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Martin Pospisil",
+"player_id": "8481028",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Mikael Backlund",
+"player_id": "8474150",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Morgan Frost",
+"player_id": "8480028",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Ryan Strome",
+"player_id": "8476458",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Yegor Sharangovich",
+"player_id": "8481068",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Jake Middleton",
+"player_id": "8478136",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Joel Hanley",
+"player_id": "8477810",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Kevin Bahl",
+"player_id": "8480860",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Simon Nemec",
+"player_id": "8483495",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Yan Kuznetsov",
+"player_id": "8482165",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Zach Whitecloud",
+"player_id": "8480727",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Zayne Parekh",
+"player_id": "8484768",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Devin Cooley",
+"player_id": "8482445",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "CGY",
+"name": "Dustin Wolf",
+"player_id": "8481692",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "CGY",
+"name": "Aydar Suniev",
+"player_id": "8484234",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Brennan Othmann",
+"player_id": "8482747",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Joel Farabee",
+"player_id": "8480797",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Jonathan Huberdeau",
+"player_id": "8476456",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Samuel Honzek",
+"player_id": "8484180",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Adam Klapka",
+"player_id": "8483609",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Matt Coronato",
+"player_id": "8482679",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Matvei Gridin",
+"player_id": "8484860",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Maxim Tsyplakov",
+"player_id": "8484958",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Anton Frondell",
+"player_id": "8485391",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Connor Bedard",
+"player_id": "8484144",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Dominic Toninato",
+"player_id": "8476952",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Frank Nazar",
+"player_id": "8483493",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Oliver Moore",
+"player_id": "8484197",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Ryan Donato",
+"player_id": "8477987",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Ryan Greene",
+"player_id": "8483450",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Teuvo Teravainen",
+"player_id": "8476882",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Alex Vlasic",
+"player_id": "8481568",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Artyom Levshunov",
+"player_id": "8484783",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Bowen Byram",
+"player_id": "8481524",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Ethan Del Mastro",
+"player_id": "8482807",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Ian Cole",
+"player_id": "8474013",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Kevin Korchinski",
+"player_id": "8483466",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Sam Rinzel",
+"player_id": "8483506",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Wyatt Kaiser",
+"player_id": "8482176",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Arvid Soderblom",
+"player_id": "8482821",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "CHI",
+"name": "Spencer Knight",
+"player_id": "8481519",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "CHI",
+"name": "Andrew Mangiapane",
+"player_id": "8478233",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Jordan Greenway",
+"player_id": "8478413",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Tyler Bertuzzi",
+"player_id": "8477479",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Cole Smith",
+"player_id": "8482062",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Patrick Kane",
+"player_id": "8474141",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Roman Kantserov",
+"player_id": "8484390",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Brock Nelson",
+"player_id": "8475754",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Fedor Svechkov",
+"player_id": "8482768",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Martin Necas",
+"player_id": "8480039",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Nathan MacKinnon",
+"player_id": "8477492",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Nazem Kadri",
+"player_id": "8475172",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Nicolas Roy",
+"player_id": "8478462",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Parker Kelly",
+"player_id": "8480448",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Brent Burns",
+"player_id": "8470613",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Brett Kulak",
+"player_id": "8476967",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Cale Makar",
+"player_id": "8480069",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Devon Toews",
+"player_id": "8478038",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Josh Manson",
+"player_id": "8476312",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Noah Juulsen",
+"player_id": "8478454",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Sam Malinski",
+"player_id": "8484258",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Mackenzie Blackwood",
+"player_id": "8478406",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "COL",
+"name": "Scott Wedgewood",
+"player_id": "8475809",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "COL",
+"name": "Artturi Lehkonen",
+"player_id": "8477476",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Gabriel Landeskog",
+"player_id": "8476455",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Jaden Schwartz",
+"player_id": "8475768",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Taylor Makar",
+"player_id": "8482953",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Zachary L'Heureux",
+"player_id": "8482742",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Logan O'Connor",
+"player_id": "8481186",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "T.J. Hughes",
+"player_id": "8486171",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Colin Blackwell",
+"player_id": "8476278",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Justin Hryckowian",
+"player_id": "8484829",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Matt Duchene",
+"player_id": "8475168",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Oskar B\u00e4ck",
+"player_id": "8480840",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Radek Faksa",
+"player_id": "8476889",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Roope Hintz",
+"player_id": "8478449",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Sam Steel",
+"player_id": "8479351",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Tyler Seguin",
+"player_id": "8475794",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Wyatt Johnston",
+"player_id": "8482740",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Esa Lindell",
+"player_id": "8476902",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Kyle Burroughs",
+"player_id": "8477335",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Kyle Capobianco",
+"player_id": "8478476",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Lian Bichsel",
+"player_id": "8483425",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Miro Heiskanen",
+"player_id": "8480036",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Nils Lundkvist",
+"player_id": "8480878",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Thomas Harley",
+"player_id": "8481581",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Tyler Myers",
+"player_id": "8474574",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Casey DeSmith",
+"player_id": "8479193",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "DAL",
+"name": "Jake Oettinger",
+"player_id": "8479979",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "DAL",
+"name": "David Perron",
+"player_id": "8474102",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Jamie Benn",
+"player_id": "8473994",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Jason Robertson",
+"player_id": "8480027",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Joel Kiviranta",
+"player_id": "8481641",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Arttu Hyry",
+"player_id": "8484938",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Mikko Rantanen",
+"player_id": "8478420",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Andrew Copp",
+"player_id": "8477429",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Dylan Larkin",
+"player_id": "8477946",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Emmitt Finnie",
+"player_id": "8484471",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Marco Kasper",
+"player_id": "8483464",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Mason Appleton",
+"player_id": "8478891",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Michael Rasmussen",
+"player_id": "8479992",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Nate Danielson",
+"player_id": "8484160",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Albert Johansson",
+"player_id": "8481607",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Andreas Englund",
+"player_id": "8477971",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Anton Johansson",
+"player_id": "8483679",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Axel Sandin-Pellikka",
+"player_id": "8484223",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Ben Chiarot",
+"player_id": "8475279",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Justin Faulk",
+"player_id": "8475753",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Moritz Seider",
+"player_id": "8481542",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "William Wallinder",
+"player_id": "8482171",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Daniil Tarasov",
+"player_id": "8480193",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "DET",
+"name": "John Gibson",
+"player_id": "8476434",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "DET",
+"name": "Michal Postava",
+"player_id": "8485545",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "DET",
+"name": "Carter Mazur",
+"player_id": "8482802",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "J.T. Compher",
+"player_id": "8477456",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Lucas Raymond",
+"player_id": "8482078",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Viktor Arvidsson",
+"player_id": "8478042",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Alex DeBrincat",
+"player_id": "8479337",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Keegan Kolesar",
+"player_id": "8478434",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Michael Brandsegg-Nyg\u00e5rd",
+"player_id": "8484794",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Colton Dach",
+"player_id": "8482703",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Connor McDavid",
+"player_id": "8478402",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Filip Hallander",
+"player_id": "8480842",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Jason Dickinson",
+"player_id": "8477450",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Leon Draisaitl",
+"player_id": "8477934",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Matt Savoie",
+"player_id": "8483512",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Mattias Janmark",
+"player_id": "8477406",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Ryan Nugent-Hopkins",
+"player_id": "8476454",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Trent Frederic",
+"player_id": "8479365",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Alec Regula",
+"player_id": "8480831",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Connor Murphy",
+"player_id": "8476473",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Evan Bouchard",
+"player_id": "8480803",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Jake Walman",
+"player_id": "8478013",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Mattias Ekholm",
+"player_id": "8475218",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Ryan Shea",
+"player_id": "8478854",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Shakir Mukhamadullin",
+"player_id": "8482166",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Ty Emberson",
+"player_id": "8480834",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Devon Levi",
+"player_id": "8482221",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "EDM",
+"name": "Frederik Andersen",
+"player_id": "8475883",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "EDM",
+"name": "Tristan Jarry",
+"player_id": "8477465",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "EDM",
+"name": "Alex Formenton",
+"player_id": "8480029",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Isaac Howard",
+"player_id": "8483455",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Max Jones",
+"player_id": "8479368",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Zach Hyman",
+"player_id": "8475786",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Kasperi Kapanen",
+"player_id": "8477953",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Mathieu Joseph",
+"player_id": "8478472",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Owen Michaels",
+"player_id": "8486161",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "EDM",
+"name": "Vasily Podkolzin",
+"player_id": "8481617",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Aleksander Barkov",
+"player_id": "8477493",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Anton Lundell",
+"player_id": "8482113",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Carter Verhaeghe",
+"player_id": "8477409",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Eetu Luostarinen",
+"player_id": "8480185",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Lars Eller",
+"player_id": "8474189",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Sam Bennett",
+"player_id": "8477935",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Sam Reinhart",
+"player_id": "8477933",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Aaron Ekblad",
+"player_id": "8477932",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Dmitry Kulikov",
+"player_id": "8475179",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Gustav Forsling",
+"player_id": "8478055",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Niko Mikkola",
+"player_id": "8478859",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Radko Gudas",
+"player_id": "8475462",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Seth Jones",
+"player_id": "8477495",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Uvis Balinskis",
+"player_id": "8484304",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Akira Schmid",
+"player_id": "8481033",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "FLA",
+"name": "Cooper Black",
+"player_id": "8484900",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "FLA",
+"name": "Jacob Markstrom",
+"player_id": "8474593",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "FLA",
+"name": "Bokondji Imama",
+"player_id": "8478147",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Brad Marchand",
+"player_id": "8473419",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Brady Tkachuk",
+"player_id": "8480801",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Cole Reinhardt",
+"player_id": "8481133",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Jonah Gadjovich",
+"player_id": "8479981",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Matthew Tkachuk",
+"player_id": "8479314",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Sandis Vilmanis",
+"player_id": "8483771",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Cole Schwindt",
+"player_id": "8481655",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "FLA",
+"name": "Garnet Hathaway",
+"player_id": "8477903",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Alex Turcotte",
+"player_id": "8481532",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Samuel Helenius",
+"player_id": "8482726",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Scott Laughton",
+"player_id": "8476872",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Brandt Clarke",
+"player_id": "8482730",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Brian Dumoulin",
+"player_id": "8475208",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Cody Ceci",
+"player_id": "8476879",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Drew Doughty",
+"player_id": "8474563",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Erik Gustafsson",
+"player_id": "8476979",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Joel Edmundson",
+"player_id": "8476441",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Mikey Anderson",
+"player_id": "8479998",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Anton Forsberg",
+"player_id": "8476341",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "LAK",
+"name": "Darcy Kuemper",
+"player_id": "8475311",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "LAK",
+"name": "Andre Lee",
+"player_id": "8481732",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Artemi Panarin",
+"player_id": "8478550",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Erik Haula",
+"player_id": "8475287",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Kevin Fiala",
+"player_id": "8477942",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Trevor Moore",
+"player_id": "8479675",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Adrian Kempe",
+"player_id": "8477960",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Alex Laferriere",
+"player_id": "8482155",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Corey Perry",
+"player_id": "8470621",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Jared Wright",
+"player_id": "8483756",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Joel Armia",
+"player_id": "8476469",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Mats Zuccarello",
+"player_id": "8475692",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Quinton Byfield",
+"player_id": "8482124",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Taylor Ward",
+"player_id": "8483406",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Joel Eriksson Ek",
+"player_id": "8478493",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Michael McCarron",
+"player_id": "8477446",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Nico Sturm",
+"player_id": "8481477",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Tyler Pitlick",
+"player_id": "8475752",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Yakov Trenin",
+"player_id": "8478508",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Brock Faber",
+"player_id": "8482122",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Daemon Hunt",
+"player_id": "8482094",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "David Spacek",
+"player_id": "8483766",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Jared Spurgeon",
+"player_id": "8474716",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Jonas Brodin",
+"player_id": "8476463",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Matt Kiersted",
+"player_id": "8482641",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Olli Maatta",
+"player_id": "8476874",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Quinn Hughes",
+"player_id": "8480800",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Zach Bogosian",
+"player_id": "8474567",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Calvin Pickard",
+"player_id": "8475717",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "MIN",
+"name": "Filip Gustavsson",
+"player_id": "8479406",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "MIN",
+"name": "Jesper Wallstedt",
+"player_id": "8482661",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "MIN",
+"name": "Blake Coleman",
+"player_id": "8476399",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Kirill Kaprizov",
+"player_id": "8478864",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Marcus Foligno",
+"player_id": "8475220",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Matt Boldy",
+"player_id": "8481557",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Nick Foligno",
+"player_id": "8473422",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Rieger Lorenz",
+"player_id": "8483478",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Bobby Brink",
+"player_id": "8481553",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Danila Yurov",
+"player_id": "8483525",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Maxim Shabanov",
+"player_id": "8485702",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Ryan Hartman",
+"player_id": "8477451",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Alex Newhook",
+"player_id": "8481618",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Jake Evans",
+"player_id": "8478133",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Kirby Dach",
+"player_id": "8481523",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Nick Suzuki",
+"player_id": "8480018",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Oliver Kapanen",
+"player_id": "8482775",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Owen Beck",
+"player_id": "8483424",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Phillip Danault",
+"player_id": "8476479",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Adam Engstrom",
+"player_id": "8483686",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Alexandre Carrier",
+"player_id": "8478851",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Arber Xhekaj",
+"player_id": "8482964",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Kaiden Guhle",
+"player_id": "8482087",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Lane Hutson",
+"player_id": "8483457",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Mike Matheson",
+"player_id": "8476875",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Noah Dobson",
+"player_id": "8480865",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Jacob Fowler",
+"player_id": "8484170",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "MTL",
+"name": "Jakub Dobes",
+"player_id": "8482487",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "MTL",
+"name": "Samuel Montembeault",
+"player_id": "8478470",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "MTL",
+"name": "Alexandre Texier",
+"player_id": "8480074",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Chris Kreider",
+"player_id": "8475184",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Florian Xhekaj",
+"player_id": "8484403",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Juraj Slafkovsk\u00fd",
+"player_id": "8483515",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Cole Caufield",
+"player_id": "8481540",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Ivan Demidov",
+"player_id": "8484984",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Josh Anderson",
+"player_id": "8476981",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Zachary Bolduc",
+"player_id": "8482737",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Amadeus Lombardi",
+"player_id": "8483695",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Cody Glass",
+"player_id": "8479996",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Evan Rodrigues",
+"player_id": "8478542",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Jack Hughes",
+"player_id": "8481559",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Jesper Boqvist",
+"player_id": "8480003",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Nico Hischier",
+"player_id": "8480002",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Brenden Dillon",
+"player_id": "8475455",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Brett Pesce",
+"player_id": "8477488",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Declan Chisholm",
+"player_id": "8480990",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Dougie Hamilton",
+"player_id": "8476462",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Johnathan Kovacevic",
+"player_id": "8480192",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Jonas Siegenthaler",
+"player_id": "8478399",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Luke Hughes",
+"player_id": "8482684",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Jake Allen",
+"player_id": "8474596",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "NJD",
+"name": "R\u00e9mi Poirier",
+"player_id": "8482465",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "NJD",
+"name": "Jesper Bratt",
+"player_id": "8479407",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Anthony Mantha",
+"player_id": "8477511",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Arseny Gritsyuk",
+"player_id": "8481721",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Connor Brown",
+"player_id": "8477015",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Luke Evangelista",
+"player_id": "8482146",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Stefan Noesen",
+"player_id": "8476474",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Timo Meier",
+"player_id": "8478414",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Adam Edstrom",
+"player_id": "8481726",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Alexander Kerfoot",
+"player_id": "8477021",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Jack Drury",
+"player_id": "8480835",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Jonathan Marchessault",
+"player_id": "8476539",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Mavrik Bourque",
+"player_id": "8482145",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Ross Colton",
+"player_id": "8479525",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Ryan O'Reilly",
+"player_id": "8475158",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Steven Stamkos",
+"player_id": "8474564",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Vitali Pinchuk",
+"player_id": "8486189",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Adam Wilsby",
+"player_id": "8482482",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Brady Skjei",
+"player_id": "8476869",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Ilya Lyubushkin",
+"player_id": "8480950",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Jack Ahcan",
+"player_id": "8482072",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Jayden Struble",
+"player_id": "8481593",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Nick Perbix",
+"player_id": "8480246",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Nicolas Hague",
+"player_id": "8479980",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Roman Josi",
+"player_id": "8474600",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "William Trudeau",
+"player_id": "8482806",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Justus Annunen",
+"player_id": "8481020",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "NSH",
+"name": "Juuse Saros",
+"player_id": "8477424",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "NSH",
+"name": "Filip Forsberg",
+"player_id": "8476887",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Nils Hoglander",
+"player_id": "8481535",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Reid Schaefer",
+"player_id": "8483513",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "NSH",
+"name": "Matthew Wood",
+"player_id": "8484241",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Bo Horvat",
+"player_id": "8477500",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Brayden Schenn",
+"player_id": "8475170",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Calum Ritchie",
+"player_id": "8484221",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Casey Cizikas",
+"player_id": "8475231",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Jean-Gabriel Pageau",
+"player_id": "8476419",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Kyle MacLean",
+"player_id": "8481237",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Kyle Palmieri",
+"player_id": "8475151",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Adam Pelech",
+"player_id": "8476917",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Alexander Romanov",
+"player_id": "8481014",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Logan Stanley",
+"player_id": "8479378",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Matthew Kessel",
+"player_id": "8482516",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Matthew Schaefer",
+"player_id": "8485366",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Ryan Pulock",
+"player_id": "8477506",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Scott Mayfield",
+"player_id": "8476429",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Tony DeAngelo",
+"player_id": "8477950",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Ilya Sorokin",
+"player_id": "8478009",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "NYI",
+"name": "Semyon Varlamov",
+"player_id": "8473575",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "NYI",
+"name": "Anthony Duclair",
+"player_id": "8477407",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Emil Heineman",
+"player_id": "8482476",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Matias Maccelli",
+"player_id": "8481711",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Ondrej Palat",
+"player_id": "8476292",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Mitchell Chaffee",
+"player_id": "8482070",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Simon Holmstrom",
+"player_id": "8481601",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Victor Eklund",
+"player_id": "8485388",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "J.T. Miller",
+"player_id": "8476468",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Joseph Veleno",
+"player_id": "8480813",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Justin Dowling",
+"player_id": "8475413",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Luke Glendening",
+"player_id": "8476822",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Matt Rempe",
+"player_id": "8482460",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Mika Zibanejad",
+"player_id": "8476459",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Noah Laba",
+"player_id": "8483690",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Adam Fox",
+"player_id": "8479323",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Alberts Smits",
+"player_id": "8485957",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Braden Schneider",
+"player_id": "8482073",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Marcus Pettersson",
+"player_id": "8477969",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Scott Morrow",
+"player_id": "8482666",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Sean Durzi",
+"player_id": "8480434",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Vladislav Gavrikov",
+"player_id": "8478882",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Dylan Garand",
+"player_id": "8482193",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "NYR",
+"name": "Igor Shesterkin",
+"player_id": "8478048",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "NYR",
+"name": "Joonas Korpisalo",
+"player_id": "8476914",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "NYR",
+"name": "Spencer Martin",
+"player_id": "8477484",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "NYR",
+"name": "Adam Sykora",
+"player_id": "8483669",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Alexis Lafreni\u00e8re",
+"player_id": "8482109",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Tye Kartye",
+"player_id": "8481789",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Will Cuylle",
+"player_id": "8482157",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Eeli Tolvanen",
+"player_id": "8480009",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Gabe Perreault",
+"player_id": "8484210",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Oliver Bjorkstrand",
+"player_id": "8477416",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Pavel Dorofeyev",
+"player_id": "8481604",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Taylor Raddysh",
+"player_id": "8479390",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Dylan Cozens",
+"player_id": "8481528",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Nick Cousins",
+"player_id": "8476393",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Ridly Greig",
+"player_id": "8482092",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Shane Pinto",
+"player_id": "8481596",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Stephen Halliday",
+"player_id": "8483676",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Tim St\u00fctzle",
+"player_id": "8482116",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Artem Zub",
+"player_id": "8482245",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Cameron Crotty",
+"player_id": "8480075",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Carter Yakemchuk",
+"player_id": "8484759",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Jake Sanderson",
+"player_id": "8482105",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Jordan Spence",
+"player_id": "8481606",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Nikolas Matinpalo",
+"player_id": "8484321",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Thomas Chabot",
+"player_id": "8478469",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Tyler Kleven",
+"player_id": "8482095",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Jonas Johansson",
+"player_id": "8477992",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "OTT",
+"name": "Linus Ullmark",
+"player_id": "8476999",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "OTT",
+"name": "Samuel Ersson",
+"player_id": "8481035",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "OTT",
+"name": "Andre Burakovsky",
+"player_id": "8477444",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Fabian Zetterlund",
+"player_id": "8480188",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Warren Foegele",
+"player_id": "8477998",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "William Eklund",
+"player_id": "8482667",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Claude Giroux",
+"player_id": "8473512",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Drake Batherson",
+"player_id": "8480208",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Hayden Hodgson",
+"player_id": "8478173",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Michael Amadio",
+"player_id": "8478020",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Christian Dvorak",
+"player_id": "8477989",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Denver Barkey",
+"player_id": "8484142",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Jack Studnicka",
+"player_id": "8480021",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Jacob Gaucher",
+"player_id": "8481848",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Noel Acciari",
+"player_id": "8478569",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Sean Couturier",
+"player_id": "8476461",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Trevor Zegras",
+"player_id": "8481533",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Cam York",
+"player_id": "8481546",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "David Jiricek",
+"player_id": "8483460",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Hunter McDonald",
+"player_id": "8483760",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Jamie Drysdale",
+"player_id": "8482142",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Nick Seeler",
+"player_id": "8476372",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Oliver Bonk",
+"player_id": "8484148",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Rasmus Ristolainen",
+"player_id": "8477499",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Simon Benoit",
+"player_id": "8481122",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Travis Sanheim",
+"player_id": "8477948",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Dan Vladar",
+"player_id": "8478435",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "PHI",
+"name": "Joseph Woll",
+"player_id": "8479361",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "PHI",
+"name": "Alex Bump",
+"player_id": "8483731",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Garrett Wilson",
+"player_id": "8475253",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Michael Bunting",
+"player_id": "8478047",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Noah Cates",
+"player_id": "8480220",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Cole Knuble",
+"player_id": "8483787",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Matvei Michkov",
+"player_id": "8484387",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Nikita Grebenkin",
+"player_id": "8483733",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Owen Tippett",
+"player_id": "8480015",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Porter Martone",
+"player_id": "8485406",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Travis Konecny",
+"player_id": "8478439",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "PHI",
+"name": "Tyson Foerster",
+"player_id": "8482159",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Ben Kindel",
+"player_id": "8485414",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Blake Lizotte",
+"player_id": "8481481",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Connor Dewar",
+"player_id": "8480980",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Evgeni Malkin",
+"player_id": "8471215",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Hendrix Lapierre",
+"player_id": "8482148",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Sidney Crosby",
+"player_id": "8471675",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Tommy Novak",
+"player_id": "8478438",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Chase Pietila",
+"player_id": "8485019",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Declan Carlile",
+"player_id": "8483398",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Erik Karlsson",
+"player_id": "8474578",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Ilya Solovyov",
+"player_id": "8482470",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Kaedan Korczak",
+"player_id": "8481527",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Kris Letang",
+"player_id": "8471724",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Samuel Girard",
+"player_id": "8479398",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Spencer Stastney",
+"player_id": "8481056",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Trevor van Riemsdyk",
+"player_id": "8477845",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Arturs Silovs",
+"player_id": "8481668",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "PIT",
+"name": "Sergei Murashov",
+"player_id": "8483703",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "PIT",
+"name": "Andrei Kuzmenko",
+"player_id": "8483808",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Elmer Soderblom",
+"player_id": "8481725",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Nick Robertson",
+"player_id": "8481582",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Bryan Rust",
+"player_id": "8475810",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Egor Chinakhov",
+"player_id": "8482475",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Justin Brazeau",
+"player_id": "8479638",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Rickard Rakell",
+"player_id": "8476483",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Rutger McGroarty",
+"player_id": "8483487",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Ville Koivunen",
+"player_id": "8482758",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Ben Meyers",
+"player_id": "8483570",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Berkly Catton",
+"player_id": "8484800",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Bobby McMann",
+"player_id": "8482259",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Chandler Stephenson",
+"player_id": "8476905",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Curtis Douglas",
+"player_id": "8480876",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Frederick Gaudreau",
+"player_id": "8477919",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Jake O'Brien",
+"player_id": "8485383",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Matty Beniers",
+"player_id": "8482665",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Ryan Winterton",
+"player_id": "8482751",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Shane Wright",
+"player_id": "8483524",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Adam Larsson",
+"player_id": "8476457",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Brandon Montour",
+"player_id": "8477986",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Cale Fleury",
+"player_id": "8479985",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Josh Mahura",
+"player_id": "8479372",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Ryan Lindgren",
+"player_id": "8479324",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Ryker Evans",
+"player_id": "8482858",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Ty Nelson",
+"player_id": "8483494",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Ville Ottavainen",
+"player_id": "8482866",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Vince Dunn",
+"player_id": "8478407",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Joey Daccord",
+"player_id": "8478916",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "SEA",
+"name": "Philipp Grubauer",
+"player_id": "8475831",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "SEA",
+"name": "Jared McCann",
+"player_id": "8477955",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Jacob Melanson",
+"player_id": "8482874",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Jordan Eberle",
+"player_id": "8474586",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Kaapo Kakko",
+"player_id": "8481554",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Mackie Samoskevich",
+"player_id": "8482713",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Alexander Wennberg",
+"player_id": "8477505",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Barclay Goodrow",
+"player_id": "8476624",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Macklin Celebrini",
+"player_id": "8484801",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Michael Misa",
+"player_id": "8485402",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Ty Dellandrea",
+"player_id": "8480848",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Tyler Toffoli",
+"player_id": "8475726",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Will Smith",
+"player_id": "8484227",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Zack Ostapchuk",
+"player_id": "8482859",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Darnell Nurse",
+"player_id": "8477498",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Dmitry Orlov",
+"player_id": "8475200",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Jacob Trouba",
+"player_id": "8476885",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Luca Cagnoni",
+"player_id": "8484152",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Michael Kesselring",
+"player_id": "8480891",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Nolan Allan",
+"player_id": "8482700",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Sam Dickinson",
+"player_id": "8484806",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Alex Nedeljkovic",
+"player_id": "8477968",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "SJS",
+"name": "Yaroslav Askarov",
+"player_id": "8482137",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "SJS",
+"name": "Igor Chernyshov",
+"player_id": "8484994",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Ivar Stenberg",
+"player_id": "8486103",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Kiefer Sherwood",
+"player_id": "8480748",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Mason Marchment",
+"player_id": "8478975",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Adam Gaudette",
+"player_id": "8478874",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Collin Graf",
+"player_id": "8484911",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Aleksanteri Kaskimaki",
+"player_id": "8483463",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Dillon Dube",
+"player_id": "8479346",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Mason McTavish",
+"player_id": "8482745",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Otto Stenberg",
+"player_id": "8484230",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Pius Suter",
+"player_id": "8480459",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Robert Thomas",
+"player_id": "8480023",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Zach Dean",
+"player_id": "8482784",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Adam Jiricek",
+"player_id": "8484790",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Brandon Carlo",
+"player_id": "8478443",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Cam Fowler",
+"player_id": "8475764",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Colton Parayko",
+"player_id": "8476892",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Justin Barron",
+"player_id": "8482111",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Logan Mailloux",
+"player_id": "8482733",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Philip Broberg",
+"player_id": "8481598",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Tyler Tucker",
+"player_id": "8481006",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Joel Hofer",
+"player_id": "8480981",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "STL",
+"name": "Jordan Binnington",
+"player_id": "8476412",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "STL",
+"name": "Connor McMichael",
+"player_id": "8481580",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Dylan Holloway",
+"player_id": "8482077",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Jake Neighbours",
+"player_id": "8482089",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Pavel Buchnevich",
+"player_id": "8477402",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Ross Johnston",
+"player_id": "8477527",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Alexey Toropchenko",
+"player_id": "8480281",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Dalibor Dvorsky",
+"player_id": "8484164",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Jimmy Snuggerud",
+"player_id": "8483516",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Jonatan Berggren",
+"player_id": "8481013",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Anthony Cirelli",
+"player_id": "8478519",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Brayden Point",
+"player_id": "8478010",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Conor Geekie",
+"player_id": "8483447",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Dominic James",
+"player_id": "8483752",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Gage Goncalves",
+"player_id": "8482201",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Jake Guentzel",
+"player_id": "8477404",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Yanni Gourde",
+"player_id": "8476826",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Zemgus Girgensons",
+"player_id": "8476878",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Charle-Edouard D'Astous",
+"player_id": "8480426",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Emil Lilleberg",
+"player_id": "8482929",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Erik Cernak",
+"player_id": "8478416",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "J.J. Moser",
+"player_id": "8482655",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "John Carlson",
+"player_id": "8474590",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Max Crozier",
+"player_id": "8481719",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Ryan McDonagh",
+"player_id": "8474151",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Victor Hedman",
+"player_id": "8475167",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Andrei Vasilevskiy",
+"player_id": "8476883",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "TBL",
+"name": "Dennis Hildeby",
+"player_id": "8483710",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "TBL",
+"name": "Brandon Hagel",
+"player_id": "8479542",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Jeffrey Viel",
+"player_id": "8479705",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Ilya Mikheyev",
+"player_id": "8481624",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Nikita Kucherov",
+"player_id": "8476453",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Pontus Holmberg",
+"player_id": "8480995",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Scott Sabourin",
+"player_id": "8477149",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Auston Matthews",
+"player_id": "8479318",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Bo Groulx",
+"player_id": "8480870",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Colton Sissons",
+"player_id": "8476925",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Jack Roslovic",
+"player_id": "8478458",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "John Tavares",
+"player_id": "8475166",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Teddy Blueger",
+"player_id": "8476927",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Vinni Lettieri",
+"player_id": "8479968",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Chris Tanev",
+"player_id": "8475690",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Cole McWard",
+"player_id": "8484287",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Dakota Mermis",
+"player_id": "8477541",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Darren Raddysh",
+"player_id": "8478178",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Jake McCabe",
+"player_id": "8476931",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Marshall Rifai",
+"player_id": "8483546",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Morgan Rielly",
+"player_id": "8476853",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Nick Blankenburg",
+"player_id": "8483565",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Oliver Ekman-Larsson",
+"player_id": "8475171",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Troy Stecher",
+"player_id": "8479442",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Anthony Stolarz",
+"player_id": "8476932",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "TOR",
+"name": "Sergei Bobrovsky",
+"player_id": "8475683",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "TOR",
+"name": "Brandon Duhaime",
+"player_id": "8479520",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Gavin McKenna",
+"player_id": "8486067",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Miles Wood",
+"player_id": "8477425",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Nick Paul",
+"player_id": "8477426",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Easton Cowan",
+"player_id": "8484158",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Kirill Marchenko",
+"player_id": "8480893",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "William Nylander",
+"player_id": "8477939",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Zack MacEwen",
+"player_id": "8479772",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Barrett Hayton",
+"player_id": "8480849",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Jack McBain",
+"player_id": "8480855",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Kevin Stenlund",
+"player_id": "8478831",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Liam O'Brien",
+"player_id": "8477070",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Logan Cooley",
+"player_id": "8483431",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Nick Schmaltz",
+"player_id": "8477951",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Vincent Trocheck",
+"player_id": "8476389",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Andrew Peeke",
+"player_id": "8479369",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Dmitri Simashev",
+"player_id": "8484386",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "John Marino",
+"player_id": "8478507",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "MacKenzie Weegar",
+"player_id": "8477346",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Maveric Lamoureux",
+"player_id": "8483472",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Mikhail Sergachev",
+"player_id": "8479410",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Nate Schmidt",
+"player_id": "8477220",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Nick DeSimone",
+"player_id": "8480084",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Karel Vejmelka",
+"player_id": "8478872",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "UTA",
+"name": "Sebastian Cossa",
+"player_id": "8482657",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "UTA",
+"name": "Anders Lee",
+"player_id": "8475314",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Daniil But",
+"player_id": "8484388",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Lawson Crouse",
+"player_id": "8478474",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Michael Carcone",
+"player_id": "8479619",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Clayton Keller",
+"player_id": "8479343",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Dylan Guenther",
+"player_id": "8482699",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Kailer Yamamoto",
+"player_id": "8479977",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Elias Pettersson",
+"player_id": "8480012",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Filip Chytil",
+"player_id": "8480078",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Linus Karlsson",
+"player_id": "8481024",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Marco Rossi",
+"player_id": "8482079",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Max Sasson",
+"player_id": "8484136",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Elias Pettersson",
+"player_id": "8483678",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Filip Hronek",
+"player_id": "8479425",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Guillaume Brisebois",
+"player_id": "8478465",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Jamie Oleksiak",
+"player_id": "8476467",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Luke Schenn",
+"player_id": "8474568",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Tom Willander",
+"player_id": "8484240",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Victor Mancini",
+"player_id": "8483768",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Zeev Buium",
+"player_id": "8484798",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Kevin Lankinen",
+"player_id": "8480947",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "VAN",
+"name": "Leevi Meril\u00e4inen",
+"player_id": "8482447",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "VAN",
+"name": "Thatcher Demko",
+"player_id": "8477967",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "VAN",
+"name": "Arshdeep Bains",
+"player_id": "8483395",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Drew O'Connor",
+"player_id": "8482055",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Jake DeBrusk",
+"player_id": "8478498",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Liam Ohgren",
+"player_id": "8483499",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Paul Cotter",
+"player_id": "8481032",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Brendan Gallagher",
+"player_id": "8475848",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Brock Boeser",
+"player_id": "8478444",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Jonathan Lekkerim\u00e4ki",
+"player_id": "8483476",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Brett Howden",
+"player_id": "8479353",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Jack Eichel",
+"player_id": "8478403",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Marc Gatcomb",
+"player_id": "8483553",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Nic Dowd",
+"player_id": "8475343",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Raphael Lavoie",
+"player_id": "8481534",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Tomas Hertl",
+"player_id": "8476881",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "William Karlsson",
+"player_id": "8476448",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Brayden McNabb",
+"player_id": "8475188",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Dylan Coghlan",
+"player_id": "8479639",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Jeremy Lauzon",
+"player_id": "8478468",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Noah Hanifin",
+"player_id": "8478396",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Parker Wotherspoon",
+"player_id": "8478450",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Rasmus Andersson",
+"player_id": "8478397",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Shea Theodore",
+"player_id": "8477447",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Ville Heinola",
+"player_id": "8481572",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Adin Hill",
+"player_id": "8478499",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "VGK",
+"name": "Carter Hart",
+"player_id": "8479394",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "VGK",
+"name": "Ivan Barbashev",
+"player_id": "8477964",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Trevor Connelly",
+"player_id": "8484803",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Victor Olofsson",
+"player_id": "8478109",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Alexander Holtz",
+"player_id": "8482125",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Braeden Bowman",
+"player_id": "8483890",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Mark Stone",
+"player_id": "8475913",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Mitch Marner",
+"player_id": "8478483",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Adam Lowry",
+"player_id": "8476392",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Brad Lambert",
+"player_id": "8483471",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Cole Perfetti",
+"player_id": "8482149",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Dawson Mercer",
+"player_id": "8482110",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Gabriel Vilardi",
+"player_id": "8480014",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Mark Scheifele",
+"player_id": "8476460",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Morgan Barron",
+"player_id": "8480289",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Viggo Bj\u00f6rck",
+"player_id": "8486025",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Vladislav Namestnikov",
+"player_id": "8476480",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Dylan DeMelo",
+"player_id": "8476331",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Dylan Samberg",
+"player_id": "8480049",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Haydn Fleury",
+"player_id": "8477938",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Jack St. Ivany",
+"player_id": "8481030",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Josh Morrissey",
+"player_id": "8477504",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Mario Ferraro",
+"player_id": "8479983",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Neal Pionk",
+"player_id": "8480145",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Tyrel Bauer",
+"player_id": "8482459",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Clay Stevenson",
+"player_id": "8483532",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "WPG",
+"name": "Connor Hellebuyck",
+"player_id": "8476945",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "WPG",
+"name": "Nico Daws",
+"player_id": "8482076",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "WPG",
+"name": "Stuart Skinner",
+"player_id": "8479973",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "WPG",
+"name": "Alex Iafallo",
+"player_id": "8480113",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Cole Koepke",
+"player_id": "8481043",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Kyle Connor",
+"player_id": "8478398",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Isak Rosen",
+"player_id": "8482765",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Nino Niederreiter",
+"player_id": "8475799",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Boone Jenner",
+"player_id": "8476432",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Dylan Strome",
+"player_id": "8478440",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Justin Sourdif",
+"player_id": "8482088",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Pierre-Luc Dubois",
+"player_id": "8479400",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Cole Hutson",
+"player_id": "8484873",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Dylan McIlrath",
+"player_id": "8475795",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Jakob Chychrun",
+"player_id": "8479345",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Martin Feh\u00e9rv\u00e1ry",
+"player_id": "8480796",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Matt Roy",
+"player_id": "8478911",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Rasmus Sandin",
+"player_id": "8480873",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Timothy Liljegren",
+"player_id": "8480043",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Vincent Desharnais",
+"player_id": "8479576",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Charlie Lindgren",
+"player_id": "8479292",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "WSH",
+"name": "Logan Thompson",
+"player_id": "8480313",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "WSH",
+"name": "Alex Ovechkin",
+"player_id": "8471214",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Aliaksei Protas",
+"player_id": "8481656",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Ilya Protas",
+"player_id": "8484999",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Ivan Miroshnichenko",
+"player_id": "8483491",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Alex Tuch",
+"player_id": "8477949",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Anthony Beauvillier",
+"player_id": "8478463",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Ethen Frank",
+"player_id": "8483573",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Jordan Kyrou",
+"player_id": "8479385",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Ryan Leonard",
+"player_id": "8484186",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Tom Wilson",
+"player_id": "8476880",
+"position": "R",
+"role": "skater"
+}
+]
+}

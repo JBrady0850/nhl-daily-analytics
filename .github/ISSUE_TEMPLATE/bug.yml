@@ -1,0 +1,34 @@
+name: Report a problem
+description: Something looks wrong or does not work.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thank you. Please do not include personal information.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you saw, and what you expected to see.
+    validations:
+      required: true
+  - type: input
+    id: tab
+    attributes:
+      label: Which tab?
+      placeholder: Today, My Teams, Lines, Goalies, Matchups, Results, Model, DFS, Settings or Help
+  - type: input
+    id: date
+    attributes:
+      label: Data date
+      description: The date shown under the page title.
+  - type: input
+    id: device
+    attributes:
+      label: Device and browser
+      placeholder: For example, iPad with Safari, or Windows with Chrome
+  - type: textarea
+    id: shots
+    attributes:
+      label: Screenshot
+      description: Paste or drag a screenshot here if it helps.
