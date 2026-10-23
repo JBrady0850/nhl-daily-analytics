@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.5.2";
+  const APP_VERSION = "1.5.3";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -358,8 +358,11 @@
       <span class="l">${esc(g.away)} ${pct(pa)}</span><span class="r">${esc(g.home)} ${pct(ph)}</span></div>`;
   }
   function goalieLine(g) {
-    const one = (ab, gk) => gk && gk.name ? `${pname(gk.name, gk.player_id)} <span class="muted">(${esc(ab)})</span> ${srcPill(gk.source)}` : `<span class="muted">${esc(ab)}: no starter yet</span>`;
-    return `${one(g.away, g.away_side.goalie)} <span class="muted">vs</span> ${one(g.home, g.home_side.goalie)}`;
+    // one goalie per row: the name and team in the first column, the status tag beside
+    // them in the second, so a tag never wraps away from its goalie
+    const one = (ab, gk) => gk && gk.name ? `<span class="gk-n">${pname(gk.name, gk.player_id)}&nbsp;<span class="muted">(${esc(ab)})</span></span><span class="gk-s">${srcPill(gk.source)}</span>`
+      : `<span class="gk-n muted">${esc(ab)}: no starter yet</span><span class="gk-s"></span>`;
+    return `<span class="gks">${one(g.away, g.away_side.goalie)}${one(g.home, g.home_side.goalie)}</span>`;
   }
   function gameCard(g) {
     const fav = g.projected;
@@ -373,7 +376,7 @@
       ${winbar(g)}
       ${fav ? `<p style="margin:4px 0" class="row"><span class="pick">${esc(teamName(fav))} ${pct(g.win_prob)}</span> ${tierPill(g.tier)} ${g.gate_cleared ? '<span class="pill lead">Gate cleared</span>' : ""} ${yours ? '<span class="pill gold">Your team</span>' : ""}</p>` : ""}
       <dl class="kv"><dt>Market</dt><dd>${typeof mk === "number" ? pct(mk) + ` for ${esc(fav)}` + (g.market.books ? ` <span class="muted">(${esc(g.market.books)} books)</span>` : "") : '<span class="muted">no line yet</span>'}</dd>
-      <dt>Goalies</dt><dd>${goalieLine(g)}</dd>
+      <dt class="gk-dt">Goalies</dt><dd class="gk-dd">${goalieLine(g)}</dd>
       <dt>Rating gap</dt><dd>${num(g.delta, 1)} <span class="muted">RAA points</span></dd></dl>
       <details class="more"><summary>Why this pick</summary>${pillarTable(g)}${absences(g)}</details>
     </article>`;

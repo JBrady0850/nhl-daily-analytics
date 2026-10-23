@@ -135,6 +135,35 @@ def check_lines_tab(pg, sample):
     return fails
 
 
+GOALIE_ROWS_JS = """() => [...document.querySelectorAll('main article.game')].map(card => {
+  const c = card.getBoundingClientRect(), g = card.querySelector('.gks');
+  if (!g) return {missing: true};
+  const n = [...g.querySelectorAll('.gk-n')].map(e => e.getBoundingClientRect());
+  const s = [...g.querySelectorAll('.gk-s')].map(e => (e.querySelector('.pill') || e).getBoundingClientRect());
+  return {missing: n.length !== 2 || s.length !== 2,
+          sameRow: s.every((r, i) => !r.height || (r.top < n[i].bottom && r.bottom > n[i].top)),
+          separate: n.length === 2 && n[1].top >= n[0].bottom - 1,
+          apart: s.every((r, i) => !r.width || r.left >= n[i].right - 0.5),
+          inside: n.concat(s).every(r => r.right <= c.right + 0.5)};
+})"""
+
+
+def check_goalie_rows(pg, n_games):
+    """Today: each game's two goalies sit on their own rows and each status tag stays on
+    its goalie's row, inside the card (John, 2026-10-23)."""
+    pg.click('#tabs button[data-tab="today"]')
+    pg.wait_for_timeout(40)
+    rows = pg.evaluate(GOALIE_ROWS_JS)
+    if len(rows) != n_games:
+        return [f"today: {len(rows)} game cards with goalie rows, expected {n_games}"]
+    out = []
+    for i, r in enumerate(rows):
+        bad = [k for k in ("sameRow", "separate", "apart", "inside") if not r.get(k)] if not r.get("missing") else ["missing"]
+        if bad:
+            out.append(f"today card {i + 1}: goalie rows {bad}")
+    return out[:3]
+
+
 DFS_GOALIES_JS = """() => {
   const t = [...document.querySelectorAll('main section.card')].find(c => /Goalies/.test(c.querySelector('h2').textContent));
   if (!t) return null;
@@ -208,6 +237,7 @@ def main():
                 if vals != sorted(vals, reverse=True):
                     fails.append(f"{name}: goalies not sorted by SV% {vals}")
                 fails.extend(f"{name}: {m}" for m in check_standings(pg, sample))
+                fails.extend(f"{name}: {m}" for m in check_goalie_rows(pg, len(sample["slate"]["games"])))
                 fails.extend(f"{name}: {m}" for m in check_lines_tab(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_dfs_goalies(pg, len(sample["dfs"]["goalies"])))
                 pg.click('#tabs button[data-tab="today"]')

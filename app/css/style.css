@@ -135,6 +135,13 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
 .pick { font-weight: 700; }
 .kv { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 8px 0 0; font-size: .92rem; }
 .kv dt { color: var(--muted); } .kv dd { margin: 0; }
+/* goalies: one per row, the status tag in its own column beside the name. On a narrow
+   card the rows take the card's full width under the label; a wide card keeps the label
+   on the left like the other rows. */
+.game { container: game / inline-size; }
+.kv .gk-dt, .kv .gk-dd { grid-column: 1 / -1; }
+.kv .gks { display: grid; grid-template-columns: minmax(min-content, max-content) auto; justify-content: start; align-items: center; gap: 4px 10px; }
+@container game (min-width: 440px) { .kv .gk-dt, .kv .gk-dd { grid-column: auto; } }
 details.more { margin-top: 8px; } details.more > summary { cursor: pointer; color: var(--accent); font-weight: 600; padding: 6px 0; min-height: 40px; display: flex; align-items: center; list-style: none; }
 details.more > summary::before { content: "\25B8"; margin-right: 6px; font-size: .8em; } details.more[open] > summary::before { content: "\25BE"; }
 details.more > summary::-webkit-details-marker { display: none; }
