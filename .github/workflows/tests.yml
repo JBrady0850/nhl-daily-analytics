@@ -8,12 +8,20 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-24.04
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt pytest playwright
-      - run: python -m playwright install --with-deps chromium
+      # GitHub's Ubuntu image already has the system libraries Chromium needs; the
+      # slow system-package step runs only if a first launch fails. A stalled
+      # package mirror once held this step for over ten minutes.
+      - name: Install the test browser
+        timeout-minutes: 12
+        run: |
+          python -m playwright install chromium
+          python -c "from playwright.sync_api import sync_playwright as s; p = s().start(); p.chromium.launch().close(); p.stop()" || python -m playwright install-deps chromium
       - run: python -m pytest -q
       - run: python tests/ui_smoke.py
