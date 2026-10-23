@@ -26,7 +26,7 @@ no wager, account or chat wording.
 | `lines` | object | Lines and pairs for all 32 teams. See below. |
 | `results` | object | Settled picks. See below. |
 | `model` | object | Settings, learning and calibration. See below. |
-| `dfs` | object | DraftKings projections: `skaters` (top 30) and `goalies`. |
+| `dfs` | object | DraftKings projections: `skaters` (top 30 by projection) and `goalies` (every probable starter, highest team win probability first, ties by projection). |
 | `sources` | object | What loaded: goalie and injury counts, `injuries.sources` (the reports read: `espn`, `hockey_reference`, `daily_faceoff`) and `injuries.source` (the same joined with `+`, or `none`), market games, lines by source, request counts, build seconds. |
 | `problems` | list | Plain-text notes about anything that failed or fell back. Empty on a clean run. |
 

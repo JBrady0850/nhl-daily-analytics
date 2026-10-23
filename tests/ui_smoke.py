@@ -135,6 +135,26 @@ def check_lines_tab(pg, sample):
     return fails
 
 
+DFS_GOALIES_JS = """() => {
+  const t = [...document.querySelectorAll('main section.card')].find(c => /Goalies/.test(c.querySelector('h2').textContent));
+  if (!t) return null;
+  const col = [...t.querySelectorAll('thead th')].findIndex(h => h.textContent.trim() === 'Win %');
+  return [...t.querySelectorAll('tbody tr')].map(r => parseFloat(r.children[col].textContent));
+}"""
+
+
+def check_dfs_goalies(pg, n):
+    """The DFS goalie board lists every probable starter, highest win % first (John, 2026-10-23)."""
+    pg.click('#tabs button[data-tab="dfs"]')
+    pg.wait_for_timeout(40)
+    wp = pg.evaluate(DFS_GOALIES_JS)
+    if wp is None or len(wp) != n:
+        return [f"dfs: {None if wp is None else len(wp)} goalie rows, expected {n}"]
+    if wp != sorted(wp, reverse=True):
+        return [f"dfs: goalies not sorted by win % {wp}"]
+    return []
+
+
 def main():
     tmp = tempfile.mkdtemp(prefix="nda_ui_")
     site = os.path.join(tmp, "app")
@@ -189,6 +209,7 @@ def main():
                     fails.append(f"{name}: goalies not sorted by SV% {vals}")
                 fails.extend(f"{name}: {m}" for m in check_standings(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_lines_tab(pg, sample))
+                fails.extend(f"{name}: {m}" for m in check_dfs_goalies(pg, len(sample["dfs"]["goalies"])))
                 pg.click('#tabs button[data-tab="today"]')
                 tile = pg.locator(".tile").nth(2)
                 if mob:
@@ -275,6 +296,7 @@ def main():
                            "the injured lists on Daily Faceoff's team pages."]
         alt["sources"]["injuries"] = {"loaded": True, "source": "daily_faceoff", "sources": ["daily_faceoff"], "rows": 11}
         alt["standings"]["teams"][0]["clinch"] = "x"
+        alt["dfs"]["goalies"] = list(reversed(alt["dfs"]["goalies"]))   # the app sorts, whatever the file order
         with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
             fh.write("window.NDA_DATA=" + json.dumps(alt) + ";\n")
         ctx = b.new_context(viewport={"width": 1280, "height": 900})
@@ -288,6 +310,7 @@ def main():
         pg.click('#tabs button[data-tab="settings"]')
         if "11 players from Daily Faceoff's injured lists" not in pg.inner_text("main"):
             fails.append("Settings does not name the injury source")
+        fails.extend(f"file order reversed: {m}" for m in check_dfs_goalies(pg, len(alt["dfs"]["goalies"])))
         # a clinch mark gets its definition; a file without standings says so
         pg.click('#tabs button[data-tab="standings"]')
         clinch = pg.locator("main .pill.clinch")

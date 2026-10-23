@@ -237,8 +237,13 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
                     "proj_sog", "proj_blocks", "proj_hits", "dk_proj", "win_prob", "save_pct", "gsax")
             top_sk = [dict({k: p.get(k) for k in keep if k in p}, opp=opp.get(p.get("team")))
                       for p in sorted((p for p in pool if p["position"] != "G"), key=lambda p: -p["dk_proj"])[:30]]
+            # every projected starter (two per game), highest team win probability first;
+            # ties go to the higher DraftKings projection
+            starters = [p for e in engines for side in ("home_team", "away_team")
+                        for p in e.payload[side]["players"] if p["position"] == "G"]
             top_g = [dict({k: p.get(k) for k in keep if k in p}, opp=opp.get(p.get("team")))
-                     for p in sorted((p for p in pool if p["position"] == "G"), key=lambda p: -p["dk_proj"])[:12]]
+                     for p in sorted(starters, key=lambda p: (-(p.get("win_prob") or 0), -(p.get("dk_proj") or 0),
+                                                              p.get("name") or ""))]
             # compact copy for settling tomorrow
             json.dump({"date": target_date, "games": [
                 {"matchup": g["matchup"], "home_win_prob": g["home_win_prob"], "tier": g["tier"],

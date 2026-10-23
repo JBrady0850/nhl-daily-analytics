@@ -49,6 +49,10 @@ def test_sample_data_file_is_public_and_complete():
     for k in ("date", "generated_utc", "teams", "slate", "lines", "results", "model", "dfs", "sources"):
         assert k in d
     assert len(d["teams"]) == 32 and len(d["lines"]) == 32
+    gk = d["dfs"]["goalies"]
+    starters = sum(1 for g in d["slate"]["games"] for side in ("home_side", "away_side") if (g[side].get("goalie") or {}).get("name"))
+    assert len(gk) == starters, "every probable starter is on the DFS goalie board"
+    assert [x["win_prob"] for x in gk] == sorted((x["win_prob"] for x in gk), reverse=True), "DFS goalies by win %"
     st = d["standings"]["teams"]
     assert sorted(r["team"] for r in st) == sorted(d["teams"])
     assert [r["league_rank"] for r in st] == list(range(1, 33))

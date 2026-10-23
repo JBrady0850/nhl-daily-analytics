@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.5.1";
+  const APP_VERSION = "1.5.2";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -601,13 +601,16 @@
 
   // ---------- DFS ----------
   function vDfs() {
-    const sk = (D.dfs || {}).skaters || [], gk = (D.dfs || {}).goalies || [];
+    const sk = (D.dfs || {}).skaters || [];
+    // goalies: the team's win probability, highest first; ties go to the higher DK projection
+    const wpv = v => (typeof v === "number" && !isNaN(v) ? v : -1);
+    const gk = ((D.dfs || {}).goalies || []).slice().sort((a, b) => wpv(b.win_prob) - wpv(a.win_prob) || wpv(b.dk_proj) - wpv(a.dk_proj) || String(a.name || "").localeCompare(String(b.name || "")));
     if (!sk.length) return `${head("dfs", "DFS projections")}${stamp()}${emptyCard("No games today.")}`;
     const sRows = sk.map((p, i) => `<tr class="${mine(p.team) ? "lead" : ""}">${td(i + 1, "n")}${td(pname(p.name, p.player_id))}${td(badge(p.team, "sm"))}${td(esc(p.opp || ""), "hm")}${td(esc(p.position))}${td(`<b>${num(p.dk_proj, 1)}</b>`, "n")}${td(num(p.proj_goals, 2), "n")}${td(num(p.proj_assists, 2), "n")}${td(num(p.proj_sog, 1), "n hm")}${td(num(p.avg_toi_min, 1), "n hm")}</tr>`).join("");
     const gRows = gk.map((p, i) => `<tr class="${mine(p.team) ? "lead" : ""}">${td(i + 1, "n")}${td(pname(p.name, p.player_id))}${td(badge(p.team, "sm"))}${td(esc(p.opp || ""), "hm")}${td(pct(p.win_prob), "n")}${td(sv(p.save_pct), "n")}${td(num(p.gsax, 1), "n hm")}${td(`<b>${num(p.dk_proj, 1)}</b>`, "n")}</tr>`).join("");
     return `${head("dfs", "DFS projections")}${stamp()}<p class="small muted">Projected DraftKings fantasy points for tonight, from each player's season rates, recent ice time and his team's win probability. For research; check confirmed lineups before you set yours.</p>
       <section class="card"><h2 style="margin-top:0">Skaters</h2>${tbl(th("#", "n") + th("Skater") + th("Team") + th("Opp", "hm") + th("Pos") + th("DK", "n") + th("G", "n") + th("A", "n") + th("SOG", "n hm") + th("TOI", "n hm"), sRows)}</section>
-      <section class="card"><h2 style="margin-top:0">Goalies</h2>${tbl(th("#", "n") + th("Goalie") + th("Team") + th("Opp", "hm") + th("Win %", "n") + th("SV%", "n") + th("GSAx", "n hm") + th("DK", "n"), gRows)}</section>`;
+      <section class="card"><h2 style="margin-top:0">Goalies</h2><p class="small muted">Every probable starter, sorted by his team's win probability, highest first (ties: the higher DK projection).</p>${tbl(th("#", "n") + th("Goalie") + th("Team") + th("Opp", "hm") + th("Win %", "n") + th("SV%", "n") + th("GSAx", "n hm") + th("DK", "n"), gRows)}</section>`;
   }
 
   // ---------- settings ----------
