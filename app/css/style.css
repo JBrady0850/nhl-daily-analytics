@@ -101,6 +101,15 @@ h1 { font-size: 2.5rem; font-weight: 600; line-height: .95; margin: 4px 0 6px; }
 .tm.sm { font-size: .98rem; min-width: 2.7em; }
 @media (prefers-color-scheme: dark) { .tm { box-shadow: inset 0 -3px 0 var(--c2), 0 0 0 1px rgba(255,255,255,.18); } }
 .teamline { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+/* standings */
+.seg.stand button { padding: 7px 12px 5px; }
+table.standings tr.grp td { font: 600 1.05rem/1 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+  background: color-mix(in srgb, var(--board) 5%, var(--panel)); padding-top: 9px; }
+table.standings tr.cut td { border-top: 3px solid var(--redline); }
+.steam { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+.pill.clinch { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px currentColor; text-transform: lowercase; padding: 2px 7px 0; }
+@media (max-width: 600px) { .seg.stand button { padding: 7px 8px 5px; font-size: 1.02rem; } }
 .teamline .tm { font-size: 1.3rem; }
 
 /* the win bar is a sheet of ice: each club's zone in its color, split at the
@@ -150,6 +159,7 @@ tr.lead td { background: color-mix(in srgb, var(--high) 9%, var(--panel)); }
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
 .seg button { border: 0; background: var(--panel); padding: 7px 16px 5px; min-height: 38px; cursor: pointer; font: 500 1.15rem/1 var(--display); letter-spacing: .05em; }
 .seg button[aria-pressed="true"] { background: var(--board); color: var(--board-ink); }
+@media (prefers-color-scheme: dark) { .seg button[aria-pressed="true"] { background: var(--board-ink); color: var(--board); } }
 
 /* bars for calibration */
 .bar { height: 12px; background: var(--line); border-radius: 999px; overflow: hidden; min-width: 80px; } .bar > i { display: block; height: 100%; background: var(--accent); }

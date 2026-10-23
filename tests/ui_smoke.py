@@ -3,7 +3,9 @@ script error at phone, iPad, Android-tablet and desktop sizes, nothing scrolls
 sideways, My Teams is remembered, the goalie table runs from the highest save
 percentage down, no wager or chat-command wording appears, and every tag, tile,
 column heading and abbreviation shows its definition on hover (mouse), on tap
-(touch screen) and on keyboard focus."""
+(touch screen) and on keyboard focus, and the Standings tab shows all 32 teams in
+each of its four views (Wild Card, Division, Conference, League) and remembers the
+chosen view."""
 import functools
 import http.server
 import json
@@ -18,13 +20,14 @@ from playwright.sync_api import sync_playwright
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-TABS = ["today", "myteams", "lines", "goalies", "matchups", "results", "model", "dfs", "settings", "help"]
+TABS = ["today", "myteams", "lines", "goalies", "matchups", "standings", "results", "model", "dfs", "settings", "help"]
 SIZES = [("phone", 390, 844, True), ("ipad", 834, 1194, True), ("android", 800, 1280, True), ("desktop", 1280, 900, False)]
 BANNED = ["!bet", "discord", "points staked", "base net", "allocation"]
 # Checked independently of the app's own tables: any of these left as plain text is a miss.
 ABBREV_HEADS = {"#", "GP", "G", "A", "P", "SOG", "PPP", "TOI/GP", "TOI", "PIM", "PP", "Pos", "Unit", "SV%", "GSAx",
                 "HDSV%", "Window", "Rest", "Status", "Win %", "Tier", "Opp", "DK", "L3", "L3 vs L5", "L5 shot%",
-                "L3 shot%", "Venue shot%", "Venue GP", "TOI share", "Home edge", "Band"}
+                "L3 shot%", "Venue shot%", "Venue GP", "TOI share", "Home edge", "Band",
+                "Rk", "W", "L", "OTL", "PTS", "P%", "RW", "ROW", "GF", "GA", "DIFF", "L10", "STRK"}
 TOKENS = ["GP", "SOG", "PPP", "PIM", "TOI", "RAA", "GSAx", "HDSV%", "SV%", "DFS", "DK", "GTD", "DTD", "OT", "SO",
           "PP1", "PP2", "F1", "F2", "F3", "F4", "D1", "D2", "D3", "P1", "P2", "P3", "P4", "P5", "L3", "L5", "NHL", "UTC"]
 COVERAGE_JS = """(args) => {
@@ -42,6 +45,60 @@ COVERAGE_JS = """(args) => {
   }
   return miss.slice(0, 5);
 }"""
+
+
+STAND_CARDS = {"wildcard": 2, "division": 4, "conference": 2, "league": 1}
+STAND_JS = """() => {
+  const main = document.querySelector('main');
+  const rows = [...main.querySelectorAll('table.standings tbody tr:not(.grp)')];
+  return {
+    pressed: [...main.querySelectorAll('.seg.stand button[aria-pressed="true"]')].map(b => b.dataset.arg),
+    cards: main.querySelectorAll('table.standings').length,
+    teams: rows.map(r => r.querySelector('.tm').textContent.trim()),
+    pts: rows.map(r => +r.children[6].textContent),
+    mine: rows.filter(r => r.classList.contains('lead')).map(r => r.querySelector('.tm').textContent.trim()),
+    cuts: main.querySelectorAll('table.standings tr.cut').length,
+    groups: [...main.querySelectorAll('table.standings tr.grp')].map(r => r.textContent.trim()),
+    streakTips: main.querySelectorAll('table.standings td abbr.tip[data-tip]').length,
+    sideways: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+  };
+}"""
+
+
+def check_standings(pg, sample):
+    """Each of the four views lists all 32 teams once, in the expected cards, and the
+    choice survives a reload."""
+    fails, all_teams = [], sorted(sample["teams"])
+    pg.click('#tabs button[data-tab="standings"]')
+    for view, n_cards in STAND_CARDS.items():
+        pg.click(f'main .seg.stand button[data-arg="{view}"]')
+        pg.wait_for_timeout(40)
+        r = pg.evaluate(STAND_JS)
+        if r["pressed"] != [view]:
+            fails.append(f"standings {view}: selector shows {r['pressed']}")
+        if r["cards"] != n_cards:
+            fails.append(f"standings {view}: {r['cards']} tables, expected {n_cards}")
+        if sorted(r["teams"]) != all_teams:
+            fails.append(f"standings {view}: {len(r['teams'])} team rows, {len(set(r['teams']))} different teams")
+        if r["mine"] != ["FLA"]:
+            fails.append(f"standings {view}: shaded rows {r['mine']}, expected FLA")
+        if r["streakTips"] < 32:
+            fails.append(f"standings {view}: {r['streakTips']} streaks carry a definition")
+        if r["sideways"]:
+            fails.append(f"standings {view}: page scrolls sideways")
+        if view == "wildcard":
+            if r["cuts"] != 2 or r["groups"].count("Wild Card") != 2 or len(r["groups"]) != 6:
+                fails.append(f"standings wildcard: groups {r['groups']}, playoff lines {r['cuts']}")
+        if view == "league" and r["pts"] != sorted(r["pts"], reverse=True):
+            fails.append(f"standings league: points not in order {r['pts'][:8]}")
+    pg.click('main .seg.stand button[data-arg="division"]')
+    pg.reload()
+    pg.wait_for_timeout(100)
+    pg.click('#tabs button[data-tab="standings"]')
+    if pg.evaluate(STAND_JS)["pressed"] != ["division"]:
+        fails.append("standings: chosen view not remembered after a reload")
+    pg.click('main .seg.stand button[data-arg="wildcard"]')
+    return fails
 
 
 def main():
@@ -96,6 +153,7 @@ def main():
                 vals = [float(v) for v in svs if v.strip().startswith(".")]
                 if vals != sorted(vals, reverse=True):
                     fails.append(f"{name}: goalies not sorted by SV% {vals}")
+                fails.extend(f"{name}: {m}" for m in check_standings(pg, sample))
                 pg.click('#tabs button[data-tab="today"]')
                 tile = pg.locator(".tile").nth(2)
                 if mob:
@@ -181,6 +239,7 @@ def main():
         alt["problems"] = ["ESPN's injury report could not be reached this run, so injuries come from "
                            "the injured lists on Daily Faceoff's team pages."]
         alt["sources"]["injuries"] = {"loaded": True, "source": "daily_faceoff", "sources": ["daily_faceoff"], "rows": 11}
+        alt["standings"]["teams"][0]["clinch"] = "x"
         with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
             fh.write("window.NDA_DATA=" + json.dumps(alt) + ";\n")
         ctx = b.new_context(viewport={"width": 1280, "height": 900})
@@ -194,6 +253,18 @@ def main():
         pg.click('#tabs button[data-tab="settings"]')
         if "11 players from Daily Faceoff's injured lists" not in pg.inner_text("main"):
             fails.append("Settings does not name the injury source")
+        # a clinch mark gets its definition; a file without standings says so
+        pg.click('#tabs button[data-tab="standings"]')
+        clinch = pg.locator("main .pill.clinch")
+        if clinch.count() != 1 or "playoff spot" not in (clinch.first.get_attribute("data-tip") or ""):
+            fails.append("clinch mark missing or without its definition")
+        alt.pop("standings")
+        with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
+            fh.write("window.NDA_DATA=" + json.dumps(alt) + ";\n")
+        pg.reload()
+        pg.click('#tabs button[data-tab="standings"]')
+        if "not in this data file yet" not in pg.inner_text("main"):
+            fails.append("missing standings not explained")
         ctx.close()
         b.close()
     httpd.shutdown()

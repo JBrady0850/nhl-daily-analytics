@@ -2,10 +2,12 @@
 
 Run only when the look of the app changes, then look at every image before
 committing:  python tests/make_screenshots.py
+To rewrite only some images, name them:  python tests/make_screenshots.py standings-desktop.png
 """
 import json
 import os
 import shutil
+import sys
 import tempfile
 
 from PIL import Image
@@ -22,6 +24,8 @@ SHOTS = [
     ("myteams-phone.png", 390, 844, True, "myteams", 850, 520),
     ("goalies-tablet.png", 834, 1194, True, "goalies", 700, 900),
     ("model-desktop.png", 1280, 900, False, "model", None, 1280),
+    ("standings-desktop.png", 1280, 900, False, "standings", None, 1280),
+    ("standings-phone.png", 390, 844, True, "standings", 850, 520),
 ]
 
 
@@ -36,7 +40,10 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     with sync_playwright() as pw:
         b = pw.chromium.launch()
+        only = set(sys.argv[1:])
         for name, w, h, mob, tab, crop, width in SHOTS:
+            if only and name not in only:
+                continue
             scale = 2 if mob else 1
             ctx = b.new_context(viewport={"width": w, "height": h}, is_mobile=mob, device_scale_factor=scale,
                                 color_scheme="light")
@@ -58,7 +65,8 @@ def main():
             im.quantize(colors=128, method=Image.Quantize.MEDIANCUT).save(os.path.join(OUT, name), optimize=True)
             print("wrote", os.path.join("docs", "images", name))
         b.close()
-    shutil.copy(os.path.join(ROOT, "app", "qr-app.png"), os.path.join(OUT, "open-app-qr.png"))
+    if not only:
+        shutil.copy(os.path.join(ROOT, "app", "qr-app.png"), os.path.join(OUT, "open-app-qr.png"))
     shutil.rmtree(tmp, ignore_errors=True)
 
 

@@ -64,17 +64,39 @@ def _absence(a):
             if k in a}
 
 
+def standings_from(d):
+    """Team names and the league standings from the NHL standings feed.
+    Returns (names by abbreviation, standings block for the public file)."""
+    names, rows = {}, []
+    for t in (d or {}).get("standings") or []:
+        ab = (t.get("teamAbbrev") or {}).get("default")
+        if not ab:
+            continue
+        names[ab] = {"name": (t.get("teamName") or {}).get("default", ab),
+                     "conference": t.get("conferenceName"), "division": t.get("divisionName"),
+                     "record": f"{t.get('wins', 0)}-{t.get('losses', 0)}-{t.get('otLosses', 0)}",
+                     "pts": t.get("points"), "games_played": t.get("gamesPlayed")}
+        rows.append({
+            "team": ab, "conference": t.get("conferenceName"), "division": t.get("divisionName"),
+            "gp": t.get("gamesPlayed"), "w": t.get("wins"), "l": t.get("losses"), "otl": t.get("otLosses"),
+            "pts": t.get("points"),
+            "p_pct": round(t["pointPctg"], 4) if isinstance(t.get("pointPctg"), (int, float)) else None,
+            "rw": t.get("regulationWins"), "row": t.get("regulationPlusOtWins"),
+            "gf": t.get("goalFor"), "ga": t.get("goalAgainst"), "diff": t.get("goalDifferential"),
+            "l10": f"{t.get('l10Wins', 0)}-{t.get('l10Losses', 0)}-{t.get('l10OtLosses', 0)}",
+            "streak": f"{t.get('streakCode') or ''}{t.get('streakCount') or ''}" or None,
+            "div_rank": t.get("divisionSequence"), "conf_rank": t.get("conferenceSequence"),
+            "league_rank": t.get("leagueSequence"), "wc_rank": t.get("wildcardSequence"),
+            "clinch": t.get("clinchIndicator")})
+    rows.sort(key=lambda r: (r["league_rank"] or 99, r["team"]))
+    block = {"as_of_utc": (d or {}).get("standingsDateTimeUtc"),
+             "wildcard_format": bool((d or {}).get("wildCardIndicator", True)), "teams": rows}
+    return names, block
+
+
 async def team_names(f):
     d = await f.get("https://api-web.nhle.com/v1/standings/now") or {}
-    out = {}
-    for t in d.get("standings") or []:
-        ab = (t.get("teamAbbrev") or {}).get("default")
-        if ab:
-            out[ab] = {"name": (t.get("teamName") or {}).get("default", ab),
-                       "conference": t.get("conferenceName"), "division": t.get("divisionName"),
-                       "record": f"{t.get('wins', 0)}-{t.get('losses', 0)}-{t.get('otLosses', 0)}",
-                       "pts": t.get("points"), "games_played": t.get("gamesPlayed")}
-    return out
+    return standings_from(d)
 
 
 async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
@@ -105,7 +127,9 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
             await C.refresh_master_list(f, season, state_dir)
         except Exception as exc:  # noqa: BLE001
             problems.append(f"player list: {exc}")
-        names = await team_names(f)
+        names, standings = await team_names(f)
+        if not standings["teams"]:
+            problems.append("The NHL standings could not be reached this run.")
         try:
             upcoming = await next_slate(f, target_date)
         except Exception:  # noqa: BLE001
@@ -238,6 +262,7 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
             "generated_utc": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "date": target_date, "season": season, "model_version": C.MODEL_VERSION,
             "teams": names,
+            "standings": standings,
             "slate": {"game_count": len(games),
                       "game_type": "PLAYOFFS" if slate.game_type == GAME_TYPE_PLAYOFFS else "REGULAR",
                       "games": games,

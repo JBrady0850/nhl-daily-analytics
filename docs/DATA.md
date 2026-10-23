@@ -21,6 +21,7 @@ no wager, account or chat wording.
 | `season` | text | NHL season id, for example `20262027`. |
 | `model_version` | text | Version of the prediction model. |
 | `teams` | object | All 32 teams by abbreviation: `name`, `conference`, `division`, `record` (W-L-OTL), `pts`, `games_played`. |
+| `standings` | object | League standings from the NHL standings feed. See below. |
 | `slate` | object | Today's games. See below. |
 | `lines` | object | Lines and pairs for all 32 teams. See below. |
 | `results` | object | Settled picks. See below. |
@@ -98,6 +99,24 @@ team in points and shots per game, and whether that lead is tied.
 | `season` | `games`, `correct`, `accuracy`, `gate_cleared`, `gate_correct`, `gate_accuracy`, `brier`, `log_loss`, `by_tier`, `market` (model and market log loss on games with a captured line, and how often they agreed), `calibration`, `first_date`, `last_date`. |
 
 The full game-by-game record is `state/results_ledger.csv` in the repository.
+
+## `standings`
+
+| Key | Meaning |
+| --- | --- |
+| `as_of_utc` | When the NHL last updated its standings, UTC. |
+| `wildcard_format` | `true` while the league uses the wild-card playoff format. |
+| `teams` | All 32 teams in league order (see below). |
+
+Each team: `team` (abbreviation), `conference`, `division`, `gp` (games played), `w`
+(wins), `l` (regulation losses), `otl` (overtime and shootout losses), `pts`, `p_pct`
+(points percentage, 0 to 1), `rw` (regulation wins), `row` (regulation plus overtime
+wins), `gf`, `ga`, `diff` (goals for, against and the difference), `l10` (last 10 games
+as W-L-OTL), `streak` (for example `W3`, `L1`, `OT2`, or `null`), `div_rank`,
+`conf_rank`, `league_rank`, `wc_rank` (the NHL's own order within the division,
+conference, league and wild-card race; `wc_rank` is `0` for the top three in each
+division) and `clinch` (`x` playoff spot, `y` division, `z` conference, `p` Presidents'
+Trophy, `e` eliminated, or `null`).
 
 ## `model`
 

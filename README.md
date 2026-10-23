@@ -4,8 +4,8 @@
 
 A free web app that ranks every NHL game of the day by the projected winner's win
 probability. It also shows the starting goalies, the forward lines and defense pairs
-for the teams you follow, how the picks have done this season, how well the model is
-calibrated, and daily fantasy (DFS) projections.
+for the teams you follow, the league standings, how the picks have done this season,
+how well the model is calibrated, and daily fantasy (DFS) projections.
 
 The data updates twice a day on GitHub's free servers from free public sources. There
 is no account, no sign-in, no API key, no ads and no tracking. The app is plain HTML,
@@ -65,6 +65,10 @@ Names with a solid underline are links; a dotted underline marks a definition.
 | --- | --- |
 | ![My Teams with forward lines](docs/images/myteams-phone.png) | ![Starting goalies sorted by save percentage](docs/images/goalies-tablet.png) |
 
+| Standings on a computer | Standings on a phone |
+| --- | --- |
+| ![Wild-card standings with the playoff line](docs/images/standings-desktop.png) | ![Wild-card standings on a phone](docs/images/standings-phone.png) |
+
 ![Model learning and calibration](docs/images/model-desktop.png)
 
 The screenshots use the sample data file in `tests/fixtures`.
@@ -86,6 +90,7 @@ always has the latest data.
 | **Lines** | The forward lines of each game's projected winner, in rank order. |
 | **Goalies** | Every probable starter tonight, highest season save percentage first, with goals saved above expected, high-danger save percentage, rest days and whether the start is confirmed. |
 | **Matchups** | Each game's five-factor scores side by side, recent shot share and form, and the key missing players. |
+| **Standings** | The league standings four ways: Wild Card (the top three in each division, then the wild-card race with the playoff line drawn under the second wild card), Division, Conference and League. Each row has games played, wins, losses, overtime losses, points, points percentage, regulation and regulation-plus-overtime wins, goals for and against, goal differential, the last 10 games and the current streak. Your teams are shaded, and the app remembers the view you picked. |
 | **Results** | Last night's picks against the finals, the season pick rate, results by confidence tier, and a comparison with the betting market. |
 | **Model** | The model's current settings, its learning progress, and a calibration table: how often picks in each probability band actually won. |
 | **DFS** | Projected DraftKings fantasy points for the top 30 skaters and every probable starting goalie tonight. |
@@ -214,8 +219,9 @@ python tests/make_art.py           # only after changing the icon or rink artwor
 
 The browser test opens the app both from a web server and as a plain file, and fails on
 any script error, any page that scrolls sideways, any change to the goalie order, any
-tag, tile, heading or abbreviation without a definition, or a definition that does not
-open on hover, tap and keyboard focus.
+tag, tile, heading or abbreviation without a definition, a definition that does not
+open on hover, tap and keyboard focus, or a Standings view that does not list all 32
+teams or forgets the chosen view.
 
 ## Credits
 

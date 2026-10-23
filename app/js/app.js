@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.4.1";
+  const APP_VERSION = "1.5.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -16,8 +16,9 @@
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } };
   const saved = load();
   const st = { teams: Array.isArray(saved.teams) ? saved.teams.filter(t => TEAMS_ORDER.includes(t)) : [],
-    win: saved.win === "season" ? "season" : "last10", tab: saved.tab || "today" };
-  const persist = () => { try { localStorage.setItem(KEY, JSON.stringify({ teams: st.teams, win: st.win, tab: st.tab })); } catch (e) { /* storage blocked: keep working in memory */ } };
+    win: saved.win === "season" ? "season" : "last10", tab: saved.tab || "today",
+    stand: ["wildcard", "division", "conference", "league"].includes(saved.stand) ? saved.stand : "wildcard" };
+  const persist = () => { try { localStorage.setItem(KEY, JSON.stringify({ teams: st.teams, win: st.win, tab: st.tab, stand: st.stand })); } catch (e) { /* storage blocked: keep working in memory */ } };
   let D = window.NDA_DATA || null;
 
   // ---------- helpers ----------
@@ -302,7 +303,7 @@
   window.addEventListener("resize", followTip);
 
   // ---------- tabs ----------
-  const VIEWS = { today: vToday, myteams: vMyTeams, lines: vLines, goalies: vGoalies, matchups: vMatchups, results: vResults, model: vModel, dfs: vDfs, settings: vSettings, help: vHelp };
+  const VIEWS = { today: vToday, myteams: vMyTeams, lines: vLines, goalies: vGoalies, matchups: vMatchups, standings: vStandings, results: vResults, model: vModel, dfs: vDfs, settings: vSettings, help: vHelp };
   function setTab(t) {
     if (!VIEWS[t]) t = "today";
     st.tab = t;
@@ -332,6 +333,7 @@
     team: ab => { st.teams = mine(ab) ? st.teams.filter(t => t !== ab) : st.teams.concat(ab).sort((a, b) => TEAMS_ORDER.indexOf(a) - TEAMS_ORDER.indexOf(b)); render(); },
     clearTeams: () => { st.teams = []; render(); },
     win: w => { st.win = w === "season" ? "season" : "last10"; render(); },
+    stand: v => { st.stand = ["wildcard", "division", "conference", "league"].includes(v) ? v : "wildcard"; render(); },
     reset: () => { if (window.confirm("Clear your saved teams and settings in this browser?")) { try { localStorage.removeItem(KEY); localStorage.removeItem(HINT); } catch (e) { } location.reload(); } },
     install: () => { if (installEvt) { installEvt.prompt(); installEvt = null; } else setTab("settings"); },
     hideInstall: () => { try { localStorage.setItem(HINT, "hide"); } catch (e) { } showInstall(); },
@@ -501,6 +503,62 @@
         ${td(gk.reported_by ? (gk.source_url ? `<a href="${esc(gk.source_url)}" target="_blank" rel="noopener">${esc(gk.reported_by)}</a>` : esc(gk.reported_by)) : "-", "hm small")}</tr>`).join("");
     return `${head("goalies", "Starting goalies")}${stamp()}<p class="small muted">Every probable starter tonight, highest season save percentage first (ties: GSAx, then high-danger save percentage). Projected starters often change by late afternoon; the evening update carries the later confirmations.</p>
       ${tbl(th("Team") + th("Starter") + th("SV%", "n") + th("GSAx", "n") + th("HDSV%", "n hm") + th("Window", "n hm") + th("Rest", "n") + th("Status") + th("Reported by", "hm"), body)}`;
+  }
+
+  // ---------- standings ----------
+  // The NHL's own order: divisionSequence, conferenceSequence, leagueSequence and
+  // wildcardSequence come from the standings feed, so ties are already broken.
+  const STAND_VIEWS = [["wildcard", "Wild Card"], ["division", "Division"], ["conference", "Conference"], ["league", "League"]];
+  const CONF_ORDER = ["Eastern", "Western"];
+  const DIV_ORDER = ["Atlantic", "Metropolitan", "Central", "Pacific"];
+  function streakCell(code) {
+    const m = /^(W|L|OT)(\d+)$/.exec(String(code || ""));
+    if (!m) return esc(code || "-");
+    const n = +m[2], what = m[1] === "W" ? (n === 1 ? "Won the last game" : `Won ${n} in a row`)
+      : m[1] === "L" ? (n === 1 ? "Lost the last game in regulation" : `Lost ${n} in a row in regulation`)
+      : (n === 1 ? "Lost the last game in overtime or a shootout" : `Lost ${n} in a row in overtime or a shootout`);
+    return `<abbr class="tip" data-tip="${esc(what)}.">${esc(code)}</abbr>`;
+  }
+  function standRow(r, rank) {
+    const cl = r.clinch ? ` <span class="pill clinch">${esc(r.clinch)}</span>` : "";
+    return `<tr class="${mine(r.team) ? "lead" : ""}">${td(esc(rank ?? "-"), "n")}${td(`<span class="steam">${badge(r.team, "sm")}<span class="tname hm">${esc(teamName(r.team))}</span>${cl}</span>`)}
+      ${td(esc(r.gp ?? "-"), "n")}${td(esc(r.w ?? "-"), "n")}${td(esc(r.l ?? "-"), "n")}${td(esc(r.otl ?? "-"), "n")}${td(`<b>${esc(r.pts ?? "-")}</b>`, "n")}
+      ${td(typeof r.p_pct === "number" ? r.p_pct.toFixed(3).replace(/^0/, "") : "-", "n hm")}${td(esc(r.rw ?? "-"), "n hm")}${td(esc(r.row ?? "-"), "n hm")}
+      ${td(esc(r.gf ?? "-"), "n hm")}${td(esc(r.ga ?? "-"), "n hm")}${td(typeof r.diff === "number" ? (r.diff > 0 ? "+" : "") + r.diff : "-", "n")}
+      ${td(esc(r.l10 || "-"), "n hm")}${td(streakCell(r.streak), "n hm")}</tr>`;
+  }
+  const standHead = () => th("Rk", "n") + th("Team") + th("GP", "n") + th("W", "n") + th("L", "n") + th("OTL", "n") + th("PTS", "n") +
+    th("P%", "n hm") + th("RW", "n hm") + th("ROW", "n hm") + th("GF", "n hm") + th("GA", "n hm") + th("DIFF", "n") + th("L10", "n hm") + th("STRK", "n hm");
+  const groupRow = (label, cls = "") => `<tr class="grp ${cls}"><td colspan="15">${esc(label)}</td></tr>`;
+  function vStandings() {
+    const S = D.standings || {}, rows = S.teams || [];
+    const seg = `<div class="seg stand" role="group" aria-label="Standings view">${STAND_VIEWS.map(([k, lab]) =>
+      `<button data-act="stand" data-arg="${k}" aria-pressed="${st.stand === k}">${lab}</button>`).join("")}</div>`;
+    const top = `${head("standings", "Standings")}<p class="sub">${S.as_of_utc ? `NHL standings as of ${esc(localStamp(S.as_of_utc))}.` : esc(longDate(D.date)) + "."} ${updated()}</p>
+      <div class="row noprint" style="margin-bottom:10px">${seg}</div>`;
+    if (!rows.length) return top + emptyCard("The standings are not in this data file yet.");
+    const by = (k, v) => rows.filter(r => r[k] === v);
+    const sortBy = (list, k) => list.slice().sort((a, b) => (a[k] ?? 99) - (b[k] ?? 99) || a.team.localeCompare(b.team));
+    const card = (title, body, foot = "") => `<section class="card"><h2 style="margin-top:0">${esc(title)}</h2>${tbl(standHead(), body, "standings")}${foot}</section>`;
+    let out = "";
+    if (st.stand === "wildcard") {
+      out = CONF_ORDER.map(conf => {
+        const cr = by("conference", conf);
+        if (!cr.length) return "";
+        const divs = DIV_ORDER.filter(dv => cr.some(r => r.division === dv));
+        let body = divs.map(dv => groupRow(dv) + sortBy(cr.filter(r => r.division === dv && (r.div_rank || 99) <= 3), "div_rank").map(r => standRow(r, r.div_rank)).join("")).join("");
+        const wc = sortBy(cr.filter(r => (r.wc_rank || 0) >= 1), "wc_rank");
+        body += groupRow("Wild Card") + wc.map((r, i) => standRow(r, r.wc_rank).replace("<tr class=\"", `<tr class="${i === 2 ? "cut " : ""}`)).join("");
+        return card(`${conf} Conference`, body);
+      }).join("") + `<p class="tiny muted">The top three in each division and the next two teams in each conference (the wild cards) make the playoffs. The line under the second wild card is the playoff line.</p>`;
+    } else if (st.stand === "division") {
+      out = DIV_ORDER.filter(dv => rows.some(r => r.division === dv)).map(dv => card(`${dv} Division`, sortBy(by("division", dv), "div_rank").map(r => standRow(r, r.div_rank)).join(""))).join("");
+    } else if (st.stand === "conference") {
+      out = CONF_ORDER.filter(c => rows.some(r => r.conference === c)).map(c => card(`${c} Conference`, sortBy(by("conference", c), "conf_rank").map(r => standRow(r, r.conf_rank)).join(""))).join("");
+    } else {
+      out = card("League", sortBy(rows, "league_rank").map(r => standRow(r, r.league_rank)).join(""));
+    }
+    return top + out + `<p class="tiny muted">From the NHL's standings feed, in the league's own order (points, then the tiebreakers). Your teams are shaded.</p>`;
   }
 
   // ---------- results ----------

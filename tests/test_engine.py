@@ -9,7 +9,7 @@ import subprocess
 import pytest
 
 from nhlda import core as C
-from nhlda.build import check_public, FORMAT
+from nhlda.build import check_public, standings_from, FORMAT
 from nhlda.lines import group_by_shared_ice, _overlap
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -49,11 +49,45 @@ def test_sample_data_file_is_public_and_complete():
     for k in ("date", "generated_utc", "teams", "slate", "lines", "results", "model", "dfs", "sources"):
         assert k in d
     assert len(d["teams"]) == 32 and len(d["lines"]) == 32
+    st = d["standings"]["teams"]
+    assert sorted(r["team"] for r in st) == sorted(d["teams"])
+    assert [r["league_rank"] for r in st] == list(range(1, 33))
+    assert {r["conference"] for r in st} == {"Eastern", "Western"} and len({r["division"] for r in st}) == 4
     for g in d["slate"]["games"]:
         assert 0 <= g["home_win_prob"] <= 1 and abs(g["home_win_prob"] + g["away_win_prob"] - 1) < 0.002
         assert g["projected"] in (g["home"], g["away"])
         for side in ("home_side", "away_side"):
             assert set(g[side]["pillars"]) >= {"p1_form", "p2_absence", "p3_motivation", "p4_gvi", "p5_friction"}
+
+
+def _team(ab, conf, div, seq, **kw):
+    t = {"teamAbbrev": {"default": ab}, "teamName": {"default": ab + " Club"}, "conferenceName": conf,
+         "divisionName": div, "gamesPlayed": 10, "wins": 6, "losses": 3, "otLosses": 1, "points": 13,
+         "pointPctg": 0.65432, "regulationWins": 5, "regulationPlusOtWins": 6, "goalFor": 30, "goalAgainst": 25,
+         "goalDifferential": 5, "l10Wins": 6, "l10Losses": 3, "l10OtLosses": 1, "streakCode": "W", "streakCount": 2,
+         "divisionSequence": seq, "conferenceSequence": seq, "leagueSequence": seq, "wildcardSequence": 0}
+    t.update(kw)
+    return t
+
+
+def test_standings_from_reads_the_nhl_feed():
+    feed = {"standingsDateTimeUtc": "2026-10-23T21:00:00Z", "wildCardIndicator": True, "standings": [
+        _team("BBB", "Western", "Central", 2, points=12, streakCode="OT", streakCount=1, clinchIndicator="x"),
+        _team("AAA", "Eastern", "Atlantic", 1),
+        {"teamName": {"default": "No abbreviation"}},
+        _team("CCC", "Eastern", "Metropolitan", 3, pointPctg=None, wildcardSequence=1, streakCode=None, streakCount=None)]}
+    names, block = standings_from(feed)
+    assert set(names) == {"AAA", "BBB", "CCC"} and names["AAA"]["record"] == "6-3-1"
+    assert block["as_of_utc"] == "2026-10-23T21:00:00Z" and block["wildcard_format"] is True
+    rows = block["teams"]
+    assert [r["team"] for r in rows] == ["AAA", "BBB", "CCC"]
+    a, b, c = rows
+    assert a["l10"] == "6-3-1" and a["streak"] == "W2" and a["p_pct"] == 0.6543 and a["rw"] == 5 and a["row"] == 6
+    assert b["streak"] == "OT1" and b["clinch"] == "x" and b["pts"] == 12 and b["conference"] == "Western"
+    assert c["streak"] is None and c["p_pct"] is None and c["wc_rank"] == 1 and c["clinch"] is None
+    check_public({"standings": block})
+    assert standings_from({}) == ({}, {"as_of_utc": None, "wildcard_format": True, "teams": []})
+    assert standings_from(None)[1]["teams"] == []
 
 
 def _ledger(tmp_path, rows):

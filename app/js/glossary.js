@@ -34,7 +34,14 @@ window.NDA_GLOSSARY = [
   ["Calibration", "How often picks in each probability band actually won. A well-calibrated model's 60 percent picks win about 60 percent of the time."],
   ["Learning", "Every 10 settled games the model refits its home ice, slope and pillar weights. A new setting is used only after it beats the current one on at least 40 games it was not fit on, by two standard errors of log loss."],
   ["DFS / DK", "Daily fantasy sports / DraftKings fantasy scoring. The DFS board projects each player's DraftKings points for tonight from his season rates, recent ice time and his team's win probability."],
-  ["OT / SO", "Overtime / shootout, how a final was decided."]
+  ["OT / SO", "Overtime / shootout, how a final was decided."],
+  ["Standings views", "Wild Card: the top three in each division, then everyone else in the conference by wild-card order; the line under the second wild card is the playoff line. Division, Conference and League rank teams within each group."],
+  ["W, L, OTL, PTS", "Wins, regulation losses, overtime and shootout losses, and points (2 for a win, 1 for an overtime or shootout loss)."],
+  ["P%", "Points percentage: points divided by the most points possible from the games played."],
+  ["RW / ROW", "Regulation wins / regulation plus overtime wins (all wins except shootout wins), the first two tiebreakers."],
+  ["GF / GA / DIFF", "Goals for / goals against / goal differential."],
+  ["L10 / STRK", "Record over the last 10 games (wins-losses-overtime losses) / current streak (W wins, L regulation losses, OT overtime or shootout losses)."],
+  ["x / y / z / p / e", "Clinch marks next to a team: x clinched a playoff spot, y the division, z the conference, p the Presidents' Trophy; e eliminated."]
 ];
 
 /* Short definitions shown when a reader hovers over, taps or tabs to a tag, a
@@ -64,6 +71,11 @@ window.NDA_TIPS = {
     "MOST SHOTS": "This line has the most combined shots on goal per game on its team in the chosen window.",
     "MOST PIM": "Most penalty minutes among the team's listed players in the chosen window.",
     "RIGHT": "The projected winner won. Overtime and shootout wins count.",
+    "X": "Clinched a playoff spot.",
+    "Y": "Clinched the division.",
+    "Z": "Clinched the conference.",
+    "P": "Clinched the Presidents' Trophy: the best record in the league.",
+    "E": "Eliminated from playoff contention.",
     "WRONG": "The projected winner lost.",
     "_tied": "Tied: another line or player has the same value.",
     "_injury": "Injury status as Daily Faceoff lists it, for example IR (injured reserve), DTD (day to day) or OUT.",
@@ -113,7 +125,20 @@ window.NDA_TIPS = {
     "Average": "The average win probability of the picks in this band.",
     "Won": "How often the projected winner actually won in this band.",
     "Right": "Picks that were right.",
-    "Rate": "Share of picks that were right."
+    "Rate": "Share of picks that were right.",
+    "Rk": "Rank in this group, in the NHL's own order: points, then the tiebreakers.",
+    "W": "Wins.",
+    "L": "Losses in regulation time.",
+    "OTL": "Overtime and shootout losses. Each is worth one point.",
+    "PTS": "Points: 2 for a win, 1 for an overtime or shootout loss.",
+    "P%": "Points percentage: points divided by the most points possible from the games played.",
+    "RW": "Regulation wins: wins in the first 60 minutes. The first tiebreaker.",
+    "ROW": "Regulation plus overtime wins: every win except shootout wins. The second tiebreaker.",
+    "GF": "Goals for.",
+    "GA": "Goals against.",
+    "DIFF": "Goal differential: goals for minus goals against.",
+    "L10": "Record over the last 10 games: wins, losses, overtime losses.",
+    "STRK": "Current streak: W wins, L regulation losses, OT overtime or shootout losses, and how many in a row."
   },
   tiles: {
     "games today": "Games on today's schedule.",
