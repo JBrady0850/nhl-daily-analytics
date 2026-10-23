@@ -101,6 +101,40 @@ def check_standings(pg, sample):
     return fails
 
 
+LINES_JS = """() => [...document.querySelectorAll('main section.card')].map(c => ({
+  team: (c.querySelector('h2 .tm') || {}).textContent,
+  units: [...c.querySelectorAll('tbody .unit')].map(u => u.textContent.trim()),
+  pairRows: [...c.querySelectorAll('tbody tr')].filter(r => !r.classList.contains('tot')).map(r => [...r.children].map(td => td.textContent.trim())),
+  totals: [...c.querySelectorAll('tbody tr.tot')].map(r => r.children[2].textContent.trim())
+}))"""
+
+
+def check_lines_tab(pg, sample):
+    """Each projected winner shows its four forward lines and three defense pairs, and
+    every defenseman's row carries his stats (John, 2026-10-23)."""
+    fails = []
+    pg.click('#tabs button[data-tab="lines"]')
+    pg.wait_for_timeout(40)
+    cards = pg.evaluate(LINES_JS)
+    want = [g["projected"] for g in sample["slate"]["games"] if g.get("projected")]
+    if [c["team"] for c in cards] != want:
+        fails.append(f"lines tab: cards for {[c['team'] for c in cards]}, expected {want}")
+    for c in cards:
+        L = sample["lines"][c["team"]]
+        if c["units"] != [f"F{x['line']}" for x in L["lines"]] + [f"D{x['pair']}" for x in L["pairs"]]:
+            fails.append(f"lines tab {c['team']}: units {c['units']}")
+        n_d = sum(len(x["players"]) for x in L["pairs"])
+        d_rows = c["pairRows"][-n_d:] if n_d else []
+        names = [p["name"] for x in L["pairs"] for p in x["players"]]
+        if len(d_rows) != n_d or any(not any(nm in cell for cell in r) for r, nm in zip(d_rows, names)):
+            fails.append(f"lines tab {c['team']}: defense pair rows missing")
+        elif any(not re.match(r"^\d+$", r[4]) for r in d_rows):
+            fails.append(f"lines tab {c['team']}: a defenseman has no GP")
+        if sum(1 for t in c["totals"] if t.startswith("D")) != len(L["pairs"]):
+            fails.append(f"lines tab {c['team']}: pair totals missing")
+    return fails
+
+
 def main():
     tmp = tempfile.mkdtemp(prefix="nda_ui_")
     site = os.path.join(tmp, "app")
@@ -154,6 +188,7 @@ def main():
                 if vals != sorted(vals, reverse=True):
                     fails.append(f"{name}: goalies not sorted by SV% {vals}")
                 fails.extend(f"{name}: {m}" for m in check_standings(pg, sample))
+                fails.extend(f"{name}: {m}" for m in check_lines_tab(pg, sample))
                 pg.click('#tabs button[data-tab="today"]')
                 tile = pg.locator(".tile").nth(2)
                 if mob:

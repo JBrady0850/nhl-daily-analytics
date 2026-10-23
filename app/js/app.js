@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.5.0";
+  const APP_VERSION = "1.5.1";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -434,10 +434,10 @@
   }
 
   // ---------- lines ----------
-  function linesTable(L, opts = {}) {
+  function linesTable(L) {
     const w = st.win;
     if (!L || L.error || !(L.lines || []).length) return `<p class="muted small">Lines are not available for this team right now${L && L.error ? ` (${esc(L.error)})` : ""}.</p>`;
-    const groups = (L.lines || []).map(x => ["F" + x.line, x]).concat(opts.forwardsOnly ? [] : (L.pairs || []).map(x => ["D" + x.pair, x]));
+    const groups = (L.lines || []).map(x => ["F" + x.line, x]).concat((L.pairs || []).map(x => ["D" + x.pair, x]));
     const all = groups.flatMap(([, x]) => x.players);
     const pims = all.map(p => (p[w] || {}).pim).filter(v => typeof v === "number");
     const topPim = pims.length ? Math.max(...pims) : 0;
@@ -482,8 +482,8 @@
   function vLines() {
     const gs = games().filter(g => g.projected);
     if (!gs.length) return `${head("lines", "Projected winners' lines")}${stamp()}${emptyCard(`No games today. Every team's lines are in <button class="linkish" data-tab="myteams">My Teams</button>.`)}`;
-    return `${head("lines", "Projected winners' lines")}${stamp()}<p class="small muted">The forward lines of each game's projected winner, in rank order. The shaded line leads its team in points per game.</p><div class="row noprint" style="margin-bottom:10px">${winToggle()}</div>` +
-      gs.map(g => `<section class="card"><h2 class="teamline" style="margin-top:0">#${esc(g.rank)} ${badge(g.projected, "", true)} ${esc(teamName(g.projected))} <span class="small muted">${esc(g.away)} @ ${esc(g.home)}, ${esc(localTime(g.start_utc))}, ${pct(g.win_prob)}</span> ${tierPill(g.tier)}</h2>${linesTable((D.lines || {})[g.projected], { forwardsOnly: true })}</section>`).join("");
+    return `${head("lines", "Projected winners' lines")}${stamp()}<p class="small muted">The four forward lines and three defense pairs of each game's projected winner, in rank order, with every player's stats. The shaded line leads its team's forwards in points per game.</p><div class="row noprint" style="margin-bottom:10px">${winToggle()}</div>` +
+      gs.map(g => `<section class="card"><h2 class="teamline" style="margin-top:0">#${esc(g.rank)} ${badge(g.projected, "", true)} ${esc(teamName(g.projected))} <span class="small muted">${esc(g.away)} @ ${esc(g.home)}, ${esc(localTime(g.start_utc))}, ${pct(g.win_prob)}</span> ${tierPill(g.tier)}</h2>${linesTable((D.lines || {})[g.projected])}</section>`).join("");
   }
 
   // ---------- goalies ----------
