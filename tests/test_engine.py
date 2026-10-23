@@ -192,3 +192,12 @@ def test_repository_carries_no_personal_data_or_keys():
                 if not m.group(0).lower().endswith(EMAIL_OK):
                     hits.append(f"{f}: email address {m.group(0)}")
     assert not hits, hits
+
+
+def test_install_identity_is_this_app_only():
+    """Browsers resolve a manifest id against the site's origin, not the app's folder.
+    "./" claimed all of the shared github.io site, so a second app installed from it
+    was reported as already installed and the install failed."""
+    with open(os.path.join(ROOT, "app", "manifest.webmanifest"), encoding="utf-8") as f:
+        m = json.load(f)
+    assert m["id"] == "/nhl-daily-analytics/" and m["scope"] == "./"
