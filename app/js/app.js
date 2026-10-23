@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.6.0";
+  const APP_VERSION = "1.6.1";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -47,14 +47,17 @@
   // ---------- graphics: team colors, badges, rink art ----------
   // Team colors are each club's primary and secondary colors, shown as plain
   // swatches behind the team abbreviation. No league or team logos are used.
+  // Checked on 2026-10-23 against teamcolorcodes.com, usteamcolors.com and ESPN's
+  // public team feed: Anaheim's orange is the 2024 rebrand's (#FC4C02), Utah's
+  // Mountain Blue is #6CACE3, and black is the clubs' #000000 (Los Angeles uses #111111).
   const TEAM_COLORS = {
-    ANA: ["#F47A38", "#111111"], BOS: ["#FFB81C", "#111111"], BUF: ["#003087", "#FFB81C"], CAR: ["#CE1126", "#111111"],
-    CBJ: ["#002654", "#CE1126"], CGY: ["#C8102E", "#F1BE48"], CHI: ["#CF0A2C", "#111111"], COL: ["#6F263D", "#236192"],
+    ANA: ["#FC4C02", "#000000"], BOS: ["#FFB81C", "#000000"], BUF: ["#003087", "#FFB81C"], CAR: ["#CE1126", "#000000"],
+    CBJ: ["#002654", "#CE1126"], CGY: ["#C8102E", "#F1BE48"], CHI: ["#CF0A2C", "#000000"], COL: ["#6F263D", "#236192"],
     DAL: ["#006847", "#8F8F8C"], DET: ["#CE1126", "#FFFFFF"], EDM: ["#041E42", "#FF4C00"], FLA: ["#C8102E", "#041E42"],
-    LAK: ["#111111", "#A2AAAD"], MIN: ["#154734", "#A6192E"], MTL: ["#AF1E2D", "#192168"], NJD: ["#CE1126", "#111111"],
+    LAK: ["#111111", "#A2AAAD"], MIN: ["#154734", "#A6192E"], MTL: ["#AF1E2D", "#192168"], NJD: ["#CE1126", "#000000"],
     NSH: ["#FFB81C", "#041E42"], NYI: ["#00539B", "#F47D30"], NYR: ["#0038A8", "#CE1126"], OTT: ["#DA1A32", "#B79257"],
-    PHI: ["#F74902", "#111111"], PIT: ["#111111", "#FCB514"], SEA: ["#001628", "#99D9D9"], SJS: ["#006D75", "#EA7200"],
-    STL: ["#002F87", "#FCB514"], TBL: ["#002868", "#FFFFFF"], TOR: ["#00205B", "#FFFFFF"], UTA: ["#0B0B0B", "#6CACE4"],
+    PHI: ["#F74902", "#000000"], PIT: ["#000000", "#FCB514"], SEA: ["#001628", "#99D9D9"], SJS: ["#006D75", "#EA7200"],
+    STL: ["#002F87", "#FCB514"], TBL: ["#002868", "#FFFFFF"], TOR: ["#00205B", "#FFFFFF"], UTA: ["#000000", "#6CACE3"],
     VAN: ["#00205B", "#00843D"], VGK: ["#B4975A", "#333F42"], WPG: ["#041E42", "#004C97"], WSH: ["#C8102E", "#041E42"]
   };
   const hexRgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));

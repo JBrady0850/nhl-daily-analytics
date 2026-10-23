@@ -279,6 +279,18 @@ def test_repository_carries_no_personal_data_or_keys():
     assert not hits, hits
 
 
+def test_team_colors_cover_every_club():
+    """Every club has a primary and a secondary color in TEAM_COLORS, as six-digit hex,
+    and the 2026-10-23 corrections stay in place."""
+    src = open(os.path.join(ROOT, "app", "js", "app.js"), encoding="utf-8").read()
+    block = src[src.index("const TEAM_COLORS"):src.index("};", src.index("const TEAM_COLORS"))]
+    colors = dict((k, (a.upper(), b.upper())) for k, a, b in re.findall(r'([A-Z]{3}): \["(#[0-9A-Fa-f]{6})", "(#[0-9A-Fa-f]{6})"\]', block))
+    d = json.load(open(SAMPLE, encoding="utf-8"))
+    assert sorted(colors) == sorted(d["teams"]) and len(colors) == 32
+    assert all(a != b for a, b in colors.values())
+    assert colors["ANA"] == ("#FC4C02", "#000000") and colors["UTA"] == ("#000000", "#6CACE3")
+
+
 def test_install_identity_is_this_app_only():
     """Browsers resolve a manifest id against the site's origin, not the app's folder.
     "./" claimed all of the shared github.io site, so a second app installed from it
