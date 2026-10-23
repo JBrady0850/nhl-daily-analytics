@@ -53,8 +53,14 @@ What the app can and cannot do. Read this before you rely on a number.
 
 ## Injuries
 
-- The injury list comes from Hockey-Reference's league page and the team's last
-  lineup. It can lag behind team announcements.
+- Missing players come from each team's last lineup plus an injury report. The report
+  is Hockey-Reference's league page when it can be reached. Hockey-Reference refuses
+  GitHub's servers, so the scheduled runs usually use the injured lists on Daily
+  Faceoff's team pages instead; a "Data note" on Today and Matchups says so.
+- Daily Faceoff's injured list and its projected lineup do not always agree. When a
+  player appears in both, the app follows the lineup and treats him as playing.
+- Either report can lag behind team announcements, and the two do not always list the
+  same players.
 
 ## DFS projections
 

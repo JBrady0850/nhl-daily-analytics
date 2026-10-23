@@ -141,6 +141,9 @@ async def detect_absences(f: Fetcher, abbrev, roster, mp, last_game_id, hr_injur
     # already flagged just gets the injury note attached; a player HR lists
     # who was still dressed last game (a new, in-progress injury) is added
     # fresh, at the same toi/points weighting used everywhere else.
+    # The injury list may be Hockey-Reference's or, when that site cannot be
+    # reached, Daily Faceoff's; its TAG names the source on each row.
+    tag = getattr(hr_injuries, "TAG", "HR")
     if hr_injuries:
         for p, toi, pts in pool:
             hit = hr_injuries.match_player(abbrev, p["name"])
@@ -149,7 +152,7 @@ async def detect_absences(f: Fetcher, abbrev, roster, mp, last_game_id, hr_injur
             if p["player_id"] in by_id:
                 by_id[p["player_id"]]["injury_note"] = hit["injury_note"]
                 by_id[p["player_id"]]["injury_type"] = hit["injury_type"]
-                by_id[p["player_id"]]["source"] = "LINEUP_DIFF+HR_INJURY"
+                by_id[p["player_id"]]["source"] = f"LINEUP_DIFF+{tag}_INJURY"
                 continue
             if toi <= 0:
                 continue
@@ -159,7 +162,7 @@ async def detect_absences(f: Fetcher, abbrev, roster, mp, last_game_id, hr_injur
                 continue
             by_id[p["player_id"]] = {"player_id": p["player_id"], "name": p["name"],
                             "position": p["position"], "toi_share": round(toi_share, 4),
-                            "points_share": round(pts_share, 4), "source": "HR_INJURY_REPORT",
+                            "points_share": round(pts_share, 4), "source": f"{tag}_INJURY_REPORT",
                             "injury_note": hit["injury_note"], "injury_type": hit["injury_type"]}
 
     missing = sorted(by_id.values(), key=lambda m: -(m["toi_share"] + m["points_share"]))

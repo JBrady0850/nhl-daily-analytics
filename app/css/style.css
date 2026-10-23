@@ -154,6 +154,7 @@ tr.lead td { background: color-mix(in srgb, var(--high) 9%, var(--panel)); }
 /* bars for calibration */
 .bar { height: 12px; background: var(--line); border-radius: 999px; overflow: hidden; min-width: 80px; } .bar > i { display: block; height: 100%; background: var(--accent); }
 .note { padding: 8px 12px; background: var(--panel); border: 1px solid var(--line); border-left: 5px solid var(--gold); border-radius: 10px; margin: 0 0 12px; }
+.note.warn { border-left-color: var(--warn); background: color-mix(in srgb, var(--warn) 7%, var(--panel)); }
 .empty { text-align: center; padding: 22px 14px; color: var(--muted); }
 .empty-art { display: block; width: min(240px, 70%); height: auto; margin: 0 auto 10px; }
 .en-ice { fill: var(--ice-lo); } .en-crease { fill: var(--crease); opacity: .45; }

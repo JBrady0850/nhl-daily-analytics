@@ -1,5 +1,6 @@
 """Offline tests for the public engine and the data file. No network."""
 import csv
+import hashlib
 import json
 import os
 import re
@@ -79,8 +80,73 @@ def test_season_record_and_learning_rows(tmp_path):
     assert [b["games"] for b in C.calibration_bins(C.read_ledger(d))][:3] == [1, 0, 1]
 
 
-PRIVATE = [r"redacted", r"redacted", r"redacted", r"@redacted\.", r"redacted", r"C:\\\\Users",
-           r"sk-ant-", r"AIza", r"ghp_[A-Za-z0-9]{20}", r"github_pat_", r"redacted"]
+def _dfo_page(players):
+    return ('<html><script id="__NEXT_DATA__" type="application/json">'
+            + json.dumps({"props": {"pageProps": {"combinations": {"players": players}}}}) + "</script></html>")
+
+
+def test_daily_faceoff_injuries_read_the_injured_list():
+    from nhlda.intel import DailyFaceoffInjuries
+    page = _dfo_page([
+        {"name": "Juraj Slafkovsky", "playerId": 1, "groupIdentifier": "ir", "injuryStatus": "ir",
+         "latestNews": {"details": "Out two weeks (lower-body).", "createdAt": "2026-10-20T10:00:00"}},
+        {"name": "Kirby Dach", "playerId": 2, "groupIdentifier": "f4", "injuryStatus": None},
+        {"name": "Florian Xhekaj", "playerId": 3, "groupIdentifier": "f4"},
+        {"name": "Florian Xhekaj", "playerId": 3, "groupIdentifier": "ir", "injuryStatus": "ir"},
+        {"name": "Sam Montembeault", "playerId": 4, "groupIdentifier": "ir", "injuryStatus": "dtd"}])
+    d = DailyFaceoffInjuries()
+    assert d.add_page("mtl", page) is True
+    names = [e["player_name"] for e in d.get("MTL")]
+    assert names == ["Juraj Slafkovsky", "Sam Montembeault"]       # Xhekaj is also in tonight's lineup
+    hit = d.match_player("MTL", "Juraj Slafkovský")                  # accents differ between sources
+    assert hit and hit["injury_type"] == "IR" and hit["injury_note"].startswith("Out two weeks")
+    assert hit["date_injury"] == "2026-10-20"
+    assert d.match_player("MTL", "Sam Montembeault")["injury_note"] == "Listed DTD by Daily Faceoff."
+    assert d.add_page("MTL", "<html>no data</html>") is False
+
+
+def test_absences_name_the_injury_source():
+    import asyncio
+    from nhlda.intel import DailyFaceoffInjuries
+
+    class FakeMP:
+        def skater(self, pid):
+            return {"icetime": "1000", "I_F_points": "10"}
+
+        def goalie(self, pid):
+            return None
+    inj = DailyFaceoffInjuries()
+    inj.add_page("MTL", _dfo_page([{"name": "Nick Suzuki", "playerId": 9, "groupIdentifier": "ir",
+                                    "injuryStatus": "out", "latestNews": {"details": "Out 2-4 weeks."}}]))
+    roster = [{"player_id": str(i), "name": n, "position": "C"} for i, n in enumerate(
+        ["Nick Suzuki", "Cole Caufield", "Kirby Dach", "Jake Evans", "Josh Anderson"], start=1)]
+    missing, impact = asyncio.run(C.detect_absences(None, "MTL", roster, FakeMP(), None, hr_injuries=inj))
+    assert [m["name"] for m in missing] == ["Nick Suzuki"]
+    assert missing[0]["source"] == "DFO_INJURY_REPORT" and missing[0]["injury_note"] == "Out 2-4 weeks."
+    assert impact != 0
+
+
+def test_check_public_accepts_the_injury_notes():
+    check_public({"problems": ["Hockey-Reference's injury report could not be reached this run, so injuries "
+                               "come from the injured lists on Daily Faceoff's team pages."],
+                  "sources": {"injuries": {"loaded": True, "source": "daily_faceoff", "rows": 11}}})
+
+
+# Personal words this public repository must never contain. Only their SHA-256
+# digests (of the lowercased word, or of two adjacent words joined by a space) are
+# stored here, so the list itself gives nothing away. The scan hashes every word
+# and every pair of adjacent words in every file.
+PRIVATE_DIGESTS = {
+    "b17653146bd38027d1e916c896e1ed07eb07d601f663adf7a46a3775397aaabb",
+    "fb0d668decb3b9bb0d7a118cc41657721e4de080eb2b1f4cb76c9fae0d157850",
+    "53008a4021d501893a3fc103c1dd05c23342327d230db16793a6302775dd07b1",
+    "55a484f502103aba8b0693abc683c96ea96773fabf228acb6384403934249b5e",
+    "36d5d2ab47d7d2195003de72df65c4612793f6d6f89f98ef084c80e4f65b5644",
+    "8e3f5e915594cdb4ef687b3c65e4706ffa0abefadc91934f0add9ce4570e4700",
+}
+# key formats need their long tails, so these patterns do not match themselves
+KEY_PATTERNS = [r"sk-ant-[A-Za-z0-9_-]{20}", r"AIza[0-9A-Za-z_-]{35}", r"ghp_[A-Za-z0-9]{20}",
+                r"github_pat_[A-Za-z0-9_]{20}", r"C:\\{1,2}Users"]
 EMAIL = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}")
 EMAIL_OK = ("users.noreply.github.com", "example.com", "example.org")
 SKIP_DIRS = (".git", "__pycache__", ".pytest_cache", "node_modules")
@@ -94,19 +160,35 @@ def _repo_files():
             if not any(part in SKIP_DIRS for part in dp.split(os.sep)) for f in fs]
 
 
+def _private_words(text, digests=PRIVATE_DIGESTS):
+    words = re.findall(r"[a-z0-9]+", text.lower())
+    grams = set(words) | {f"{a} {b}" for a, b in zip(words, words[1:])}
+    return sorted(g for g in grams if hashlib.sha256(g.encode()).hexdigest() in digests)
+
+
+def test_private_word_check_works():
+    probe = {hashlib.sha256(b"quokka harbor").hexdigest(), hashlib.sha256(b"zamboni42").hexdigest()}
+    assert _private_words("nothing to see here", probe) == []
+    assert _private_words("A Quokka  Harbor note from ZAMBONI42.", probe) == ["quokka harbor", "zamboni42"]
+
+
 def test_repository_carries_no_personal_data_or_keys():
     hits = []
     for f in _repo_files():
-        if f.endswith((".png", ".npy")) or f.replace(os.sep, "/") == "tests/test_engine.py":
+        if f.endswith((".png", ".npy")):
             continue
         try:
             text = open(os.path.join(ROOT, f), encoding="utf-8", errors="ignore").read()
         except OSError:
             continue
-        for pat in PRIVATE:
+        this_test = f.replace(os.sep, "/") == "tests/test_engine.py"
+        if _private_words(text):
+            hits.append(f"{f}: a listed personal word")
+        for pat in KEY_PATTERNS:
             if re.search(pat, text):
                 hits.append(f"{f}: {pat}")
-        for m in EMAIL.finditer(text):
-            if not m.group(0).lower().endswith(EMAIL_OK):
-                hits.append(f"{f}: email address {m.group(0)}")
+        if not this_test:                           # the stake test uses a fake mail address
+            for m in EMAIL.finditer(text):
+                if not m.group(0).lower().endswith(EMAIL_OK):
+                    hits.append(f"{f}: email address {m.group(0)}")
     assert not hits, hits

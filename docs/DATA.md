@@ -26,7 +26,7 @@ no wager, account or chat wording.
 | `results` | object | Settled picks. See below. |
 | `model` | object | Settings, learning and calibration. See below. |
 | `dfs` | object | DraftKings projections: `skaters` (top 30) and `goalies`. |
-| `sources` | object | What loaded: goalie and injury counts, market games, lines by source, request counts, build seconds. |
+| `sources` | object | What loaded: goalie and injury counts, `injuries.source` (`hockey_reference`, `daily_faceoff` or `none`), market games, lines by source, request counts, build seconds. |
 | `problems` | list | Plain-text notes about anything that failed or fell back. Empty on a clean run. |
 
 ## `slate`
@@ -60,7 +60,10 @@ Each game:
 `ssn_xgf_pct`, `rest_days`, `venue`, `venue_games` and `l3_vs_l5_momentum`.
 
 Each entry in `absences` holds `player_id`, `name`, `position`, `toi_share`,
-`points_share`, `source` and an `injury_note` when the injury report has one.
+`points_share`, `source` and an `injury_note` when the injury report has one. `source`
+is `LINEUP_DIFF` (did not dress in the last game), `HR_INJURY_REPORT` or
+`DFO_INJURY_REPORT` (listed by Hockey-Reference or Daily Faceoff), or the two joined,
+for example `LINEUP_DIFF+DFO_INJURY`.
 
 Every `player_id` and `nhl_id` is the NHL's own player id. The player's official page is
 `https://www.nhl.com/player/<id>`.

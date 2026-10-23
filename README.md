@@ -146,7 +146,7 @@ All free and public. No keys, accounts or paid services.
 | --- | --- |
 | NHL web and stats feeds (`api-web.nhle.com`, `api.nhle.com/stats`) | Schedule, scores, standings, rosters, team and player game logs, shift charts, and the sportsbook lines the NHL publishes in its score feed |
 | [MoneyPuck](https://moneypuck.com) season data | Expected goals, goals saved above expected, high-danger save percentage |
-| [Daily Faceoff](https://www.dailyfaceoff.com) | Starting goalie confirmations and current line combinations |
+| [Daily Faceoff](https://www.dailyfaceoff.com) | Starting goalie confirmations, current line combinations, and each team's injured list when Hockey-Reference cannot be reached |
 | [Hockey-Reference](https://www.hockey-reference.com) | The league injury report |
 
 The workflow keeps the number of requests small (one page per team for lines, one
@@ -155,7 +155,13 @@ robots.txt, and links back to the source next to the data it shows. If Daily
 Faceoff does not answer, goalies fall back to the model's own guess from recent
 workload, and lines are rebuilt from the team's last game: the NHL shift chart shows
 who was on the ice together, and the players who shared the most ice time are grouped
-into lines and pairs. See [docs/LIMITS.md](docs/LIMITS.md).
+into lines and pairs.
+
+Hockey-Reference refuses GitHub's servers, so on the scheduled runs the injury list
+usually comes from the injured lists on Daily Faceoff's team pages instead. When that
+happens, or when no injury report can be reached at all, a "Data note" says so on the
+Today and Matchups tabs and in Settings, and each missing player's note names its
+source. See [docs/LIMITS.md](docs/LIMITS.md).
 
 ## Files
 

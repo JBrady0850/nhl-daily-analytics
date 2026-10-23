@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.2.0";
+  const APP_VERSION = "1.3.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -380,7 +380,7 @@
         ${nx && nx.matchups ? `<p class="small muted">${nx.matchups.map(esc).join(", ")}</p>` : ""}<p class="small">My Teams, Results and Model still update every day.</p></div>`;
     }
     const intro = st.teams.length ? "" : `<div class="note">Pick your teams in <button class="linkish" data-tab="myteams">My Teams</button> to see their lines every day and spot their games here.</div>`;
-    return `${hero("Tonight's games, ranked")}${intro}<div class="grid">${gs.map(gameCard).join("")}</div>`;
+    return `${hero("Tonight's games, ranked")}${dataNotes()}${intro}<div class="grid">${gs.map(gameCard).join("")}</div>`;
   }
 
   // ---------- pillars, form, absences ----------
@@ -390,9 +390,18 @@
     const rows = PILLARS.map(([k, lab]) => `<tr class="${k === "adj_raa" ? "tot" : ""}">${td(esc(lab))}${td(num(a[k]), "n")}${td(num(h[k]), "n")}${td(typeof a[k] === "number" && typeof h[k] === "number" ? signed(h[k] - a[k]) : "-", "n")}</tr>`).join("");
     return tbl(th("Factor") + th(g.away, "n") + th(g.home, "n") + th("Home edge", "n"), rows);
   }
+  // where a missing player came from: the last lineup, and which injury report
+  function absNote(a) {
+    const src = String(a.source || "");
+    const by = src.indexOf("DFO") >= 0 ? "Daily Faceoff" : src.indexOf("HR") >= 0 ? "Hockey-Reference" : "";
+    const note = a.injury_note || (src === "LINEUP_DIFF" ? "Did not dress in the last game" : "");
+    return esc(note) + (by && a.injury_note ? ` <span class="muted">(${by})</span>` : "");
+  }
+  // build notes (a source that could not be reached, a fallback in use) shown where they matter
+  const dataNotes = () => (D.problems || []).length ? `<div class="note warn" role="status"><b>Data note:</b> ${D.problems.map(esc).join(" ")}</div>` : "";
   function absences(g) {
     const rows = [["away", g.away], ["home", g.home]].flatMap(([s, ab]) => (g[s + "_side"].absences || []).map(a =>
-      `<tr>${td(`<b>${esc(ab)}</b>`)}${td(pname(a.name, a.player_id))}${td(esc(a.position))}${td(pct(a.toi_share), "n hm")}${td(esc(a.injury_note || (a.source === "LINEUP_DIFF" ? "Did not dress in the last game" : "")), "small")}</tr>`)).join("");
+      `<tr>${td(`<b>${esc(ab)}</b>`)}${td(pname(a.name, a.player_id))}${td(esc(a.position))}${td(pct(a.toi_share), "n hm")}${td(absNote(a), "small")}</tr>`)).join("");
     return rows ? `<h3>Key absences</h3>${tbl(th("Team") + th("Player") + th("Pos") + th("TOI share", "n hm") + th("Note"), rows)}` : `<p class="small muted">No material absences found.</p>`;
   }
   function formTable(g) {
@@ -405,7 +414,7 @@
   function vMatchups() {
     const gs = games();
     if (!gs.length) return `${head("matchups", "Matchups")}${stamp()}${emptyCard("No games today.")}`;
-    return `${head("matchups", "Matchups")}${stamp()}<p class="small muted">Each team's five pillar scores (rating points above or below neutral), recent form and missing players. The home edge column is home minus away; home ice adds ${num(((D.model || {}).settings_in_use || {}).h, 2)} more.</p>` +
+    return `${head("matchups", "Matchups")}${stamp()}${dataNotes()}<p class="small muted">Each team's five pillar scores (rating points above or below neutral), recent form and missing players. The home edge column is home minus away; home ice adds ${num(((D.model || {}).settings_in_use || {}).h, 2)} more.</p>` +
       gs.map(g => `<section class="card"><h2 class="teamline" style="margin-top:0">${badge(g.away, "", true)} <span class="at">@</span> ${badge(g.home, "", true)} <span class="small muted">${esc(localTime(g.start_utc))}</span></h2>
         <p class="row">${g.projected ? `<span class="pick">${esc(teamName(g.projected))} ${pct(g.win_prob)}</span> ${tierPill(g.tier)}` : ""}</p>
         <h3>Five pillars</h3>${pillarTable(g)}<h3>Form</h3>${formTable(g)}${absences(g)}</section>`).join("");
@@ -565,7 +574,9 @@
       <section class="card"><h2 style="margin-top:0">Today's data</h2><dl class="kv"><dt>Slate</dt><dd>${esc(longDate(D.date))}, ${esc(D.slate.game_count)} games</dd>
         <dt>Built</dt><dd>${esc(localStamp(D.generated_utc))}</dd>
         <dt>Starting goalies</dt><dd>${gl.loaded ? `${esc(gl.teams)} teams listed by Daily Faceoff, ${esc(gl.confirmed)} confirmed` : "Daily Faceoff not reached; starters are the model's rotation guess"}</dd>
-        <dt>Injuries</dt><dd>${inj.loaded ? `${esc(inj.rows)} rows from Hockey-Reference` : "Injury report not reached; absences come from last game's lineup only"}</dd>
+        <dt>Injuries</dt><dd>${!inj.loaded ? "No injury report reached; missing players come from each team's last lineup only"
+          : inj.source === "daily_faceoff" ? `${esc(inj.rows)} players on the injured lists of Daily Faceoff's team pages (Hockey-Reference not reached)`
+          : `${esc(inj.rows)} rows from Hockey-Reference`}</dd>
         <dt>Betting lines</dt><dd>${esc(S.market_games || 0)} games</dd><dt>Lines</dt><dd>${lines}</dd>
         <dt>Model</dt><dd>RAA model ${esc(D.model_version)}, app ${APP_VERSION}</dd></dl>
         ${(D.problems || []).length ? `<p class="small" style="color:var(--warn)">Notes from this build: ${D.problems.map(esc).join("; ")}</p>` : ""}</section>
@@ -577,7 +588,7 @@
     const gloss = (window.NDA_GLOSSARY || []).map(([t, d]) => `<dt>${esc(t)}</dt><dd>${esc(d)}</dd>`).join("");
     const tipNote = `<p class="small">Hover over, tap, or Tab to any colored tag, summary tile, column heading or dotted-underlined abbreviation to see what it means. Click or tap a player's name to open his official NHL.com page with his full stats in a separate window.</p>`;
     return `${head("help", "How it works")}
-      <section class="card"><p>Twice a day (at 14:05 and 22:20 UTC: about 9:05 AM and 5:20 PM US Central in daylight time, an hour earlier in standard time) a free GitHub workflow reads the NHL's public schedule, standings and game logs, MoneyPuck's season numbers, Daily Faceoff's starting goalies and line combinations, and Hockey-Reference's injury report. It scores every team on five pillars (form, missing players, playoff-race motivation, the starting goalie and rest), turns the gap between the two teams into a win probability, and publishes one data file that this app reads.</p>
+      <section class="card"><p>Twice a day (at 14:05 and 22:20 UTC: about 9:05 AM and 5:20 PM US Central in daylight time, an hour earlier in standard time) a free GitHub workflow reads the NHL's public schedule, standings and game logs, MoneyPuck's season numbers, Daily Faceoff's starting goalies and line combinations, and Hockey-Reference's injury report (or, when that site cannot be reached, the injured lists on Daily Faceoff's team pages). It scores every team on five pillars (form, missing players, playoff-race motivation, the starting goalie and rest), turns the gap between the two teams into a win probability, and publishes one data file that this app reads.</p>
       <p>Each morning it also settles the previous night's games, keeps the season record, and every 10 settled games tests whether a refit of the model would predict better. A refit is adopted only after it proves itself on games it has not seen.</p></section>
       <section class="card"><h2 style="margin-top:0">Limits</h2><ul class="steps-list"><li>Hockey is close to a coin flip: last season the model picked 56 percent of winners on games it had not seen, and about 64 percent on picks that cleared the gate. Treat the numbers as estimates.</li>
       <li>Morning starting goalies are mostly projections; check the evening update or the team's own news before relying on one.</li>

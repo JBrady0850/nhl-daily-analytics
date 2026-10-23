@@ -165,6 +165,28 @@ def main():
                 if errs:
                     fails.append(f"{name} {url[:4]}: script errors {errs[:3]}")
                 ctx.close()
+        # a build note (here: the injury report fell back to Daily Faceoff) shows on
+        # Today and Matchups, and Settings names the source actually used
+        noted = os.path.join(tmp, "noted")
+        shutil.copytree(site, noted)
+        alt = json.loads(json.dumps(sample))
+        alt["problems"] = ["Hockey-Reference's injury report could not be reached this run, so injuries come "
+                           "from the injured lists on Daily Faceoff's team pages."]
+        alt["sources"]["injuries"] = {"loaded": True, "source": "daily_faceoff", "rows": 11}
+        with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
+            fh.write("window.NDA_DATA=" + json.dumps(alt) + ";\n")
+        ctx = b.new_context(viewport={"width": 1280, "height": 900})
+        pg = ctx.new_page()
+        pg.goto("file://" + os.path.join(noted, "index.html"))
+        for t in ("today", "matchups"):
+            pg.click(f'#tabs button[data-tab="{t}"]')
+            note = pg.locator("main .note.warn")
+            if note.count() != 1 or "Daily Faceoff" not in note.inner_text():
+                fails.append(f"build note missing on {t}")
+        pg.click('#tabs button[data-tab="settings"]')
+        if "Daily Faceoff's team pages" not in pg.inner_text("main"):
+            fails.append("Settings does not name the injury source")
+        ctx.close()
         b.close()
     httpd.shutdown()
     shutil.rmtree(tmp, ignore_errors=True)

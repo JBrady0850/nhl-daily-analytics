@@ -552,12 +552,93 @@ class NhlPlayerWindows:
 # =============================================================================
 # HOCKEY-REFERENCE - INJURY STATUS
 # =============================================================================
+class DailyFaceoffInjuries:
+    """Fallback injury list, used when the Hockey-Reference table cannot be
+    reached (it refuses GitHub's servers). Each Daily Faceoff team
+    line-combination page lists the players it has out of tonight's lineup in
+    an injured group (injured reserve, day to day, out), with the latest news
+    note. Same interface as HockeyReferenceInjuries: by_team, loaded, get(),
+    match_player(). The pages are the same ones the lines step reads, so the
+    run's response cache serves them a second time for free."""
+
+    TAG = "DFO"
+    OUT_GROUP = "ir"
+    LINEUP_GROUPS = ("f1", "f2", "f3", "f4", "d1", "d2", "d3", "g")
+
+    def __init__(self):
+        self.by_team = {}    # abbrev -> [entries]
+        self.loaded = False
+        self.error = None
+        self.teams_read = 0
+
+    async def resolve(self, f, teams):
+        ok = 0
+        for i in range(0, len(teams), 4):                      # gentle on the source
+            chunk = teams[i:i + 4]
+            res = await asyncio.gather(*[self._page(f, t) for t in chunk])
+            ok += sum(1 for r in res if r)
+        self.teams_read = ok
+        self.loaded = ok > 0
+        if not ok:
+            self.error = "fetch_failed"
+        log.info("Daily Faceoff injuries: %d of %d team pages read, %d players listed out",
+                 ok, len(teams), sum(len(v) for v in self.by_team.values()))
+        return self
+
+    async def _page(self, f, team):
+        slug = team_slug(team)
+        if not slug:
+            return False
+        raw = await f.get(DFO_LINES_URL.format(slug=slug), as_text=True, headers=INTEL_HEADERS)
+        return bool(raw) and self.add_page(team, raw)
+
+    def add_page(self, team, raw):
+        """Read one team page; True when the page parsed (even with nobody out)."""
+        m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', raw or "", re.S)
+        if not m:
+            return False
+        try:
+            players = json.loads(m.group(1))["props"]["pageProps"]["combinations"].get("players") or []
+        except (json.JSONDecodeError, KeyError, TypeError, AttributeError):
+            return False
+        ab = str(team).upper()
+        # a player Daily Faceoff also slots into tonight's lineup (a line, a pair
+        # or the goalie spot) is expected to play, whatever his tag says
+        dressing = {p.get("playerId") or p.get("name") for p in players
+                    if p.get("groupIdentifier") in self.LINEUP_GROUPS}
+        for p in players:
+            if p.get("groupIdentifier") != self.OUT_GROUP or not p.get("name"):
+                continue
+            if (p.get("playerId") or p.get("name")) in dressing:
+                continue
+            status = str(p.get("injuryStatus") or "out").upper()
+            news = p.get("latestNews") or {}
+            note = str(news.get("details") or "").strip() or f"Listed {status} by Daily Faceoff."
+            self.by_team.setdefault(ab, []).append({
+                "player_name": p["name"], "date_injury": str(news.get("createdAt") or "")[:10],
+                "injury_type": status, "injury_note": note})
+        return True
+
+    def get(self, abbrev):
+        return self.by_team.get(str(abbrev).upper(), [])
+
+    def match_player(self, abbrev, player_name):
+        """Match on the name without accents: Daily Faceoff and the NHL roster
+        do not always spell accented names the same way."""
+        target = _norm_name(player_name)
+        for e in self.get(abbrev):
+            if _norm_name(e["player_name"]) == target:
+                return e
+        return None
+
+
 class HockeyReferenceInjuries:
     """A static HTML table: player, team, injury date, type, free-text note.
     Skater-focused; not scoped to tonight's slate, so callers filter by team
     and by recency. The note field usually names the reporting outlet, but it
     is prose, not a structured field -- shown as-is, not parsed further."""
 
+    TAG = "HR"
     FRESH_DAYS = 21   # only treat an entry as an active-injury signal inside
                        # this window; older rows are commonly stale ("cleared
                        # for camp") and Hockey-Reference does not mark them

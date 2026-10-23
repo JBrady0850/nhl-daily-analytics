@@ -131,6 +131,24 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
                 hr = await I.HockeyReferenceInjuries().resolve(f, as_of=target_date)
             except Exception as exc:  # noqa: BLE001
                 problems.append(f"injuries: {exc}")
+            inj_source = "hockey_reference" if hr and hr.loaded else "none"
+            if inj_source == "none":
+                # Hockey-Reference refuses GitHub's servers: fall back to the injured
+                # lists on Daily Faceoff's team pages, and say so in the app
+                alt = None
+                if use_dfo:
+                    slate_teams = sorted({t for m in slate.matchups for t in (m["away_abbrev"], m["home_abbrev"]) if t})
+                    try:
+                        alt = await I.DailyFaceoffInjuries().resolve(f, slate_teams)
+                    except Exception as exc:  # noqa: BLE001
+                        log.warning("Daily Faceoff injuries: %s", exc)
+                if alt and alt.loaded:
+                    hr, inj_source = alt, "daily_faceoff"
+                    problems.append("Hockey-Reference's injury report could not be reached this run, so injuries "
+                                    "come from the injured lists on Daily Faceoff's team pages.")
+                else:
+                    problems.append("No injury report could be reached this run, so missing players come only "
+                                    "from each team's last lineup.")
             try:
                 market = await fetch_market_odds(f, target_date) or {}
             except Exception:  # noqa: BLE001
@@ -139,7 +157,8 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
                 "starting_goalies": {"loaded": bool(dfo and dfo.loaded),
                                      "teams": len(dfo.by_team) if dfo else 0,
                                      "confirmed": sum(1 for v in dfo.by_team.values() if v.get("confirmed")) if dfo else 0},
-                "injuries": {"loaded": bool(hr and hr.loaded), "rows": sum(len(v) for v in hr.by_team.values()) if hr else 0},
+                "injuries": {"loaded": bool(hr and hr.loaded), "source": inj_source,
+                             "rows": sum(len(v) for v in hr.by_team.values()) if hr else 0},
                 "market_games": len(market), "moneypuck_season": mp.loaded_season,
             }
             engines = [C.GameEngine(m, season, gl, mp, st, series, target_date, dfo=dfo, hr_injuries=hr,
