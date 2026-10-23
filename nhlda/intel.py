@@ -61,6 +61,9 @@ log = logging.getLogger("nhl.intel")
 
 DFO_BASE = "https://www.dailyfaceoff.com/starting-goalies/"
 HR_INJURIES_URL = "https://www.hockey-reference.com/friv/injuries.cgi"
+# ESPN's public NHL injury feed: JSON, no key, league-wide, and it answers GitHub's
+# servers (Hockey-Reference refuses them). Undocumented, so it can change.
+ESPN_INJURIES_URL = "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/injuries"
 
 # A plain, honest, browser-complete header set. The shared Fetcher's
 # BASE_HEADERS carries an Origin/Referer of nhl.com, which is correct for
@@ -552,6 +555,113 @@ class NhlPlayerWindows:
 # =============================================================================
 # HOCKEY-REFERENCE - INJURY STATUS
 # =============================================================================
+class EspnInjuries:
+    """ESPN's public NHL injury feed, the main injury list since 1.4.0: one JSON
+    request, every team, each player's status (Out, Day-To-Day, Injured
+    Reserve), body part, estimated return date and a short note. Same interface
+    as HockeyReferenceInjuries. ESPN's own player ids differ from the NHL's, so
+    players are matched by name with accents removed."""
+
+    TAG = "ESPN"
+    STATUS_CODES = {"injured reserve": "IR", "day-to-day": "DTD", "out": "OUT", "suspension": "SUSP"}
+
+    def __init__(self):
+        self.by_team = {}
+        self.loaded = False
+        self.error = None
+
+    async def resolve(self, f, as_of: str = None):
+        data = await f.get(ESPN_INJURIES_URL, headers=INTEL_HEADERS)
+        if not isinstance(data, dict) or not isinstance(data.get("injuries"), list):
+            self.error = "fetch_failed"
+            return self
+        return self.read(data, as_of)
+
+    def read(self, data, as_of: str = None):
+        for t in data.get("injuries") or []:
+            ab = team_abbrev_from_name(t.get("displayName"))
+            if not ab:
+                continue
+            for x in t.get("injuries") or []:
+                name = ((x.get("athlete") or {}).get("displayName") or "").strip()
+                if not name:
+                    continue
+                status = str(x.get("status") or "").strip()
+                self.by_team.setdefault(ab, []).append({
+                    "player_name": name, "date_injury": str(x.get("date") or "")[:10],
+                    "injury_type": self.STATUS_CODES.get(status.lower(), status.upper() or "OUT"),
+                    "injury_note": self.note(x, as_of), "tag": self.TAG})
+        self.loaded = True
+        log.info("ESPN injuries: %d players on %d teams",
+                 sum(len(v) for v in self.by_team.values()), len(self.by_team))
+        return self
+
+    @staticmethod
+    def note(x, as_of=None):
+        """ESPN's short comment when it says something; otherwise the status, the
+        body part and the estimated return built from ESPN's own fields."""
+        short = str(x.get("shortComment") or "").strip()
+        if len(short) > 24:
+            return short
+        det = x.get("details") or {}
+        status = str(x.get("status") or "Out").strip() or "Out"
+        part = str(det.get("type") or "").strip()
+        out = status + (f" ({part.lower()})" if part and part.lower() != "undisclosed" else "")
+        ret = str(det.get("returnDate") or "")[:10]
+        try:
+            if ret and (not as_of or ret > as_of):
+                d = dt.date.fromisoformat(ret)
+                out += f", estimated return {d.strftime('%b')} {d.day}"
+        except ValueError:
+            pass
+        return out + "."
+
+    def get(self, abbrev):
+        return self.by_team.get(str(abbrev).upper(), [])
+
+    def match_player(self, abbrev, player_name):
+        target = _norm_name(player_name)
+        for e in self.get(abbrev):
+            if _norm_name(e["player_name"]) == target:
+                return e
+        return None
+
+
+class CombinedInjuries:
+    """The injury lists the build could reach, in order of preference (ESPN,
+    then Hockey-Reference, then Daily Faceoff). The first list that names a
+    player supplies his note and its source tag. A player Daily Faceoff slots
+    into tonight's lineup counts as playing, whichever list names him."""
+
+    TAG = "INJ"
+
+    def __init__(self, sources, lineup=None):
+        self.sources = [s for s in sources if s is not None and getattr(s, "loaded", False)]
+        self.lineup = lineup or {}
+        self.loaded = bool(self.sources)
+        self.by_team = {}
+        for s in self.sources:
+            for ab, rows in s.by_team.items():
+                seen = {_norm_name(e["player_name"]) for e in self.by_team.get(ab, [])}
+                for e in rows:
+                    if _norm_name(e["player_name"]) not in seen:
+                        self.by_team.setdefault(ab, []).append(dict(e, tag=e.get("tag") or getattr(s, "TAG", "HR")))
+                        seen.add(_norm_name(e["player_name"]))
+
+    def get(self, abbrev):
+        return self.by_team.get(str(abbrev).upper(), [])
+
+    def match_player(self, abbrev, player_name):
+        ab = str(abbrev).upper()
+        if _norm_name(player_name) in self.lineup.get(ab, ()):
+            return None
+        for s in self.sources:
+            hit = s.match_player(ab, player_name)
+            if hit:
+                return dict(hit, tag=hit.get("tag") or getattr(s, "TAG", "HR"))
+        return None
+
+
 class DailyFaceoffInjuries:
     """Fallback injury list, used when the Hockey-Reference table cannot be
     reached (it refuses GitHub's servers). Each Daily Faceoff team
@@ -567,6 +677,7 @@ class DailyFaceoffInjuries:
 
     def __init__(self):
         self.by_team = {}    # abbrev -> [entries]
+        self.lineup = {}     # abbrev -> names (accents removed) Daily Faceoff has dressing tonight
         self.loaded = False
         self.error = None
         self.teams_read = 0
@@ -606,6 +717,8 @@ class DailyFaceoffInjuries:
         # or the goalie spot) is expected to play, whatever his tag says
         dressing = {p.get("playerId") or p.get("name") for p in players
                     if p.get("groupIdentifier") in self.LINEUP_GROUPS}
+        self.lineup[ab] = {_norm_name(p.get("name")) for p in players
+                           if p.get("groupIdentifier") in self.LINEUP_GROUPS and p.get("name")}
         for p in players:
             if p.get("groupIdentifier") != self.OUT_GROUP or not p.get("name"):
                 continue
@@ -616,7 +729,8 @@ class DailyFaceoffInjuries:
             note = str(news.get("details") or "").strip() or f"Listed {status} by Daily Faceoff."
             self.by_team.setdefault(ab, []).append({
                 "player_name": p["name"], "date_injury": str(news.get("createdAt") or "")[:10],
-                "injury_type": status, "injury_note": note})
+                "injury_type": status, "injury_note": note, "tag": self.TAG})
+        self.loaded = True
         return True
 
     def get(self, abbrev):

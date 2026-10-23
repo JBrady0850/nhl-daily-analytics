@@ -53,11 +53,13 @@ What the app can and cannot do. Read this before you rely on a number.
 
 ## Injuries
 
-- Missing players come from each team's last lineup plus an injury report. The report
-  is Hockey-Reference's league page when it can be reached. Hockey-Reference refuses
-  GitHub's servers, so the scheduled runs usually use the injured lists on Daily
-  Faceoff's team pages instead; a "Data note" on Today and Matchups says so.
-- Daily Faceoff's injured list and its projected lineup do not always agree. When a
+- Missing players come from each team's last lineup plus the injury reports: ESPN's
+  public feed first, then the injured lists on Daily Faceoff's team pages. Hockey-Reference
+  is read only when ESPN cannot be reached, because it refuses GitHub's servers. A "Data
+  note" on Today and Matchups appears when ESPN or every report is missing.
+- ESPN's feed is public but undocumented, so it can change without notice. Its player
+  ids differ from the NHL's, so players are matched by name.
+- The injury reports and Daily Faceoff's projected lineup do not always agree. When a
   player appears in both, the app follows the lineup and treats him as playing.
 - Either report can lag behind team announcements, and the two do not always list the
   same players.

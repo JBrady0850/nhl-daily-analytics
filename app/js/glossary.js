@@ -134,6 +134,7 @@ window.NDA_TIPS = {
   },
   inline: {
     "NHL": "National Hockey League.",
+    "ESPN": "The sports network whose public injury report the app reads.",
     "RAA": "Relative Advantage Assessment: the model's five-pillar team score on a neutral 50.0 baseline.",
     "Adj RAA": "Adjusted RAA: the team's total score after all five pillars, on a neutral 50.0 baseline.",
     "Slope K": "How steeply the model turns a rating gap into a win probability.",
@@ -153,6 +154,7 @@ window.NDA_TIPS = {
     "DK": "DraftKings, the fantasy scoring used for the projections.",
     "GTD": "Game-time decision.",
     "DTD": "Day to day.",
+    "IR-NR": "Injured reserve, non-roster: injured and not counted on the active roster.",
     "IR": "Injured reserve.",
     "LTIR": "Long-term injured reserve.",
     "OT": "Overtime.",

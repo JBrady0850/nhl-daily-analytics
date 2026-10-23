@@ -149,10 +149,11 @@ async def detect_absences(f: Fetcher, abbrev, roster, mp, last_game_id, hr_injur
             hit = hr_injuries.match_player(abbrev, p["name"])
             if not hit:
                 continue
+            src = hit.get("tag") or tag
             if p["player_id"] in by_id:
                 by_id[p["player_id"]]["injury_note"] = hit["injury_note"]
                 by_id[p["player_id"]]["injury_type"] = hit["injury_type"]
-                by_id[p["player_id"]]["source"] = f"LINEUP_DIFF+{tag}_INJURY"
+                by_id[p["player_id"]]["source"] = f"LINEUP_DIFF+{src}_INJURY"
                 continue
             if toi <= 0:
                 continue
@@ -162,7 +163,7 @@ async def detect_absences(f: Fetcher, abbrev, roster, mp, last_game_id, hr_injur
                 continue
             by_id[p["player_id"]] = {"player_id": p["player_id"], "name": p["name"],
                             "position": p["position"], "toi_share": round(toi_share, 4),
-                            "points_share": round(pts_share, 4), "source": f"{tag}_INJURY_REPORT",
+                            "points_share": round(pts_share, 4), "source": f"{src}_INJURY_REPORT",
                             "injury_note": hit["injury_note"], "injury_type": hit["injury_type"]}
 
     missing = sorted(by_id.values(), key=lambda m: -(m["toi_share"] + m["points_share"]))

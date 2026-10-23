@@ -124,6 +124,53 @@ def test_absences_name_the_injury_source():
     assert [m["name"] for m in missing] == ["Nick Suzuki"]
     assert missing[0]["source"] == "DFO_INJURY_REPORT" and missing[0]["injury_note"] == "Out 2-4 weeks."
     assert impact != 0
+    from nhlda.intel import CombinedInjuries, EspnInjuries
+    mixed = CombinedInjuries([EspnInjuries().read(ESPN_SAMPLE, as_of="2026-10-23"), inj])
+    missing, _ = asyncio.run(C.detect_absences(None, "MTL", roster, FakeMP(), None, hr_injuries=mixed))
+    assert missing[0]["source"] == "ESPN_INJURY_REPORT"
+
+
+ESPN_SAMPLE = {"injuries": [
+    {"displayName": "Montreal Canadiens", "injuries": [
+        {"status": "Out", "date": "2026-10-22T15:30Z", "shortComment": "out",
+         "details": {"type": "Upper Body", "returnDate": "2026-11-18"}, "athlete": {"displayName": "Nick Suzuki"}},
+        {"status": "Injured Reserve", "date": "2026-10-17T17:08Z",
+         "shortComment": "Xhekaj (lower body) was placed on injured reserve Saturday.",
+         "details": {"type": "Lower Body", "returnDate": "2026-10-31"}, "athlete": {"displayName": "Florian Xhekaj"}},
+        {"status": "Day-To-Day", "shortComment": "day-to-day",
+         "details": {"type": "Undisclosed", "returnDate": "2026-10-23"}, "athlete": {"displayName": "Juraj Slafkovský"}}]},
+    {"displayName": "Nowhere Skaters", "injuries": [{"status": "Out", "athlete": {"displayName": "Nobody"}}]}]}
+
+
+def test_espn_injuries_read_status_note_and_return():
+    from nhlda.intel import EspnInjuries
+    e = EspnInjuries().read(ESPN_SAMPLE, as_of="2026-10-23")
+    assert e.loaded and list(e.by_team) == ["MTL"]                       # unknown team names are skipped
+    suz = e.match_player("MTL", "Nick Suzuki")
+    assert suz["injury_type"] == "OUT" and suz["injury_note"] == "Out (upper body), estimated return Nov 18."
+    assert e.match_player("MTL", "Florian Xhekaj")["injury_note"].startswith("Xhekaj (lower body) was placed")
+    slaf = e.match_player("MTL", "Juraj Slafkovsky")                    # accents differ between sources
+    assert slaf["injury_type"] == "DTD" and slaf["injury_note"] == "Day-To-Day."
+    assert slaf["tag"] == "ESPN"
+
+
+def test_combined_injuries_prefer_espn_and_respect_the_lineup():
+    from nhlda.intel import CombinedInjuries, DailyFaceoffInjuries, EspnInjuries
+    espn = EspnInjuries().read(ESPN_SAMPLE, as_of="2026-10-23")
+    dfo = DailyFaceoffInjuries()
+    dfo.add_page("MTL", _dfo_page([
+        {"name": "Florian Xhekaj", "playerId": 3, "groupIdentifier": "f4"},
+        {"name": "Nick Suzuki", "playerId": 9, "groupIdentifier": "ir", "injuryStatus": "out",
+         "latestNews": {"details": "Suzuki will miss two to four weeks."}},
+        {"name": "Mike Matheson", "playerId": 8, "groupIdentifier": "ir", "injuryStatus": "dtd",
+         "latestNews": {"details": "Matheson is day to day."}}]))
+    both = CombinedInjuries([espn, None, dfo], lineup=dfo.lineup)
+    assert both.loaded
+    assert both.match_player("MTL", "Nick Suzuki")["tag"] == "ESPN"      # ESPN wins when both name him
+    assert both.match_player("MTL", "Mike Matheson")["tag"] == "DFO"     # Daily Faceoff fills the gap
+    assert both.match_player("MTL", "Florian Xhekaj") is None            # in tonight's lineup: playing
+    assert {e["player_name"] for e in both.get("MTL")} >= {"Nick Suzuki", "Mike Matheson"}
+    assert not CombinedInjuries([None, EspnInjuries()]).loaded           # nothing reached
 
 
 def test_check_public_accepts_the_injury_notes():

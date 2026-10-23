@@ -146,8 +146,9 @@ All free and public. No keys, accounts or paid services.
 | --- | --- |
 | NHL web and stats feeds (`api-web.nhle.com`, `api.nhle.com/stats`) | Schedule, scores, standings, rosters, team and player game logs, shift charts, and the sportsbook lines the NHL publishes in its score feed |
 | [MoneyPuck](https://moneypuck.com) season data | Expected goals, goals saved above expected, high-danger save percentage |
-| [Daily Faceoff](https://www.dailyfaceoff.com) | Starting goalie confirmations, current line combinations, and each team's injured list when Hockey-Reference cannot be reached |
-| [Hockey-Reference](https://www.hockey-reference.com) | The league injury report |
+| [ESPN](https://www.espn.com/nhl/injuries) public injury feed | The league injury report: each player's status, body part and estimated return |
+| [Daily Faceoff](https://www.dailyfaceoff.com) | Starting goalie confirmations, current line combinations, and each playing team's injured list and projected lineup |
+| [Hockey-Reference](https://www.hockey-reference.com) | A backup injury report, used only when ESPN cannot be reached |
 
 The workflow keeps the number of requests small (one page per team for lines, one
 page for goalies, one for injuries), runs only a few at a time, follows each site's
@@ -157,10 +158,12 @@ workload, and lines are rebuilt from the team's last game: the NHL shift chart s
 who was on the ice together, and the players who shared the most ice time are grouped
 into lines and pairs.
 
-Hockey-Reference refuses GitHub's servers, so on the scheduled runs the injury list
-usually comes from the injured lists on Daily Faceoff's team pages instead. When that
-happens, or when no injury report can be reached at all, a "Data note" says so on the
-Today and Matchups tabs and in Settings, and each missing player's note names its
+Missing players come from each team's last lineup plus the injury reports: ESPN's
+feed first, then the injured lists on Daily Faceoff's team pages for anyone ESPN does
+not list. A player Daily Faceoff puts in tonight's projected lineup counts as playing.
+Hockey-Reference is read only when ESPN cannot be reached, because it refuses GitHub's
+servers. If ESPN is missing, or no injury report can be reached, a "Data note" says so
+on the Today and Matchups tabs and in Settings. Each missing player's note names its
 source. See [docs/LIMITS.md](docs/LIMITS.md).
 
 ## Files
