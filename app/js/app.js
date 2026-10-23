@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.4.0";
+  const APP_VERSION = "1.4.1";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -287,8 +287,19 @@
       try { win.opener = null; win.focus(); } catch (x) { /* another site's window */ }
     }
   });
-  window.addEventListener("scroll", hideTip, true);
-  window.addEventListener("resize", hideTip);
+  // A scroll or resize moves the open definition with its term, and closes it
+  // only once the term leaves the screen. (Focusing a term below the fold scrolls
+  // the page; hiding on every scroll closed the definition a keyboard user had
+  // just opened.)
+  function followTip() {
+    if (!tipEl) return;
+    if (!document.body.contains(tipEl)) { hideTip(); return; }
+    const r = tipEl.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > window.innerHeight || r.width === 0) { hideTip(); return; }
+    showTip(tipEl);
+  }
+  window.addEventListener("scroll", followTip, true);
+  window.addEventListener("resize", followTip);
 
   // ---------- tabs ----------
   const VIEWS = { today: vToday, myteams: vMyTeams, lines: vLines, goalies: vGoalies, matchups: vMatchups, results: vResults, model: vModel, dfs: vDfs, settings: vSettings, help: vHelp };

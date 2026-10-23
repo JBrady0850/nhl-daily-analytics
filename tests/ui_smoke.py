@@ -127,6 +127,14 @@ def main():
                     pg.wait_for_timeout(50)
                     if pg.evaluate("document.getElementById('tipbox').hidden"):
                         fails.append(f"{name}: keyboard focus did not show the definition")
+                    # a heading below the fold: focusing it scrolls the page, and the
+                    # definition must stay open and sit on screen next to it
+                    pg.evaluate("window.scrollTo(0, 0)")
+                    pg.locator("th.has-tip").last.focus()
+                    pg.wait_for_timeout(80)
+                    box = pg.evaluate("(() => { const b = document.getElementById('tipbox'); const r = b.getBoundingClientRect(); return {hidden: b.hidden, top: r.top, bottom: r.bottom, vh: innerHeight, sy: scrollY}; })()")
+                    if box["hidden"] or box["top"] < 0 or box["bottom"] > box["vh"]:
+                        fails.append(f"{name}: definition lost after focus scrolled the page ({box})")
                 pg.click('#tabs button[data-tab="myteams"]')
                 links = pg.evaluate("[...document.querySelectorAll('main a.plink')].map(a => [a.getAttribute('href'), a.target, a.rel, a.childNodes[0].textContent])")
                 want = sum(1 for grp in ("lines", "pairs") for ln in sample["lines"]["FLA"][grp] for p in ln["players"] if p.get("nhl_id"))
