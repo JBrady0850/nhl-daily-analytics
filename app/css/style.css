@@ -213,6 +213,13 @@ tr.lead td { background: color-mix(in srgb, var(--high) 9%, var(--panel)); }
 .teamcard { border-left: 6px solid var(--c1); }
 .tc-head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
 .tc-head h2 { margin: 2px 0 2px; }
+/* My Teams: the team's places in the standings */
+.splaces { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin: 6px 0 4px; }
+.spos { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px 7px; background: color-mix(in srgb, var(--board) 4%, var(--panel)); cursor: help; }
+.spos .k { display: block; font: 600 .95rem/1 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.spos b { display: block; font: 600 1.9rem/1 var(--display); letter-spacing: .03em; padding-top: 4px; }
+.spos .s { display: block; font-size: .8rem; line-height: 1.25; color: var(--muted); }
+@media (max-width: 600px) { .splaces { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 #toast { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 8px; opacity: 0; transition: opacity .2s; pointer-events: none; max-width: 90vw; z-index: 10; }
 #toast.show { opacity: .95; }

@@ -35,6 +35,7 @@ window.NDA_GLOSSARY = [
   ["Learning", "Every 10 settled games the model refits its home ice, slope and pillar weights. A new setting is used only after it beats the current one on at least 40 games it was not fit on, by two standard errors of log loss."],
   ["DFS / DK", "Daily fantasy sports / DraftKings fantasy scoring. The DFS board projects each player's DraftKings points for tonight from his season rates, recent ice time and his team's win probability."],
   ["OT / SO", "Overtime / shootout, how a final was decided."],
+  ["Standings places (My Teams)", "Each team you follow shows its place in the wild-card race (Top 3 means a division playoff spot; otherwise its order among the other teams in the conference, and how many points it sits above or below the playoff line), in its division, in its conference and in the league."],
   ["Standings views", "Wild Card: the top three in each division, then everyone else in the conference by wild-card order; the line under the second wild card is the playoff line. Division, Conference and League rank teams within each group."],
   ["W, L, OTL, PTS", "Wins, regulation losses, overtime and shootout losses, and points (2 for a win, 1 for an overtime or shootout loss)."],
   ["P%", "Points percentage: points divided by the most points possible from the games played."],

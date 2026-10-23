@@ -135,6 +135,33 @@ def check_lines_tab(pg, sample):
     return fails
 
 
+def ordinal(n):
+    return f"{n}{'th' if 11 <= n % 100 <= 13 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
+
+
+def check_team_places(pg, sample, ab, mob):
+    """My Teams: a followed team's card shows its Wild Card, Division, Conference and
+    League places, each with a definition (John, 2026-10-23)."""
+    r = next(x for x in sample["standings"]["teams"] if x["team"] == ab)
+    want = ["Top 3" if not r["wc_rank"] else ordinal(r["wc_rank"]), ordinal(r["div_rank"]), ordinal(r["conf_rank"]), ordinal(r["league_rank"])]
+    pg.click('#tabs button[data-tab="myteams"]')
+    pg.wait_for_timeout(40)
+    got = pg.evaluate("""(ab) => { const c = [...document.querySelectorAll('main section.teamcard')].find(s => s.querySelector('.tc-head .tm').textContent.trim() === ab);
+      if (!c) return null; return [...c.querySelectorAll('.splaces .spos')].map(e => [e.querySelector('.k').textContent.trim(), e.querySelector('b').textContent.trim(), !!e.dataset.tip]); }""", ab)
+    if not got:
+        return [f"my teams {ab}: no standings places"]
+    out = []
+    if [g[0] for g in got] != ["Wild Card", "Division", "Conference", "League"] or [g[1] for g in got] != want or not all(g[2] for g in got):
+        out.append(f"my teams {ab}: places {got}, expected {want}")
+    first = pg.locator("main .splaces .spos").first
+    (first.tap() if mob else first.hover())
+    pg.wait_for_timeout(60)
+    box = pg.evaluate("(() => { const b = document.getElementById('tipbox'); return {shown: !b.hidden, title: (b.querySelector('b') || {}).textContent}; })()")
+    if not box["shown"] or box["title"] != "Wild Card":
+        out.append(f"my teams {ab}: the Wild Card place shows no definition ({box})")
+    return out
+
+
 GOALIE_ROWS_JS = """() => [...document.querySelectorAll('main article.game')].map(card => {
   const c = card.getBoundingClientRect(), g = card.querySelector('.gks');
   if (!g) return {missing: true};
@@ -238,6 +265,7 @@ def main():
                     fails.append(f"{name}: goalies not sorted by SV% {vals}")
                 fails.extend(f"{name}: {m}" for m in check_standings(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_goalie_rows(pg, len(sample["slate"]["games"])))
+                fails.extend(f"{name}: {m}" for m in check_team_places(pg, sample, "FLA", mob))
                 fails.extend(f"{name}: {m}" for m in check_lines_tab(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_dfs_goalies(pg, len(sample["dfs"]["goalies"])))
                 pg.click('#tabs button[data-tab="today"]')
@@ -341,6 +369,10 @@ def main():
         if "11 players from Daily Faceoff's injured lists" not in pg.inner_text("main"):
             fails.append("Settings does not name the injury source")
         fails.extend(f"file order reversed: {m}" for m in check_dfs_goalies(pg, len(alt["dfs"]["goalies"])))
+        # a team in a division spot shows Top 3 on My Teams
+        pg.click('#tabs button[data-tab="myteams"]')
+        pg.click('button.chip[data-arg="TBL"]')
+        fails.extend(check_team_places(pg, alt, "TBL", False))
         # a clinch mark gets its definition; a file without standings says so
         pg.click('#tabs button[data-tab="standings"]')
         clinch = pg.locator("main .pill.clinch")
@@ -353,6 +385,9 @@ def main():
         pg.click('#tabs button[data-tab="standings"]')
         if "not in this data file yet" not in pg.inner_text("main"):
             fails.append("missing standings not explained")
+        pg.click('#tabs button[data-tab="myteams"]')
+        if pg.locator("main .splaces").count() or pg.locator("main section.teamcard").count() != 1:
+            fails.append("My Teams without standings: places shown or card missing")
         ctx.close()
         b.close()
     httpd.shutdown()

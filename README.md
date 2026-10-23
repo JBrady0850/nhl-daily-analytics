@@ -33,7 +33,8 @@ The app then opens full screen like any other app. The Settings tab repeats thes
 ## Pick your teams
 
 Open **My Teams** and tap any of the 32 teams. Each team you follow shows its record,
-tonight's game (if it plays), and its four forward lines and three defense pairs with
+its place in the standings (wild-card race, division, conference and league), tonight's
+game (if it plays), and its four forward lines and three defense pairs with
 each player's numbers over his last 10 games or the whole season. Your games are also
 marked on the Today and Goalies tabs.
 
@@ -86,7 +87,7 @@ always has the latest data.
 | Tab | What you see |
 | --- | --- |
 | **Today** | Every game ranked by the projected winner's win probability, with the confidence tier (HIGH, MODERATE, LOW), the market's view for comparison, both starting goalies, and a "Why this pick" breakdown. |
-| **My Teams** | The teams you follow: record, tonight's game, all four lines and three pairs with last-10 or season stats, and which line leads the team in points, shots and penalty minutes. |
+| **My Teams** | The teams you follow: record, place in the wild-card race, division, conference and league, tonight's game, all four lines and three pairs with last-10 or season stats, and which line leads the team in points, shots and penalty minutes. |
 | **Lines** | The four forward lines and three defense pairs of each game's projected winner, in rank order, with every player's stats (last 10 games or season) and line and pair totals. |
 | **Goalies** | Every probable starter tonight, highest season save percentage first, with goals saved above expected, high-danger save percentage, rest days and whether the start is confirmed. |
 | **Matchups** | Each game's five-factor scores side by side, recent shot share and form, and the key missing players. |

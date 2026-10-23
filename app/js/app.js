@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.5.3";
+  const APP_VERSION = "1.6.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -227,7 +227,8 @@
     if (!d) return;
     if (tipEl && tipEl !== el) tipEl.removeAttribute("aria-describedby");
     tipEl = el;
-    const term = el.classList.contains("tile") ? (el.querySelector("span") || el).textContent.replace(/\(.*\)/, "").trim() : (el.textContent || "").trim();
+    const term = el.classList.contains("tile") ? (el.querySelector("span") || el).textContent.replace(/\(.*\)/, "").trim()
+      : el.classList.contains("spos") ? el.querySelector(".k").textContent.trim() : (el.textContent || "").trim();
     tipBox.innerHTML = (term && term.length <= 40 ? `<b>${esc(term)}</b>` : "") + `<span>${esc(d)}</span>`;
     tipBox.hidden = false;
     el.setAttribute("aria-describedby", "tipbox");
@@ -471,11 +472,36 @@
       `<button class="chip" data-act="team" data-arg="${ab}" aria-pressed="${mine(ab)}" style="${teamVars(ab)}">${ab}</button>`).join("")}</div>`).join("") +
       `<p class="small" style="margin-top:10px">${st.teams.length ? `Following: ${st.teams.map(t => esc(teamName(t))).join(", ")}. <button class="linkish" data-act="clearTeams">Clear</button>` : "Tap a team to follow it. Your picks stay in this browser."}</p>`;
   }
+  // ---------- a team's places in the standings (My Teams) ----------
+  const ordinal = n => { const v = n % 100; return n + (v >= 11 && v <= 13 ? "th" : ({ 1: "st", 2: "nd", 3: "rd" }[n % 10] || "th")); };
+  const ptsText = n => `${n} point${n === 1 ? "" : "s"}`;
+  function standPlaces(ab) {
+    const rows = (D.standings || {}).teams || [], r = rows.find(x => x.team === ab);
+    if (!r || !r.div_rank) return "";
+    const conf = rows.filter(x => x.conference === r.conference);
+    const wcPts = k => { const t = conf.find(x => x.wc_rank === k); return t ? t.pts : null; };
+    let wcBig, wcSub;
+    if (!r.wc_rank) { wcBig = "Top 3"; wcSub = `in the ${r.division}: a division playoff spot`; }
+    else if (r.wc_rank <= 2) {
+      const out = wcPts(3), gap = out == null ? null : r.pts - out;
+      wcBig = ordinal(r.wc_rank); wcSub = `wild card, ${gap == null ? "in a playoff spot" : gap > 0 ? ptsText(gap) + " above the line" : "level on points with the first team out"}`;
+    } else {
+      const last = wcPts(2), gap = last == null ? null : last - r.pts;
+      wcBig = ordinal(r.wc_rank); wcSub = `in the wild-card race, ${gap == null ? "outside the playoff spots" : gap > 0 ? ptsText(gap) + " out" : "level on points with the second wild card"}`;
+    }
+    const place = (k, big, sub, tip) => `<div class="spos" data-tip="${esc(tip)}" tabindex="0"><span class="k">${esc(k)}</span><b>${esc(big)}</b><span class="s">${esc(sub)}</span></div>`;
+    return `<div class="splaces">
+      ${place("Wild Card", wcBig, wcSub, `Where the team stands in the ${r.conference} Conference playoff race: the top three in each division make the playoffs, then the next two teams in the conference (the wild cards). The playoff line sits under the second wild card.`)}
+      ${place("Division", ordinal(r.div_rank), `of ${rows.filter(x => x.division === r.division).length} in the ${r.division}`, `Place in the ${r.division} Division, in the NHL's order: points, then the tiebreakers.`)}
+      ${place("Conference", ordinal(r.conf_rank), `of ${conf.length} in the ${r.conference}`, `Place in the ${r.conference} Conference, in the NHL's order: points, then the tiebreakers.`)}
+      ${place("League", ordinal(r.league_rank), `of ${rows.length} teams`, "Place among all NHL teams, in the NHL's order: points, then the tiebreakers.")}
+    </div><p class="tiny muted" style="margin:2px 0 8px">Standings ${(D.standings || {}).as_of_utc ? "as of " + esc(localStamp(D.standings.as_of_utc)) : "from today's data"}. <button class="linkish" data-tab="standings">Open the full standings</button></p>`;
+  }
   function teamCard(ab) {
     const t = (D.teams || {})[ab] || {};
     const g = games().find(x => x.home === ab || x.away === ab);
     const tonight = g ? `<p class="row small">Tonight: ${esc(g.away)} @ ${esc(g.home)}, ${esc(localTime(g.start_utc))}. ${g.projected ? `Projected winner ${esc(g.projected)} ${pct(g.win_prob)} ${tierPill(g.tier)}` : ""}</p>` : `<p class="small muted">No game today.</p>`;
-    return `<section class="card edge teamcard" style="${teamVars(ab)}"><div class="tc-head">${badge(ab, "xl", true)}<div><h2>${esc(t.name || ab)}</h2><span class="small muted">${t.record ? esc(t.record) + ", " + esc(t.pts) + " pts" : ""}${t.division ? ", " + esc(t.division) : ""}</span></div></div>${tonight}${linesTable((D.lines || {})[ab])}</section>`;
+    return `<section class="card edge teamcard" style="${teamVars(ab)}"><div class="tc-head">${badge(ab, "xl", true)}<div><h2>${esc(t.name || ab)}</h2><span class="small muted">${t.record ? esc(t.record) + ", " + esc(t.pts) + " pts" : ""}${t.division ? ", " + esc(t.division) : ""}</span></div></div>${standPlaces(ab)}${tonight}${linesTable((D.lines || {})[ab])}</section>`;
   }
   function vMyTeams() {
     const body = st.teams.length ? st.teams.map(teamCard).join("") : `<div class="card empty">No teams picked yet. Choose any of the 32 teams below.</div>`;
