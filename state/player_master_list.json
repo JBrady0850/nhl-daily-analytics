@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-10-23",
-"count": 801,
+"count": 800,
 "players": [
 {
 "team": "ANA",
@@ -5383,13 +5383,6 @@
 "team": "WPG",
 "name": "Clay Stevenson",
 "player_id": "8483532",
-"position": "G",
-"role": "goalie"
-},
-{
-"team": "WPG",
-"name": "Connor Hellebuyck",
-"player_id": "8476945",
 "position": "G",
 "role": "goalie"
 },
