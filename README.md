@@ -1,5 +1,7 @@
 # NHL Daily Analytics
 
+![NHL Daily Analytics: every game ranked by win probability](docs/images/banner.png)
+
 A free web app that ranks every NHL game of the day by the projected winner's win
 probability. It also shows the starting goalies, the forward lines and defense pairs
 for the teams you follow, how the picks have done this season, how well the model is
@@ -37,6 +39,13 @@ marked on the Today and Goalies tabs.
 
 Your picks stay in your own browser on your own device. Nothing is sent anywhere. To
 start over, use **Clear** under the team list or **Clear my settings** in Settings.
+
+## See what any term means
+
+Hover over any colored tag, scoreboard number, column heading or dotted-underlined
+abbreviation to see what it means. On a phone or tablet, tap it; tap anywhere else to
+close it. With a keyboard, press Tab to reach it. Team abbreviations show the full team
+name, and times show your device's time zone. The Help tab lists every term.
 
 ## Screenshots
 
@@ -150,7 +159,7 @@ into lines and pairs. See [docs/LIMITS.md](docs/LIMITS.md).
 | `state/` | The season record, the model's learning history, a player list and yesterday's slate (for settling results) |
 | `.github/workflows/` | `daily.yml` builds and publishes; `tests.yml` runs the tests; `pages.yml` republishes the app after a code change |
 | `docs/` | [Data file format](docs/DATA.md), [privacy](docs/PRIVACY.md), [limits](docs/LIMITS.md) and the screenshots |
-| `tests/` | Engine tests, a browser test of every tab, the screenshot maker and the sample data |
+| `tests/` | Engine tests, a browser test of every tab, the screenshot and artwork makers and the sample data |
 
 ## Command line
 
@@ -183,15 +192,23 @@ pip install pytest playwright
 python -m pytest -q             # engine, line grouping, data file checks, privacy scan
 python tests/ui_smoke.py        # every tab at phone, iPad, Android tablet and desktop sizes
 python tests/make_screenshots.py   # only when the look changes; rewrites docs/images
+python tests/make_art.py           # only after changing the icon or rink artwork
 ```
 
 The browser test opens the app both from a web server and as a plain file, and fails on
-any script error, any page that scrolls sideways, or any change to the goalie order.
+any script error, any page that scrolls sideways, any change to the goalie order, any
+tag, tile, heading or abbreviation without a definition, or a definition that does not
+open on hover, tap and keyboard focus.
 
 ## Credits
 
 Data from the NHL's public web and stats feeds, MoneyPuck.com, Daily Faceoff and
 Hockey-Reference.com. Team names and abbreviations belong to the NHL and its teams.
+
+The artwork (the rink, the scoreboard, the empty net, the icons) is original to this
+project and uses no league or team logos and no player photos. Team badges are the team
+abbreviation on the club's colors. Headings use the Teko typeface by the Teko Project
+Authors, under the SIL Open Font License 1.1 (`app/css/Teko-OFL.txt`).
 
 Report a problem or suggest an idea on the
 [issues page](https://github.com/JBrady0850/nhl-daily-analytics/issues/new/choose).

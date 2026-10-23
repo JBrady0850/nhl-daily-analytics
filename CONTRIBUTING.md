@@ -26,6 +26,9 @@ A screenshot helps. Please do not post personal information.
    ```
 
 6. If you change the list of files the app loads, raise `VERSION` in `app/sw.js`.
-7. Write documentation in plain language for non-technical readers.
+7. Give every new tag, column heading and abbreviation a definition in
+   `app/js/glossary.js`; the browser test fails without one.
+8. Use original artwork only: no league or team logos and no player photos.
+9. Write documentation in plain language for non-technical readers.
 
 By contributing you agree that your work is released under the MIT License.
