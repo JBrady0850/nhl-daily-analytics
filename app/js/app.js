@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.6.2";
+  const APP_VERSION = "1.6.3";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -402,7 +402,7 @@
         ${nx && nx.matchups ? `<p class="small muted">${nx.matchups.map(esc).join(", ")}</p>` : ""}<p class="small">My Teams, Results and Model still update every day.</p></div>`;
     }
     const intro = st.teams.length ? "" : `<div class="note">Pick your teams in <button class="linkish" data-tab="myteams">My Teams</button> to see their lines every day and spot their games here.</div>`;
-    return `${hero("Tonight's games, ranked")}${dataNotes()}${intro}<div class="grid">${gs.map(gameCard).join("")}</div>`;
+    return `${hero("Today's games, ranked")}${dataNotes()}${intro}<div class="grid">${gs.map(gameCard).join("")}</div>`;
   }
 
   // ---------- pillars, form, absences ----------
@@ -673,7 +673,7 @@
   }
   function injSources(inj) {
     if (!inj || !inj.loaded) return "No injury report reached; missing players come from each team's last lineup only";
-    const names = { espn: "ESPN's injury report", hockey_reference: "Hockey-Reference's injury report", daily_faceoff: "Daily Faceoff's injured lists for tonight's teams" };
+    const names = { espn: "ESPN's injury report", hockey_reference: "Hockey-Reference's injury report", daily_faceoff: "Daily Faceoff's injured lists for today's teams" };
     const used = Array.isArray(inj.sources) ? inj.sources : String(inj.source || "").split("+");
     return `${esc(inj.rows)} players from ${used.map(u => esc(names[u] || u)).join(" and ")}`;
   }

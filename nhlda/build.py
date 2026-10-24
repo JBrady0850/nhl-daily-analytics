@@ -152,7 +152,7 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
                 except Exception as exc:  # noqa: BLE001
                     problems.append(f"goalies: {exc}")
             # Injuries: ESPN's public feed first (it answers GitHub's servers), the
-            # injured lists on Daily Faceoff's team pages for tonight's teams (also
+            # injured lists on Daily Faceoff's team pages for today's teams (also
             # the lineup check), and Hockey-Reference only when ESPN cannot be read,
             # because Hockey-Reference refuses GitHub's servers. A note appears in
             # the app only when the main list is missing.

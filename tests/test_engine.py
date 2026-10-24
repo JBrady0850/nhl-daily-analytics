@@ -135,7 +135,7 @@ def test_daily_faceoff_injuries_read_the_injured_list():
     d = DailyFaceoffInjuries()
     assert d.add_page("mtl", page) is True
     names = [e["player_name"] for e in d.get("MTL")]
-    assert names == ["Juraj Slafkovsky", "Sam Montembeault"]       # Xhekaj is also in tonight's lineup
+    assert names == ["Juraj Slafkovsky", "Sam Montembeault"]       # Xhekaj is also in today's lineup
     hit = d.match_player("MTL", "Juraj Slafkovský")                  # accents differ between sources
     assert hit and hit["injury_type"] == "IR" and hit["injury_note"].startswith("Out two weeks")
     assert hit["date_injury"] == "2026-10-20"
@@ -206,7 +206,7 @@ def test_combined_injuries_prefer_espn_and_respect_the_lineup():
     assert both.loaded
     assert both.match_player("MTL", "Nick Suzuki")["tag"] == "ESPN"      # ESPN wins when both name him
     assert both.match_player("MTL", "Mike Matheson")["tag"] == "DFO"     # Daily Faceoff fills the gap
-    assert both.match_player("MTL", "Florian Xhekaj") is None            # in tonight's lineup: playing
+    assert both.match_player("MTL", "Florian Xhekaj") is None            # in today's lineup: playing
     assert {e["player_name"] for e in both.get("MTL")} >= {"Nick Suzuki", "Mike Matheson"}
     assert not CombinedInjuries([None, EspnInjuries()]).loaded           # nothing reached
 

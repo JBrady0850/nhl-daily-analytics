@@ -79,7 +79,7 @@ def _clamp(v, lo, hi):
 # discriminating power at all.
 #
 # V34.1 addition: venue_shot_share carries this team's shot share in games at
-# the SAME venue as tonight's game (home split if this team is home, road
+# the SAME venue as today's game (home split if this team is home, road
 # split if this team is away), shrunk toward its season rate by sample size
 # (nhl_data.py TeamGameLog.venue_shot_share). l3_shot_share is a 3-game
 # recency window; it enters only as a momentum term against L5, not as a

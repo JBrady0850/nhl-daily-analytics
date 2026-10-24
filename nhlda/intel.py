@@ -631,7 +631,7 @@ class CombinedInjuries:
     """The injury lists the build could reach, in order of preference (ESPN,
     then Hockey-Reference, then Daily Faceoff). The first list that names a
     player supplies his note and its source tag. A player Daily Faceoff slots
-    into tonight's lineup counts as playing, whichever list names him."""
+    into today's lineup counts as playing, whichever list names him."""
 
     TAG = "INJ"
 
@@ -665,7 +665,7 @@ class CombinedInjuries:
 class DailyFaceoffInjuries:
     """Fallback injury list, used when the Hockey-Reference table cannot be
     reached (it refuses GitHub's servers). Each Daily Faceoff team
-    line-combination page lists the players it has out of tonight's lineup in
+    line-combination page lists the players it has out of today's lineup in
     an injured group (injured reserve, day to day, out), with the latest news
     note. Same interface as HockeyReferenceInjuries: by_team, loaded, get(),
     match_player(). The pages are the same ones the lines step reads, so the
@@ -713,7 +713,7 @@ class DailyFaceoffInjuries:
         except (json.JSONDecodeError, KeyError, TypeError, AttributeError):
             return False
         ab = str(team).upper()
-        # a player Daily Faceoff also slots into tonight's lineup (a line, a pair
+        # a player Daily Faceoff also slots into today's lineup (a line, a pair
         # or the goalie spot) is expected to play, whatever his tag says
         dressing = {p.get("playerId") or p.get("name") for p in players
                     if p.get("groupIdentifier") in self.LINEUP_GROUPS}
@@ -748,7 +748,7 @@ class DailyFaceoffInjuries:
 
 class HockeyReferenceInjuries:
     """A static HTML table: player, team, injury date, type, free-text note.
-    Skater-focused; not scoped to tonight's slate, so callers filter by team
+    Skater-focused; not scoped to today's slate, so callers filter by team
     and by recency. The note field usually names the reporting outlet, but it
     is prose, not a structured field -- shown as-is, not parsed further."""
 
