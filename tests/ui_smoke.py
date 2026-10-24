@@ -5,7 +5,9 @@ percentage down, no wager or chat-command wording appears, and every tag, tile,
 column heading and abbreviation shows its definition on hover (mouse), on tap
 (touch screen) and on keyboard focus, and the Standings tab shows all 32 teams in
 each of its four views (Wild Card, Division, Conference, League) and remembers the
-chosen view."""
+chosen view. With a fake clock it also checks the "next update" line: the countdown,
+the due and late states, the automatic checks while an update is due, and the saved
+copy note."""
 import functools
 import http.server
 import json
@@ -233,6 +235,142 @@ def check_dfs_goalies(pg, n):
     return []
 
 
+UPD_JS = "() => [...document.querySelectorAll('main [data-upd]')].map(e => [e.className, e.textContent.trim()])"
+
+
+def check_update_status(b, http_url, file_url, sample):
+    """The line under each title says when the next scheduled update is (14:05 and
+    22:20 UTC), counts down, turns into 'due' once a scheduled time passes without
+    newer data, checks for the file on its own while due (every 5 minutes, every 15
+    once late), loads newer data when it appears, and a saved copy says it does not
+    update. The fixture was built at 2026-10-23T22:28:41Z; the clock is set around it."""
+    from datetime import datetime, timezone
+    fails = []
+    built = sample["generated_utc"]
+    newer = dict(sample, generated_utc="2026-10-24T14:31:00Z")
+    hits = []
+
+    def serve(state):
+        def handler(route):
+            hits.append(route.request.url)
+            body = json.dumps(newer if state["new"] else sample)
+            route.fulfill(status=200, content_type="application/json", body=body)
+        return handler
+
+    def opened(when, url=http_url):
+        ctx = b.new_context(viewport={"width": 1280, "height": 900}, timezone_id="America/Chicago",
+                            locale="en-US", service_workers="block")
+        state = {"new": False}
+        ctx.route("**/data/latest.json*", serve(state))
+        pg = ctx.new_page()
+        pg.clock.install(time=datetime.fromisoformat(when.replace("Z", "+00:00")))
+        hits.clear()
+        pg.goto(url)
+        pg.wait_for_timeout(300)
+        return ctx, pg, state
+
+    def lines(pg):
+        return pg.evaluate(UPD_JS)
+
+    def advance(pg, minutes):
+        for _ in range(int(minutes * 3)):                 # the page ticks every 20 seconds
+            pg.clock.run_for(20000)
+        pg.wait_for_timeout(300)                          # let a started fetch finish
+
+    # 1. an hour after the evening build: the next run is 14:05 UTC, 9:05 AM in Chicago
+    ctx, pg, _ = opened("2026-10-23T23:28:00Z")
+    got = lines(pg)
+    want = "Next scheduled update about 9:05 AM CDT, in 14 h 37 min."
+    if not got or got[0] != ["upd fresh", want]:
+        fails.append(f"fresh status wrong: {got[:1]} (want {want})")
+    advance(pg, 30)
+    got = lines(pg)
+    if not got or "in 14 h 7 min." not in got[0][1]:
+        fails.append(f"status does not count down: {got[:1]}")
+    if len(hits) != 1:
+        fails.append(f"fresh data: the page should not keep checking ({len(hits)} requests)")
+    pg.click("main button[data-act=refresh]")
+    pg.wait_for_timeout(300)
+    toast = pg.inner_text("#toast")
+    if "Next scheduled update about 9:05 AM CDT" not in toast:
+        fails.append(f"the check button does not say when the next update is: {toast!r}")
+    for t in ("lines", "standings"):
+        pg.click(f'#tabs button[data-tab="{t}"]')
+        if not lines(pg):
+            fails.append(f"no update status on the {t} tab")
+    pg.click('#tabs button[data-tab="settings"]')
+    txt = pg.inner_text("main")
+    if "Twice a day, about 9:05 AM CDT and 5:20 PM CDT your time." not in txt:
+        fails.append("Settings does not show the schedule in local time")
+    for dt in ("Schedule", "Next update"):
+        el = pg.locator("main dl.kv dt", has_text=dt)
+        if el.count() != 1 or not el.first.get_attribute("data-tip"):
+            fails.append(f"Settings row {dt!r} missing or without its definition")
+    ctx.close()
+
+    # 2. 15 minutes after the 14:05 UTC run was due, with no newer file yet
+    ctx, pg, state = opened("2026-10-24T14:20:00Z")
+    got = lines(pg)
+    if not got or got[0][0] != "upd due" or "New data is due: the 9:05 AM CDT update has not posted yet." not in got[0][1]:
+        fails.append(f"due status wrong: {got[:1]}")
+    advance(pg, 5)
+    if len(hits) != 2:
+        fails.append(f"while due the page should check every 5 minutes ({len(hits)} requests after 5 minutes)")
+    state["new"] = True                                 # the run posts its file
+    advance(pg, 5)
+    got = lines(pg)
+    if len(hits) != 3 or not got or got[0] != ["upd fresh", "Next scheduled update about 5:20 PM CDT, in 7 h 50 min."]:
+        fails.append(f"newer data not picked up on its own: {len(hits)} requests, {got[:1]}")
+    if "Updated to the latest data" not in pg.inner_text("#toast"):
+        fails.append("no toast when newer data loads")
+    ctx.close()
+
+    # 3. more than three hours late: say so, and check less often
+    ctx, pg, _ = opened("2026-10-24T17:10:00Z")
+    got = lines(pg)
+    want = "The 9:05 AM CDT update is 3 h 5 min late; GitHub may have skipped it."
+    if not got or got[0][0] != "upd late" or want not in got[0][1] or "about 5:20 PM CDT" not in got[0][1]:
+        fails.append(f"late status wrong: {got[:1]}")
+    advance(pg, 10)
+    n10 = len(hits)
+    advance(pg, 5)
+    if n10 != 1 or len(hits) != 2:
+        fails.append(f"once late the page should check every 15 minutes ({n10} then {len(hits)} requests)")
+    ctx.close()
+
+    # 4. a downloaded copy never updates, and says so
+    ctx, pg, _ = opened("2026-10-24T14:20:00Z", file_url)
+    got = lines(pg)
+    if not got or got[0][0] != "upd copy" or "does not update" not in got[0][1]:
+        fails.append(f"saved copy status wrong: {got[:1]}")
+    ctx.close()
+    if built != "2026-10-23T22:28:41Z":
+        fails.append(f"fixture build time changed to {built}: update the times in check_update_status")
+    return [f"update status: {m}" for m in fails]
+
+
+SW_JS = """async () => {
+  const keys = [];
+  for (const name of await caches.keys()) for (const r of await (await caches.open(name)).keys()) keys.push(r.url);
+  return keys.filter(u => u.includes('/data/latest.json'));
+}"""
+
+
+def check_sw_cache(b, http_url):
+    """The offline copy keeps one entry per file: checking for newer data (which adds
+    ?ts= to the address) must not leave a new 300 KB copy behind every time."""
+    ctx = b.new_context(viewport={"width": 1280, "height": 900})
+    pg = ctx.new_page()
+    pg.goto(http_url)
+    pg.wait_for_function("navigator.serviceWorker && navigator.serviceWorker.controller", timeout=15000)
+    for _ in range(3):
+        pg.click("main button[data-act=refresh]")
+        pg.wait_for_timeout(400)
+    keys = pg.evaluate(SW_JS)
+    ctx.close()
+    return [] if len(keys) == 1 else [f"offline cache holds {len(keys)} copies of the data file: {keys}"]
+
+
 def main():
     tmp = tempfile.mkdtemp(prefix="nda_ui_")
     site = os.path.join(tmp, "app")
@@ -368,6 +506,8 @@ def main():
                 if errs:
                     fails.append(f"{name} {url[:4]}: script errors {errs[:3]}")
                 ctx.close()
+        fails.extend(check_update_status(b, urls[0], urls[1], sample))
+        fails.extend(check_sw_cache(b, urls[0]))
         # a build note (here: the injury report fell back to Daily Faceoff) shows on
         # Today and Matchups, and Settings names the source actually used
         noted = os.path.join(tmp, "noted")

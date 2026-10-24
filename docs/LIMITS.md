@@ -23,7 +23,10 @@ What the app can and cannot do. Read this before you rely on a number.
   run (a late scratch, a goalie change at warmups) is not in the app until the next
   morning.
 - GitHub starts scheduled runs on a best-effort basis. A run can start late when
-  GitHub is busy.
+  GitHub is busy (one evening run started two and a half hours late), and GitHub can
+  skip a run. The line under each page title shows the next scheduled update in your
+  time, says when an update is due or late, and an open copy of the app keeps checking
+  for the new file while one is due.
 - GitHub turns off scheduled workflows in a public repository after 60 days with no
   repository activity. If the data stops updating, open the repository's Actions tab,
   choose **Daily data**, and turn it back on.

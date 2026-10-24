@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.6.3";
+  const APP_VERSION = "1.6.4";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -347,7 +347,37 @@
   function noData() {
     return `${head("today", "No data yet")}<div class="card empty">${EMPTY_NET}<p>The daily data file did not load. If you opened this app from a downloaded folder, make sure <code>data/latest.js</code> is next to <code>index.html</code>, or open the live app at <a href="${PUBLIC_URL}">${PUBLIC_URL}</a>.</p></div>`;
   }
-  const updated = () => `Updated ${esc(localStamp(D.generated_utc))}. <button class="linkish noprint" data-act="refresh">Check for newer data</button>`;
+  // ---------- update schedule ----------
+  // The Daily data workflow runs at these UTC times (.github/workflows/daily.yml).
+  // GitHub starts scheduled runs on a best-effort basis: one evening run started
+  // 2.5 hours late, so an update counts as "due" for 3 hours before it is "late".
+  const RUNS_UTC = [[14, 5], [22, 20]];
+  const LATE_MIN = 180;
+  const CHECK_MIN = { due: 5, late: 15 };     // how often an open page looks for the new file
+  const isLive = () => location.protocol.startsWith("http");
+  function runTimes(now) {
+    const d = new Date(now), out = [];
+    for (let k = -1; k <= 1; k++) RUNS_UTC.forEach(([h, m]) => out.push(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + k, h, m)));
+    return out.sort((a, b) => a - b);
+  }
+  function updState(now = Date.now()) {
+    const t = runTimes(now), last = t.filter(x => x <= now).pop(), next = t.find(x => x > now);
+    const built = Date.parse((D && D.generated_utc) || "");
+    if (!isLive()) return { kind: "copy", now, next };
+    if (!isFinite(built) || built >= last) return { kind: "fresh", now, next };
+    return { kind: now - last >= LATE_MIN * 60000 ? "late" : "due", now, last, next };
+  }
+  const dur = ms => { const m = Math.round(ms / 60000); if (m < 1) return "less than a minute"; const h = Math.floor(m / 60), r = m % 60; return [h ? h + " h" : "", r ? r + " min" : ""].filter(Boolean).join(" "); };
+  const runAt = ms => localTime(new Date(ms).toISOString());
+  const dailyRuns = () => runTimes(Date.now()).slice(2, 4).map(t => new Date(t)).sort((a, b) => (a.getHours() * 60 + a.getMinutes()) - (b.getHours() * 60 + b.getMinutes())).map(d => runAt(d.getTime()));
+  function updText(s) {
+    if (s.kind === "copy") return "This saved copy does not update; open the live app for newer data.";
+    if (s.kind === "fresh") return `Next scheduled update about ${runAt(s.next)}, in ${dur(s.next - s.now)}.`;
+    if (s.kind === "due") return `New data is due: the ${runAt(s.last)} update has not posted yet. GitHub often runs late; this page checks every ${CHECK_MIN.due} minutes.`;
+    return `The ${runAt(s.last)} update is ${dur(s.now - s.last)} late; GitHub may have skipped it. This page keeps checking; the next scheduled update is about ${runAt(s.next)}.`;
+  }
+  const updSpan = () => { const s = updState(); return `<span class="upd ${s.kind}" data-upd>${esc(updText(s))}</span>`; };
+  const updated = () => `Updated ${esc(localStamp(D.generated_utc))}. <span class="upd-line">${updSpan()} <button class="linkish noprint" data-act="refresh">Check for newer data</button></span>`;
   const stamp = () => `<p class="sub">${esc(longDate(D.date))}. ${updated()}</p>`;
 
   // ---------- Today ----------
@@ -685,6 +715,8 @@
       <section class="card"><h2 style="margin-top:0">Get the app</h2>${installSteps()}</section>
       <section class="card"><h2 style="margin-top:0">Today's data</h2><dl class="kv"><dt>Slate</dt><dd>${esc(longDate(D.date))}, ${esc(D.slate.game_count)} games</dd>
         <dt>Built</dt><dd>${esc(localStamp(D.generated_utc))}</dd>
+        <dt>Schedule</dt><dd>Twice a day, about ${dailyRuns().map(esc).join(" and ")} your time. GitHub can start a run late.</dd>
+        <dt>Next update</dt><dd>${updSpan()}</dd>
         <dt>Starting goalies</dt><dd>${gl.loaded ? `${esc(gl.teams)} teams listed by Daily Faceoff, ${esc(gl.confirmed)} confirmed` : "Daily Faceoff not reached; starters are the model's rotation guess"}</dd>
         <dt>Injuries</dt><dd>${injSources(inj)}</dd>
         <dt>Betting lines</dt><dd>${esc(S.market_games || 0)} games</dd><dt>Lines</dt><dd>${lines}</dd>
@@ -699,6 +731,7 @@
     const tipNote = `<p class="small">Hover over, tap, or Tab to any colored tag, summary tile, column heading or dotted-underlined abbreviation to see what it means. Click or tap a player's name to open his official NHL.com page with his full stats in a separate window.</p>`;
     return `${head("help", "How it works")}
       <section class="card"><p>Twice a day (at 14:05 and 22:20 UTC: about 9:05 AM and 5:20 PM US Central in daylight time, an hour earlier in standard time) a free GitHub workflow reads the NHL's public schedule, standings and game logs, MoneyPuck's season numbers, Daily Faceoff's starting goalies, line combinations and injured lists, and ESPN's public injury report. It scores every team on five pillars (form, missing players, playoff-race motivation, the starting goalie and rest), turns the gap between the two teams into a win probability, and publishes one data file that this app reads.</p>
+      <p>The line under each page title tells you when the next update is due. GitHub starts scheduled runs on a best-effort basis, often late. While an update is due, an open copy of the app checks for the new file every ${CHECK_MIN.due} minutes and loads it on its own; the Check for newer data button checks right away.</p>
       <p>Each morning it also settles the previous night's games, keeps the season record, and every 10 settled games tests whether a refit of the model would predict better. A refit is adopted only after it proves itself on games it has not seen.</p></section>
       <section class="card"><h2 style="margin-top:0">Limits</h2><ul class="steps-list"><li>Hockey is close to a coin flip: last season the model picked 56 percent of winners on games it had not seen, and about 64 percent on picks that cleared the gate. Treat the numbers as estimates.</li>
       <li>Morning starting goalies are mostly projections; check the evening update or the team's own news before relying on one.</li>
@@ -715,8 +748,22 @@
       if (!r.ok) throw new Error(r.status);
       const n = await r.json();
       if (n && n.format === "nhl-daily-analytics/1" && (!D || n.generated_utc > D.generated_utc)) { D = n; render(); toast("Updated to the latest data"); }
-      else if (manual) toast("You have the latest data");
+      else if (manual) { const s = updState(); toast(s.kind === "fresh" ? `You have the latest data. Next scheduled update about ${runAt(s.next)}.` : `No new data yet: the ${runAt(s.last)} update has not posted.`); }
     } catch (e) { if (manual) toast("Could not reach the data file; showing the saved copy"); }
+  }
+  // keep the "next update" lines current, and while an update is due, look for it
+  let lastAuto = Date.now();
+  function tick() {
+    const s = updState(), txt = updText(s);
+    document.querySelectorAll("[data-upd]").forEach(el => {
+      if (el.dataset.txt === txt || (tipEl && el.contains(tipEl))) return;   // leave an open definition alone
+      el.className = "upd " + s.kind;
+      el.textContent = txt;
+      el.dataset.txt = txt;
+      wrapText(el);
+    });
+    const every = CHECK_MIN[s.kind];
+    if (every && document.visibilityState === "visible" && Date.now() - lastAuto >= every * 60000) { lastAuto = Date.now(); refresh(false); }
   }
 
   // ---------- start ----------
@@ -728,5 +775,6 @@
   decorate(document.querySelector(".foot-in"));
   showInstall();
   refresh(false);
-  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") refresh(false); });
+  setInterval(tick, 20000);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { lastAuto = Date.now(); refresh(false); tick(); } });
 })();

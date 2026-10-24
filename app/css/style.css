@@ -68,6 +68,11 @@ h1 { font-size: 2.5rem; font-weight: 600; line-height: .95; margin: 4px 0 6px; }
 .btn.small { padding: 4px 10px; min-height: 36px; font-size: .9rem; }
 .btn.warn { border-color: var(--bad); color: var(--bad); background: transparent; }
 .linkish { border: 0; background: none; padding: 0; color: var(--accent); text-decoration: underline; cursor: pointer; }
+.upd-line { display: block; margin-top: 2px; }
+.upd.due, .upd.late { color: var(--warn); font-weight: 600; }
+.upd.due::before, .upd.late::before { content: ""; display: inline-block; width: .6em; height: .6em; margin-right: .35em; border-radius: 50%; background: currentColor; vertical-align: .05em; }
+@media (prefers-reduced-motion: no-preference) { .upd.due::before { animation: upd-pulse 2s ease-in-out infinite; } }
+@keyframes upd-pulse { 50% { opacity: .25; } }
 
 /* stat tiles */
 /* the arena scoreboard: amber digits on black panels */

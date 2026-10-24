@@ -95,7 +95,7 @@ always has the latest data.
 | **Results** | Last night's picks against the finals, the season pick rate, results by confidence tier, and a comparison with the betting market. |
 | **Model** | The model's current settings, its learning progress, and a calibration table: how often picks in each probability band actually won. |
 | **DFS** | Projected DraftKings fantasy points for the top 30 skaters, and for every probable starting goalie tonight sorted by his team's win probability, highest first. |
-| **Settings** | Install steps with a QR code, the data date, privacy notes and a button that clears your saved teams. |
+| **Settings** | Install steps with a QR code, the data date, the update schedule in your time, privacy notes and a button that clears your saved teams. |
 | **Help** | Plain-language definitions for every term and column. |
 
 ## How it works
@@ -118,6 +118,13 @@ The app itself never contacts the data sources. It only loads the data file from
 GitHub Pages. That is why it is fast and why it needs no keys: browsers cannot read
 most of these sources directly, so the workflow does the reading once and publishes
 the result.
+
+The line under each page title shows when the next scheduled update is, in your own
+time. GitHub starts scheduled runs on a best-effort basis, sometimes hours late. Once a
+scheduled time passes without new data, the line says the update is due, and an open
+copy of the app checks for the new file every 5 minutes (every 15 minutes once the
+update is more than 3 hours late) and loads it on its own. The **Check for newer data**
+button checks right away.
 
 Because every day's data file is committed, the repository history is a public,
 time-stamped record of each pick made before the games started.
