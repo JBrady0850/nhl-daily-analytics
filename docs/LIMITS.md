@@ -24,8 +24,10 @@ What the app can and cannot do. Read this before you rely on a number.
   morning.
 - GitHub starts scheduled runs on a best-effort basis. A run can start late when
   GitHub is busy (one evening run started two and a half hours late), and GitHub can
-  skip a run (the 14:05 run of 2026-10-24 never started). Backup runs in the two hours
-  after each update time build the file when the main run has not, and the line under
+  skip a run (the 14:05 run of 2026-10-24 never started). A timer outside GitHub starts
+  the workflow at each update time with a `daily-data` dispatch event; if that timer
+  is down, backup cron runs in the two hours after each update time build the file
+  when the main run has not, and the line under
   each page title shows the next scheduled update in your time, says when an update is
   due or late, and an open copy of the app keeps checking for the new file while one is
   due.

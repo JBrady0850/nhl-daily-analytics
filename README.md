@@ -122,10 +122,15 @@ the result.
 The line under each page title shows when the next scheduled update is, in your own
 time. GitHub starts scheduled runs on a best-effort basis, sometimes hours late and
 now and then not at all (the 14:05 run of 2026-10-24 never started). So the workflow
-also runs at backup times: 14:47, 15:29 and 16:13 UTC after the morning update, and
-23:02 and 23:44 UTC after the evening one. A backup run builds only when the data
-file is older than the latest main update time (`nhlda/schedule.py`); otherwise it
-stops within seconds. Running the workflow by hand always builds. Once a
+is started by a small timer outside GitHub: at each update time it sends the
+repository a `daily-data` dispatch event (`POST /repos/<owner>/<repo>/dispatches`
+with a token that has Contents: write), which starts a run right away. GitHub's own
+schedule stays as a fallback, with backup times at 14:47, 15:29 and 16:13 UTC after
+the morning update and 23:02 and 23:44 UTC after the evening one. Every automatic
+run builds only when the data file is older than the latest main update time
+(`nhlda/schedule.py`); otherwise it stops within seconds. Running the workflow by
+hand always builds. If you copy this project, point any scheduler you trust at the
+dispatch endpoint, or rely on the cron fallback. Once a
 scheduled time passes without new data, the line says the update is due, and an open
 copy of the app checks for the new file every 5 minutes (every 15 minutes once the
 update is more than 3 hours late) and loads it on its own. The **Check for newer data**

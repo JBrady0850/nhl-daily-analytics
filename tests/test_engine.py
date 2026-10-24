@@ -335,7 +335,8 @@ def test_workflow_app_and_guard_share_the_main_times():
     """The two main update times appear the same in the workflow (first cron of each
     group), the guard (MAIN_UTC) and the app's status line (RUNS_UTC), and every
     backup time falls within three hours after a main time, before the app calls the
-    update late. Scheduled runs pass through the guard; a manual run always builds."""
+    update late. Automatic runs (the outside timer's daily-data dispatch and the cron
+    fallback) pass through the guard; a manual run always builds."""
     from nhlda import schedule as S
     wf = open(os.path.join(ROOT, ".github", "workflows", "daily.yml"), encoding="utf-8").read()
     crons = [(int(h), int(m)) for m, h in re.findall(r'cron: "(\d+) (\d+) \* \* \*"', wf)]
@@ -349,4 +350,5 @@ def test_workflow_app_and_guard_share_the_main_times():
     runs = re.search(r"const RUNS_UTC = (\[\[.*?\]\]);", app).group(1)
     assert [tuple(x) for x in json.loads(runs)] == list(S.MAIN_UTC)
     assert "python3 -m nhlda.schedule app/data/latest.json" in wf and "needs.when.outputs.build == 'true'" in wf
-    assert 'github.event_name }}" != "schedule"' in wf
+    assert 'github.event_name }}" = "workflow_dispatch"' in wf
+    assert re.search(r"repository_dispatch:\s*\n\s*types: \[daily-data\]", wf), "the outside timer's event must start the workflow"
