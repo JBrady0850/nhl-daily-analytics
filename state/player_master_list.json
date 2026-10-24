@@ -1,7 +1,7 @@
 {
 "season": "20262027",
-"generated": "2026-10-23",
-"count": 801,
+"generated": "2026-10-24",
+"count": 800,
 "players": [
 {
 "team": "ANA",
@@ -1853,6 +1853,13 @@
 },
 {
 "team": "EDM",
+"name": "Matt Tomkins",
+"player_id": "8477035",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "EDM",
 "name": "Tristan Jarry",
 "player_id": "8477465",
 "position": "G",
@@ -3148,13 +3155,6 @@
 },
 {
 "team": "NYR",
-"name": "Justin Dowling",
-"player_id": "8475413",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "NYR",
 "name": "Luke Glendening",
 "player_id": "8476822",
 "position": "C",
@@ -3997,13 +3997,6 @@
 "team": "SEA",
 "name": "Ryker Evans",
 "player_id": "8482858",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "SEA",
-"name": "Ty Nelson",
-"player_id": "8483494",
 "position": "D",
 "role": "skater"
 },

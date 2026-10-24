@@ -6,11 +6,7 @@
    "home_win_prob": 0.391,
    "tier": "HIGH",
    "gate_cleared": true,
-   "market": {
-    "home_prob": 0.4029,
-    "away_prob": 0.5971,
-    "books": 6
-   },
+   "market": null,
    "home_pillars": {
     "p1_form": -17.948,
     "p2_absence": -1.676,
@@ -34,8 +30,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.531,
-    "away_prob": 0.469,
+    "home_prob": 0.5257,
+    "away_prob": 0.4743,
     "books": 6
    },
    "home_pillars": {
