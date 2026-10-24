@@ -298,3 +298,55 @@ def test_install_identity_is_this_app_only():
     with open(os.path.join(ROOT, "app", "manifest.webmanifest"), encoding="utf-8") as f:
         m = json.load(f)
     assert m["id"] == "/nhl-daily-analytics/" and m["scope"] == "./"
+
+
+def test_schedule_builds_only_when_the_main_update_is_missing():
+    """A scheduled run builds when the data predates the latest main update time
+    (14:05 or 22:20 UTC) and stops otherwise, so the backup times only fill in for a
+    main run GitHub started late or skipped (as on 2026-10-24, when 14:05 never ran)."""
+    import datetime as dt
+    from nhlda import schedule as S
+    t = lambda s: dt.datetime.fromisoformat(s.replace("Z", "+00:00"))
+    assert S.last_main(t("2026-10-24T13:59:00Z")) == t("2026-10-23T22:20:00Z")
+    assert S.last_main(t("2026-10-24T14:05:00Z")) == t("2026-10-24T14:05:00Z")
+    assert S.last_main(t("2026-10-24T23:44:00Z")) == t("2026-10-24T22:20:00Z")
+    assert S.last_main(t("2026-10-25T00:30:00Z")) == t("2026-10-24T22:20:00Z")
+    # the morning of 2026-10-24: Friday evening's file, then the main run, then a backup
+    assert S.due("2026-10-24T00:48:42Z", t("2026-10-24T13:30:00Z"))[0] is False
+    assert S.due("2026-10-24T00:48:42Z", t("2026-10-24T14:47:00Z"))[0] is True
+    assert S.due("2026-10-24T14:48:10Z", t("2026-10-24T15:29:00Z"))[0] is False
+    # a backup that GitHub starts very late still serves the next main time
+    assert S.due("2026-10-24T14:48:10Z", t("2026-10-24T22:31:00Z"))[0] is True
+    # no file or no build time: build
+    assert S.due(None, t("2026-10-24T15:00:00Z"))[0] is True
+    assert S.due("not a time", t("2026-10-24T15:00:00Z"))[0] is True
+
+
+def test_schedule_command_prints_a_workflow_output(tmp_path):
+    p = tmp_path / "latest.json"
+    p.write_text(json.dumps({"generated_utc": "2000-01-01T00:00:00Z"}), encoding="utf-8")
+    r = subprocess.run(["python", "-m", "nhlda.schedule", str(p)], cwd=ROOT, capture_output=True, text=True)
+    assert r.returncode == 0 and r.stdout.strip() == "build=true" and "before the" in r.stderr
+    r = subprocess.run(["python", "-m", "nhlda.schedule", str(tmp_path / "missing.json")], cwd=ROOT, capture_output=True, text=True)
+    assert r.returncode == 0 and r.stdout.strip() == "build=true"
+
+
+def test_workflow_app_and_guard_share_the_main_times():
+    """The two main update times appear the same in the workflow (first cron of each
+    group), the guard (MAIN_UTC) and the app's status line (RUNS_UTC), and every
+    backup time falls within three hours after a main time, before the app calls the
+    update late. Scheduled runs pass through the guard; a manual run always builds."""
+    from nhlda import schedule as S
+    wf = open(os.path.join(ROOT, ".github", "workflows", "daily.yml"), encoding="utf-8").read()
+    crons = [(int(h), int(m)) for m, h in re.findall(r'cron: "(\d+) (\d+) \* \* \*"', wf)]
+    main = [c for c in crons if c in S.MAIN_UTC]
+    assert sorted(main) == sorted(S.MAIN_UTC) and len(crons) > len(main)
+    for h, m in crons:
+        gaps = [((h * 60 + m) - (mh * 60 + mm)) % 1440 for mh, mm in S.MAIN_UTC]
+        assert min(gaps) < 180, f"backup {h:02d}:{m:02d} is not within 3 hours after a main time"
+        assert m not in (0, 30), "GitHub is busiest at the top and bottom of the hour"
+    app = open(os.path.join(ROOT, "app", "js", "app.js"), encoding="utf-8").read()
+    runs = re.search(r"const RUNS_UTC = (\[\[.*?\]\]);", app).group(1)
+    assert [tuple(x) for x in json.loads(runs)] == list(S.MAIN_UTC)
+    assert "python3 -m nhlda.schedule app/data/latest.json" in wf and "needs.when.outputs.build == 'true'" in wf
+    assert 'github.event_name }}" != "schedule"' in wf

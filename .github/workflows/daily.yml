@@ -2,10 +2,20 @@ name: Daily data
 # Builds the day's data file twice a day on GitHub's free runners and publishes the
 # app to GitHub Pages. Free public sources only; no keys or secrets are used.
 # One-time setup: repository Settings > Pages > Build and deployment > Source: "GitHub Actions".
+# GitHub starts scheduled runs on a best-effort basis: a run can start hours late or
+# not at all (the 14:05 run of 2026-10-24 never started). Each main update time
+# therefore has backup times after it. A scheduled run builds only when the data
+# file predates the latest main time (nhlda/schedule.py); otherwise it stops in
+# seconds. Running the workflow by hand always builds.
 on:
   schedule:
-    - cron: "5 14 * * *"     # 14:05 UTC: 9:05 AM US Central in daylight time, 8:05 AM in standard time
-    - cron: "20 22 * * *"    # 22:20 UTC: 5:20 PM / 4:20 PM US Central, after most goalie confirmations
+    - cron: "5 14 * * *"     # main, 14:05 UTC: 9:05 AM US Central in daylight time, 8:05 AM in standard time
+    - cron: "47 14 * * *"    # backup
+    - cron: "29 15 * * *"    # backup
+    - cron: "13 16 * * *"    # backup
+    - cron: "20 22 * * *"    # main, 22:20 UTC: 5:20 PM / 4:20 PM US Central, after most goalie confirmations
+    - cron: "2 23 * * *"     # backup
+    - cron: "44 23 * * *"    # backup
   workflow_dispatch:
 permissions:
   contents: write
@@ -15,11 +25,28 @@ concurrency:
   group: daily-data
   cancel-in-progress: false
 jobs:
+  when:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      build: ${{ steps.due.outputs.build }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main            # the newest data file, not the commit the schedule was queued on
+      - id: due
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ]; then echo "build=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          python3 -m nhlda.schedule app/data/latest.json >> "$GITHUB_OUTPUT"
   build:
+    needs: when
+    if: needs.when.outputs.build == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: main            # start from the newest season state if an earlier run just pushed
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"

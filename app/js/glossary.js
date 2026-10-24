@@ -151,7 +151,7 @@ window.NDA_TIPS = {
     "log loss": "Average penalty for the probability given to the team that lost. Lower is better; 0.693 is a coin flip."
   },
   dt: {
-    "Schedule": "When the free GitHub workflow builds new data: 14:05 and 22:20 UTC, shown in this device's time. GitHub starts scheduled runs on a best-effort basis, so new data can arrive an hour or more later.",
+    "Schedule": "When the free GitHub workflow builds new data: 14:05 and 22:20 UTC, shown in this device's time. GitHub starts scheduled runs on a best-effort basis, so new data can arrive an hour or more later; backup runs in the two hours after each time fill in for a run GitHub starts late or skips.",
     "Next update": "When to expect newer data. While an update is due, the open app checks for the new file every few minutes and loads it on its own; the Check for newer data button checks right away.",
     "Market": "The sportsbook consensus win probability for the projected winner: each book's two moneylines with the margin removed, the median across books. For comparison only; it never enters the model.",
     "Rating gap": "The difference between the two teams' RAA scores, in rating points. A bigger gap means a stronger favorite."

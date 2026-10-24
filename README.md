@@ -120,7 +120,12 @@ most of these sources directly, so the workflow does the reading once and publis
 the result.
 
 The line under each page title shows when the next scheduled update is, in your own
-time. GitHub starts scheduled runs on a best-effort basis, sometimes hours late. Once a
+time. GitHub starts scheduled runs on a best-effort basis, sometimes hours late and
+now and then not at all (the 14:05 run of 2026-10-24 never started). So the workflow
+also runs at backup times: 14:47, 15:29 and 16:13 UTC after the morning update, and
+23:02 and 23:44 UTC after the evening one. A backup run builds only when the data
+file is older than the latest main update time (`nhlda/schedule.py`); otherwise it
+stops within seconds. Running the workflow by hand always builds. Once a
 scheduled time passes without new data, the line says the update is due, and an open
 copy of the app checks for the new file every 5 minutes (every 15 minutes once the
 update is more than 3 hours late) and loads it on its own. The **Check for newer data**
@@ -187,7 +192,7 @@ source. See [docs/LIMITS.md](docs/LIMITS.md).
 | `app/data/` | Today's data file, rewritten by the workflow |
 | `nhlda/` | The Python program that builds the data file |
 | `state/` | The season record, the model's learning history, a player list and yesterday's slate (for settling results) |
-| `.github/workflows/` | `daily.yml` builds and publishes; `tests.yml` runs the tests; `pages.yml` republishes the app after a code change |
+| `.github/workflows/` | `daily.yml` builds and publishes (main and backup times; `nhlda/schedule.py` decides whether a scheduled run builds); `tests.yml` runs the tests; `pages.yml` republishes the app after a code change |
 | `docs/` | [Data file format](docs/DATA.md), [privacy](docs/PRIVACY.md), [limits](docs/LIMITS.md) and the screenshots |
 | `tests/` | Engine tests, a browser test of every tab, the screenshot and artwork makers and the sample data |
 

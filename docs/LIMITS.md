@@ -24,9 +24,11 @@ What the app can and cannot do. Read this before you rely on a number.
   morning.
 - GitHub starts scheduled runs on a best-effort basis. A run can start late when
   GitHub is busy (one evening run started two and a half hours late), and GitHub can
-  skip a run. The line under each page title shows the next scheduled update in your
-  time, says when an update is due or late, and an open copy of the app keeps checking
-  for the new file while one is due.
+  skip a run (the 14:05 run of 2026-10-24 never started). Backup runs in the two hours
+  after each update time build the file when the main run has not, and the line under
+  each page title shows the next scheduled update in your time, says when an update is
+  due or late, and an open copy of the app keeps checking for the new file while one is
+  due.
 - GitHub turns off scheduled workflows in a public repository after 60 days with no
   repository activity. If the data stops updating, open the repository's Actions tab,
   choose **Daily data**, and turn it back on.
