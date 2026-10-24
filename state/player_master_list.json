@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-10-24",
-"count": 803,
+"count": 804,
 "players": [
 {
 "team": "ANA",
@@ -672,13 +672,6 @@
 "team": "CAR",
 "name": "Andrei Svechnikov",
 "player_id": "8480830",
-"position": "R",
-"role": "skater"
-},
-{
-"team": "CAR",
-"name": "Felix Unger S\u00f6rum",
-"player_id": "8484392",
 "position": "R",
 "role": "skater"
 },
@@ -2287,6 +2280,13 @@
 },
 {
 "team": "MIN",
+"name": "Mason Shaw",
+"player_id": "8479972",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "MIN",
 "name": "Michael McCarron",
 "player_id": "8477446",
 "position": "C",
@@ -2317,13 +2317,6 @@
 "team": "MIN",
 "name": "Brock Faber",
 "player_id": "8482122",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "MIN",
-"name": "Daemon Hunt",
-"player_id": "8482094",
 "position": "D",
 "role": "skater"
 },
@@ -2882,15 +2875,15 @@
 },
 {
 "team": "NSH",
-"name": "Ilya Lyubushkin",
-"player_id": "8480950",
+"name": "Daemon Hunt",
+"player_id": "8482094",
 "position": "D",
 "role": "skater"
 },
 {
 "team": "NSH",
-"name": "Jack Ahcan",
-"player_id": "8482072",
+"name": "Ilya Lyubushkin",
+"player_id": "8480950",
 "position": "D",
 "role": "skater"
 },
@@ -4046,6 +4039,13 @@
 "team": "SEA",
 "name": "Jacob Melanson",
 "player_id": "8482874",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Jani Nyman",
+"player_id": "8483497",
 "position": "R",
 "role": "skater"
 },
@@ -5353,15 +5353,15 @@
 },
 {
 "team": "WPG",
-"name": "Haydn Fleury",
-"player_id": "8477938",
+"name": "Elias Salomonsson",
+"player_id": "8483510",
 "position": "D",
 "role": "skater"
 },
 {
 "team": "WPG",
-"name": "Jack St. Ivany",
-"player_id": "8481030",
+"name": "Haydn Fleury",
+"player_id": "8477938",
 "position": "D",
 "role": "skater"
 },
@@ -5495,6 +5495,13 @@
 "team": "WSH",
 "name": "Jakob Chychrun",
 "player_id": "8479345",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "John St. Ivany",
+"player_id": "8481030",
 "position": "D",
 "role": "skater"
 },
