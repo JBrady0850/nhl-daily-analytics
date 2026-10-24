@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-10-24",
-"count": 800,
+"count": 803,
 "players": [
 {
 "team": "ANA",
@@ -3211,6 +3211,13 @@
 },
 {
 "team": "NYR",
+"name": "Matthew Robertson",
+"player_id": "8481525",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYR",
 "name": "Scott Morrow",
 "player_id": "8482666",
 "position": "D",
@@ -3631,13 +3638,6 @@
 },
 {
 "team": "PHI",
-"name": "Garrett Wilson",
-"player_id": "8475253",
-"position": "L",
-"role": "skater"
-},
-{
-"team": "PHI",
 "name": "Michael Bunting",
 "player_id": "8478047",
 "position": "L",
@@ -3844,6 +3844,13 @@
 "name": "Nick Robertson",
 "player_id": "8481582",
 "position": "L",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Avery Hayes",
+"player_id": "8482993",
+"position": "R",
 "role": "skater"
 },
 {
@@ -4312,6 +4319,13 @@
 "team": "STL",
 "name": "Philip Broberg",
 "player_id": "8481598",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Quinton Burns",
+"player_id": "8484151",
 "position": "D",
 "role": "skater"
 },
@@ -5530,6 +5544,13 @@
 "team": "WSH",
 "name": "Logan Thompson",
 "player_id": "8480313",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "WSH",
+"name": "Mitchell Gibson",
+"player_id": "8481064",
 "position": "G",
 "role": "goalie"
 },
