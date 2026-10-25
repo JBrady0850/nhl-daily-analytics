@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-10-25",
-"count": 804,
+"count": 803,
 "players": [
 {
 "team": "ANA",
@@ -3514,13 +3514,6 @@
 "team": "PHI",
 "name": "Jack Studnicka",
 "player_id": "8480021",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "PHI",
-"name": "Jacob Gaucher",
-"player_id": "8481848",
 "position": "C",
 "role": "skater"
 },
