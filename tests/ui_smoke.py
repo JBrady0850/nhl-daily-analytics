@@ -270,6 +270,40 @@ def check_my_pick(pg, sample):
     return fails
 
 
+FINAL_JS = """() => [...document.querySelectorAll('main article.game')].map(c => {
+  const f = c.querySelector('.finalbar');
+  if (!f) return null;
+  const p = f.querySelector('.pill') || {dataset: {}, classList: []};
+  return {after_banner: !!(f.previousElementSibling && f.previousElementSibling.classList.contains('pickline')),
+    label: f.querySelector('.fs-lab').textContent, scores: [...f.querySelectorAll('.fs-team')].map(t => t.textContent.replace(/\\s+/g, ' ').trim()),
+    winner: (f.querySelector('.fs-team.w > span') || {}).textContent || '', tag: p.textContent, tip: !!p.dataset.tip};
+})"""
+
+
+def check_final_results(pg, sample):
+    """A finished game shows its final score on a scoreboard strip right under the
+    pick banner, the winner lit, and WIN or LOSS for the pick (with a definition);
+    a game not yet over shows no strip."""
+    pg.click('#tabs button[data-tab="today"]')
+    got, fails, seen = pg.evaluate(FINAL_JS), [], set()
+    for g, c in zip(sample["slate"]["games"], got):
+        r = g.get("result")
+        if not r:
+            if c is not None:
+                fails.append(f"final strip on unfinished {g['matchup']}: {c}")
+            continue
+        per = "" if r["last_period"] == "REG" else "/" + r["last_period"]
+        want = {"after_banner": True, "label": "Final" + per,
+                "scores": [f"{g['away']} {r['away_score']}", f"{g['home']} {r['home_score']}"],
+                "winner": r["winner"], "tag": "Win" if r["pick"] == "win" else "Loss", "tip": True}
+        if c != want:
+            fails.append(f"final strip on {g['matchup']}: {c} (want {want})")
+        seen.add(r["pick"])
+    if seen != {"win", "loss"}:
+        fails.append(f"the sample should show a won and a lost pick, saw {sorted(seen)}")
+    return fails
+
+
 INJ_JS = """() => {
   const main = document.querySelector('main');
   return {
@@ -537,6 +571,7 @@ def main():
                 fails.extend(f"{name}: {m}" for m in check_lines_tab(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_dfs_goalies(pg, len(sample["dfs"]["goalies"])))
                 fails.extend(f"{name}: {m}" for m in check_my_pick(pg, sample))
+                fails.extend(f"{name}: {m}" for m in check_final_results(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_injuries_tab(pg, sample, mob))
                 pg.click('#tabs button[data-tab="today"]')
                 tile = pg.locator(".tile").nth(2)

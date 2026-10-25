@@ -29,6 +29,7 @@ window.NDA_GLOSSARY = [
   ["P/GP, SOG/GP", "Per game played. A line's figure adds each player's own rate, so a player with fewer games is not understated."],
   ["MOST POINTS / MOST SHOTS", "The team's line with the highest combined points per game, or shots on goal per game, in the chosen window. TIED when lines are level."],
   ["GTD / DTD / IR", "Game-time decision / day to day / injured reserve, as Daily Faceoff lists them."],
+  ["Final score and Win or Loss", "When a game is over by the time of an update, its card shows the final score on a scoreboard strip under the pick banner, with WIN or LOSS for the pick. The pick is the one made before puck drop; a later update never changes it. Games that end after the 4:45 PM update show in Results the next morning."],
   ["My pick", "The team the model picks to win the game: the side with the higher win probability. Every game card shows it on a gold banner with a star, as hockey names the first of its three stars after a game."],
   ["Injury list (Injuries tab)", "Every injured player the injury reports name, by team: GTD game-time decision, DTD day to day, OUT out, IR injured reserve, LTIR long-term injured reserve, IR-NR injured non-roster, SUSP suspended. Mostly ESPN's public injury report; Daily Faceoff's injured lists fill in for today's teams. Estimated return dates are estimates and often move."],
   ["Brier", "Average squared error of the win probabilities. Lower is better; 0.25 is a coin flip."],
@@ -84,6 +85,8 @@ window.NDA_TIPS = {
     "P": "Clinched the Presidents' Trophy: the best record in the league.",
     "E": "Eliminated from playoff contention.",
     "WRONG": "The projected winner lost.",
+    "WIN": "The game is over and my pick won it. Overtime and shootout wins count.",
+    "LOSS": "The game is over and my pick lost it.",
     "_tied": "Tied: another line or player has the same value.",
     "_injury": "Injury status from the injury report, for example IR (injured reserve), DTD (day to day) or OUT.",
     "_other": "A status tag from today's data. The Help tab lists every term."

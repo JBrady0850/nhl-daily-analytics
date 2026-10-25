@@ -35,6 +35,9 @@ def main():
     site = os.path.join(tmp, "app")
     shutil.copytree(os.path.join(ROOT, "app"), site)
     sample = json.load(open(os.path.join(HERE, "fixtures", "sample_latest.json"), encoding="utf-8"))
+    # the pictures show the sample day's late-afternoon update, when its two early
+    # games (ANA @ PHI and LAK @ NJD) had finished
+    sample["generated_utc"] = "2026-10-24T22:47:00Z"
     with open(os.path.join(site, "data", "latest.js"), "w", encoding="utf-8") as fh:
         fh.write("window.NDA_DATA=" + json.dumps(sample) + ";\n")
     url = "file://" + os.path.join(site, "index.html")

@@ -454,3 +454,61 @@ def test_sample_injury_list_is_complete():
     assert {"LTIR", "IR-NR", "DTD", "OUT", "IR"} <= {r["status"] for r in rows}
     assert sum(1 for r in rows if r.get("player_id")) > 0.9 * len(rows)
     assert any(r.get("in_lineup") for r in rows)
+
+
+def _game(gid, away, home, state, hwp):
+    proj = home if hwp >= 0.5 else away
+    return {"game_id": gid, "matchup": f"{away} @ {home}", "away": away, "home": home, "state": state,
+            "home_win_prob": hwp, "away_win_prob": round(1 - hwp, 4), "projected": proj,
+            "win_prob": hwp if hwp >= 0.5 else round(1 - hwp, 4), "tier": "HIGH", "rank": 9}
+
+
+def test_started_games_keep_the_pick_from_before_puck_drop():
+    from nhlda.build import settle_started
+    prev = {"1": _game(1, "FLA", "CHI", "FUT", 0.34), "2": _game(2, "MIN", "VAN", "FUT", 0.30),
+            "3": _game(3, "NYI", "DAL", "FUT", 0.57)}
+    now = [_game(1, "FLA", "CHI", "LIVE", 0.61),       # under way: the new run would flip the pick
+           _game(2, "MIN", "VAN", "FUT", 0.55),        # not started: the new run's pick stands
+           _game(3, "NYI", "DAL", "PRE", 0.56),        # warm-ups: still not started
+           _game(4, "COL", "NSH", "CRIT", 0.40)]       # no earlier pick to keep
+    out = {g["game_id"]: g for g in settle_started(now, prev, {})}
+    assert out[1]["projected"] == "FLA" and out[1]["home_win_prob"] == 0.34 and out[1]["state"] == "LIVE"
+    assert out[1]["pick_locked"] is True and "rank" not in out[1] and "result" not in out[1]
+    assert out[2]["projected"] == "VAN" and "pick_locked" not in out[2]
+    assert out[3]["home_win_prob"] == 0.56 and "pick_locked" not in out[3]
+    assert out[4]["projected"] == "COL" and "pick_locked" not in out[4]
+
+
+def test_finished_games_show_the_final_score_and_the_picks_result():
+    from nhlda.build import settle_started
+    prev = {"1": _game(1, "FLA", "CHI", "FUT", 0.34), "2": _game(2, "VGK", "CBJ", "FUT", 0.455)}
+    now = [_game(1, "FLA", "CHI", "OFF", 0.70), _game(2, "VGK", "CBJ", "FINAL", 0.455),
+           _game(3, "TOR", "EDM", "LIVE", 0.46), _game(4, "BUF", "WSH", "FUT", 0.47)]
+    finals = {"FLA_vs_CHI": {"away_score": 4, "home_score": 2, "winner": "FLA", "last_period": "REG"},
+              "VGK_vs_CBJ": {"away_score": 1, "home_score": 2, "winner": "CBJ", "last_period": "OT"}}
+    out = {g["game_id"]: g for g in settle_started(now, prev, finals)}
+    assert out[1]["result"] == {"away_score": 4, "home_score": 2, "last_period": "REG", "winner": "FLA", "pick": "win"}
+    assert out[1]["home_win_prob"] == 0.34, "graded against the pick made before puck drop"
+    assert out[2]["result"]["pick"] == "loss" and out[2]["result"]["last_period"] == "OT"
+    assert "result" not in out[3] and "result" not in out[4]
+    check_public({"slate": {"games": list(out.values())}})
+
+
+def test_previous_games_only_reads_the_same_day(tmp_path):
+    from nhlda.build import previous_games
+    assert previous_games(str(tmp_path), "2026-10-25") == {}
+    body = {"date": "2026-10-25", "slate": {"games": [_game(7, "FLA", "CHI", "FUT", 0.34), {"game_id": 8, "matchup": "A @ B"}]}}
+    (tmp_path / "latest.json").write_text(json.dumps(body))
+    assert list(previous_games(str(tmp_path), "2026-10-25")) == ["7"], "only games with a pick"
+    assert previous_games(str(tmp_path), "2026-10-26") == {}
+
+
+def test_sample_shows_finished_games_with_a_result():
+    d = json.load(open(SAMPLE, encoding="utf-8"))
+    done = [g for g in d["slate"]["games"] if g.get("result")]
+    assert {g["result"]["pick"] for g in done} == {"win", "loss"}
+    for g in done:
+        r = g["result"]
+        assert g["state"] in ("OFF", "FINAL") and r["winner"] in (g["home"], g["away"])
+        assert r["pick"] == ("win" if r["winner"] == g["projected"] else "loss")
+        assert (r["home_score"] > r["away_score"]) == (r["winner"] == g["home"])

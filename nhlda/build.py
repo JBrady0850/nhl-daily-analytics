@@ -23,7 +23,7 @@ from . import intel as I
 from . import raa_core as R
 from .data import (Fetcher, SlateDetector, TeamGameLog, MoneyPuckLoader, StandingsResolver,
                    PlayoffSeriesResolver, GAME_TYPE_PLAYOFFS, season_string, next_slate,
-                   fetch_market_odds)
+                   fetch_market_odds, fetch_finals)
 from .lines import all_team_lines
 
 FORMAT = "nhl-daily-analytics/1"
@@ -41,6 +41,44 @@ FORBIDDEN_TEXT = ("!bet", "@gmail.", "discord")
 
 def _r(x, n=4):
     return round(x, n) if isinstance(x, (int, float)) else x
+
+
+# NHL game states: a game has started once it is live, and is over once the league
+# marks it final (FINAL) or closes it (OFF)
+STARTED_STATES = {"LIVE", "CRIT", "FINAL", "OFF"}
+FINAL_STATES = {"FINAL", "OFF"}
+
+
+def previous_games(out_dir, target_date):
+    """Today's priced games from the file the last update wrote, keyed by game id
+    (matchup when there is no id). Empty when that file is for another day."""
+    try:
+        prev = json.load(open(os.path.join(out_dir, "latest.json"), encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    if prev.get("date") != target_date:
+        return {}
+    return {str(g.get("game_id") or g.get("matchup")): g
+            for g in (prev.get("slate") or {}).get("games") or [] if g.get("projected")}
+
+
+def settle_started(games, prev, finals):
+    """A game that has started keeps the pick from the last update before puck drop
+    (pick_locked), so a later update never changes or grades a different pick. A
+    game the league has closed gets its final score and the pick's result."""
+    out = []
+    for g in games:
+        key = str(g.get("game_id") or g.get("matchup"))
+        if g.get("state") in STARTED_STATES and key in prev:
+            keep = {k: v for k, v in prev[key].items() if k not in ("rank", "result", "state")}
+            g = dict(keep, state=g.get("state"), pick_locked=True)
+        fin = (finals or {}).get(f"{g.get('away')}_vs_{g.get('home')}")
+        if g.get("state") in FINAL_STATES and fin and g.get("projected"):
+            g["result"] = {"away_score": fin["away_score"], "home_score": fin["home_score"],
+                           "last_period": fin["last_period"], "winner": fin["winner"],
+                           "pick": "win" if fin["winner"] == g["projected"] else "loss"}
+        out.append(g)
+    return out
 
 
 def _pillars(p):
@@ -108,6 +146,7 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
     season_open = C.SEASON_OPENS if season == "20262027" else f"{d.year if d.month >= 9 else d.year - 1}-09-15"
     started = dt.datetime.now(dt.timezone.utc)
     problems = []
+    prev = previous_games(out_dir, target_date)   # read before this build replaces the file
 
     timeout = aiohttp.ClientTimeout(total=180, connect=30)
     async with aiohttp.ClientSession(timeout=timeout, connector=aiohttp.TCPConnector(limit=12)) as session:
@@ -228,6 +267,13 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
                                          "form": t.get("form"), "goalie": _goalie(t.get("goalie") or {}),
                                          "absences": [_absence(a) for a in (t.get("absences") or [])[:5]]}
                 games.append(g)
+            # games under way keep their earlier pick; finished games get the score and result
+            try:
+                finals = await fetch_finals(f, target_date)
+            except Exception as exc:  # noqa: BLE001
+                log.warning("final scores: %s", exc)
+                finals = None
+            games = settle_started(games, prev, finals)
             games.sort(key=lambda g: -(g.get("win_prob") or 0))
             for k, g in enumerate(games, start=1):
                 g["rank"] = k

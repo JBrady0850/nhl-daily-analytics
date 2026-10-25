@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.8.1";
+  const APP_VERSION = "1.9.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -427,6 +427,16 @@
       <span class="pk-star" aria-hidden="true">${icon("star", "pk-ico")}</span>
       <span class="pk-body"><span class="pk-tag"><span class="pill mypick">My pick</span> ${badge(ab)}</span><span class="pick">${esc(teamName(ab))}</span></span>
       <span class="pick-pct"><b>${pct(p)}</b><span>to win</span></span></div>`;
+  // a finished game: the final score on a scoreboard strip under the banner, and
+  // whether the pick won or lost (overtime and shootout results count)
+  function finalStrip(g) {
+    const r = g.result;
+    if (!r) return "";
+    const won = r.pick === "win", per = r.last_period && r.last_period !== "REG" ? "/" + r.last_period : "";
+    const side = (ab, sc) => `<span class="fs-team${r.winner === ab ? " w" : ""}"><span>${esc(ab)}</span> <b>${esc(sc)}</b></span>`;
+    return `<div class="finalbar ${won ? "won" : "lost"}" aria-label="Final${per ? " in " + (r.last_period === "OT" ? "overtime" : "a shootout") : ""}: ${esc(teamName(g.away))} ${esc(r.away_score)}, ${esc(teamName(g.home))} ${esc(r.home_score)}. My pick ${won ? "won" : "lost"}.">
+      <span class="fs-lab">Final${esc(per)}</span>${side(g.away, r.away_score)}${side(g.home, r.home_score)}<span class="pill ${won ? "win" : "loss"}">${won ? "Win" : "Loss"}</span></div>`;
+  }
   function gameCard(g) {
     const fav = g.projected;
     const mk = g.market ? (fav === g.home ? g.market.home_prob : g.market.away_prob) : null;
@@ -437,7 +447,7 @@
       <p class="match">${badge(g.away, "big", true)} <span class="at">@</span> ${badge(g.home, "big", true)}</p>
       <p class="small muted" style="margin:0">${esc(teamName(g.away))} at ${esc(teamName(g.home))}, ${esc(localTime(g.start_utc))}${g.venue ? ", " + esc(g.venue) : ""}</p>
       ${winbar(g)}
-      ${fav ? pickBanner(fav, g.win_prob) + `
+      ${fav ? pickBanner(fav, g.win_prob) + finalStrip(g) + `
       <p style="margin:4px 0" class="row">${tierPill(g.tier)} ${g.gate_cleared ? '<span class="pill lead">Gate cleared</span>' : ""} ${yours ? '<span class="pill gold">Your team</span>' : ""}</p>` : ""}
       <dl class="kv"><dt>Market</dt><dd>${typeof mk === "number" ? pct(mk) + ` for ${esc(fav)}` + (g.market.books ? ` <span class="muted">(${esc(g.market.books)} books)</span>` : "") : '<span class="muted">no line yet</span>'}</dd>
       <dt class="gk-dt">Goalies</dt><dd class="gk-dd">${goalieLine(g)}</dd>

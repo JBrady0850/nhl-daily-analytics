@@ -88,7 +88,7 @@ always has the latest data.
 
 | Tab | What you see |
 | --- | --- |
-| **Today** | Every game ranked by the projected winner's win probability. Each card shows the pick on a gold banner with a star crest (MY PICK, the team and its chance to win), with the confidence tier (HIGH, MODERATE, LOW), the market's view for comparison, both starting goalies, and a "Why this pick" breakdown. |
+| **Today** | Every game ranked by the projected winner's win probability. Each card shows the pick on a gold banner with a star crest (MY PICK, the team and its chance to win), with the confidence tier (HIGH, MODERATE, LOW), the market's view for comparison, both starting goalies, and a "Why this pick" breakdown. A game that is over by an update gets the final score on a scoreboard strip under the banner and WIN or LOSS for the pick; once a game starts, its pick never changes. |
 | **My Teams** | The teams you follow: record, place in the wild-card race, division, conference and league, today's game, all four lines and three pairs with last-10 or season stats, and which line leads the team in points, shots and penalty minutes. |
 | **Lines** | The four forward lines and three defense pairs of each game's projected winner, in rank order, with every player's stats (last 10 games or season) and line and pair totals. |
 | **Goalies** | Every probable starter tonight, highest season save percentage first, with goals saved above expected, high-danger save percentage, rest days and whether the start is confirmed. |

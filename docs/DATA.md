@@ -44,12 +44,14 @@ Each game:
 
 | Key | Meaning |
 | --- | --- |
-| `game_id`, `matchup`, `away`, `home`, `start_utc`, `venue`, `state` | The NHL game id, `AWY @ HOM`, team abbreviations, start time in UTC, arena, game state. |
+| `game_id`, `matchup`, `away`, `home`, `start_utc`, `venue`, `state` | The NHL game id, `AWY @ HOM`, team abbreviations, start time in UTC, arena, and the NHL game state at this update: `FUT` or `PRE` before puck drop, `LIVE` or `CRIT` under way, `FINAL` or `OFF` over. |
 | `projected`, `win_prob`, `rank` | The projected winner, its win probability (0 to 1), and its rank on the slate. |
 | `home_win_prob`, `away_win_prob` | Both sides' probabilities. |
 | `tier`, `confidence_pct` | `HIGH` (58.5 percent or more), `MODERATE` (54.0 to 58.4) or `LOW`. |
 | `delta`, `gate_cleared` | The rating gap between the teams and whether it reached the day's gate. |
 | `market` | `home_prob`, `away_prob` and `books`: the sportsbook consensus from the NHL score feed, margin removed. Comparison only. `null` when the feed has no lines. |
+| `pick_locked` | `true` when the game had started by this update, so its pick and every other prediction field come from the last update before puck drop. A later update never changes or grades a different pick. |
+| `result` | Only for a game that was over at this update: `away_score`, `home_score`, `last_period` (`REG`, `OT` or `SO`), `winner`, and `pick` (`win` or `loss`). The season record in `results` counts the game the next morning. |
 | `home_side`, `away_side` | `raa` (team score), `pillars` (`p1_form`, `p2_absence`, `p3_motivation`, `p4_gvi`, `p5_friction`, `adj_raa`), `form`, `goalie`, `absences`. |
 
 `goalie` holds `name`, `player_id`, `source` (`CONFIRMED`, `PROJECTED` or `ROTATION`),

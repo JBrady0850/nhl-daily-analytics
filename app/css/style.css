@@ -163,6 +163,16 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
 .pick-pct { display: flex; flex-direction: column; align-items: flex-end; line-height: 1; }
 .pick-pct > b { font: 600 2.1rem/.86 var(--display); letter-spacing: .02em; font-variant-numeric: tabular-nums; padding-top: 5px; }
 .pick-pct > span { font: 600 .84rem/1 var(--display); letter-spacing: .14em; text-transform: uppercase; }
+/* a finished game: the arena scoreboard (black panel, amber digits) hangs under the
+   banner with the final score and a WIN or LOSS tag for the pick */
+.finalbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: -6px 18px 8px 0; padding: 7px 10px 6px;
+  background: var(--sb); color: #C7D1DC; border: 2px solid #26303C; border-top: 0; border-radius: 0 0 10px 10px; }
+.fs-lab { font: 600 1rem/1 var(--display); letter-spacing: .12em; text-transform: uppercase; color: #C7D1DC; padding-top: 2px; }
+.fs-team { display: inline-flex; align-items: baseline; gap: 6px; font: 600 1.2rem/1 var(--display); letter-spacing: .06em; color: #8D99A6; }
+.fs-team > b { font: 600 1.75rem/.9 var(--display); color: #8A6A2A; font-variant-numeric: tabular-nums; }
+.fs-team.w { color: #FFFFFF; } .fs-team.w > b { color: var(--led); text-shadow: 0 0 10px rgba(255,170,20,.45); }
+.finalbar > .pill { margin-left: auto; font-size: 1.15rem; padding: 4px 12px 2px; letter-spacing: .1em; }
+.pill.win { background: #2BB36B; color: #04150B; } .pill.loss { background: #E5483B; color: #FFFFFF; }
 @media print { .pickline::before { box-shadow: none; } .pk-star { box-shadow: 0 0 0 2px var(--star-ink); } }
 /* injuries */
 .inj-note { margin-top: 2px; max-width: 46em; line-height: 1.35; }

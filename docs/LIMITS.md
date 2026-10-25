@@ -22,6 +22,10 @@ What the app can and cannot do. Read this before you rely on a number.
 - The data updates twice a day, at about 9:00 AM and 4:45 PM US Central time. News after the evening
   run (a late scratch, a goalie change at warmups) is not in the app until the next
   morning.
+- A game card shows the final score and WIN or LOSS only for a game that was over at
+  an update, which in practice means early afternoon games at the 4:45 PM update. A game
+  still in its third period then, and every evening game, shows its result in the
+  Results tab the next morning.
 - GitHub starts scheduled runs on a best-effort basis. A run can start late when
   GitHub is busy (one evening run started two and a half hours late), and GitHub can
   skip a run (the 14:05 run of 2026-10-24 never started). A timer outside GitHub starts
