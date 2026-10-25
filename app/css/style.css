@@ -141,13 +141,29 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
   @keyframes puck-in { from { left: 50%; } to { left: var(--split); } }
 }
 .pick { font-weight: 700; }
-/* the pick, said plainly on every game card: "My pick" + the team, in its color */
-.pickline { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 8px 0 2px; padding: 6px 10px; border-radius: 10px;
-  border-left: 5px solid var(--pc, var(--accent)); background: color-mix(in srgb, var(--pc, var(--accent)) 10%, var(--panel)); }
-.pickline .pick { font-size: 1.08rem; }
-.pickline .tm { font-size: 1.05rem; }
-.pick-pct { font-weight: 700; font-variant-numeric: tabular-nums; }
-.pill.mypick { background: var(--ink); color: var(--panel); }
+/* the pick: a gold banner with a star crest pinned to its left end and a swallowtail
+   notch at its right, like a banner raised to the rafters. It is the only solid
+   yellow field and the only star in the app, so it reads first on every card, and
+   it keeps the same dark ink on gold in light and dark themes. */
+.pickline { --star-hi: #FFE45C; --star: #FFCC1F; --star-lo: #DB9E00; --star-ink: #0F1A2B;
+  position: relative; isolation: isolate; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0 10px;
+  margin: 12px 0 6px; padding: 7px 28px 9px 8px; color: var(--star-ink); }
+.pickline::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 10px 0 0 10px;
+  background: linear-gradient(180deg, var(--star-hi) 0%, var(--star) 58%, #F6BC0E 100%);
+  box-shadow: inset 0 -3px 0 var(--star-lo), inset 0 1px 0 rgba(255,255,255,.6);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 18px) 50%, 100% 100%, 0 100%); }
+.pk-star { display: grid; place-items: center; width: 44px; height: 44px; margin-left: -16px; border-radius: 50%; background: var(--board);
+  box-shadow: 0 0 0 2.5px var(--star), 0 0 0 4.5px var(--star-ink), 0 3px 8px rgba(5,12,22,.35); }
+.pk-ico { width: 27px; height: 27px; fill: var(--star); stroke: var(--star-ink); stroke-width: .6; stroke-linejoin: round; }
+.pk-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.pk-tag { display: flex; align-items: center; gap: 6px; }
+.pickline .pill.mypick { background: var(--star-ink); color: var(--star); font-size: .84rem; letter-spacing: .14em; padding: 2px 8px 0; }
+.pickline .tm { font-size: .98rem; min-width: 2.6em; box-shadow: inset 0 -3px 0 var(--c2), 0 0 0 1.5px var(--star-ink); }
+.pickline .pick { font: 600 1.55rem/.92 var(--display); letter-spacing: .02em; padding-top: 3px; overflow-wrap: anywhere; }
+.pick-pct { display: flex; flex-direction: column; align-items: flex-end; line-height: 1; }
+.pick-pct > b { font: 600 2.1rem/.86 var(--display); letter-spacing: .02em; font-variant-numeric: tabular-nums; padding-top: 5px; }
+.pick-pct > span { font: 600 .84rem/1 var(--display); letter-spacing: .14em; text-transform: uppercase; }
+@media print { .pickline::before { box-shadow: none; } .pk-star { box-shadow: 0 0 0 2px var(--star-ink); } }
 /* injuries */
 .inj-note { margin-top: 2px; max-width: 46em; line-height: 1.35; }
 table.inj td:first-child { min-width: 12em; }

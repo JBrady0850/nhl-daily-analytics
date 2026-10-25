@@ -237,25 +237,36 @@ def check_dfs_goalies(pg, n):
 
 PICK_JS = """() => [...document.querySelectorAll('main article.game')].map(c => {
   const p = c.querySelector('.pickline');
-  return p ? {n: c.querySelectorAll('.pickline').length, pill: (p.querySelector('.pill.mypick') || {}).textContent || '',
-    tip: !!(p.querySelector('.pill.mypick') || {dataset: {}}).dataset.tip, team: (p.querySelector('.tm') || {}).textContent || '',
-    name: (p.querySelector('.pick') || {}).textContent || '', pct: (p.querySelector('.pick-pct') || {}).textContent || ''} : null;
+  if (!p) return null;
+  const mp = p.querySelector('.pill.mypick') || {dataset: {}}, star = p.querySelector('.pk-star svg use');
+  const sb = p.querySelector('.pk-star'), r = sb ? sb.getBoundingClientRect() : {width: 0};
+  return {n: c.querySelectorAll('.pickline').length, pill: mp.textContent || '', tip: !!mp.dataset.tip,
+    team: (p.querySelector('.tm') || {}).textContent || '', name: (p.querySelector('.pick') || {}).textContent || '',
+    pct: (p.querySelector('.pick-pct > b') || {}).textContent || '',
+    star: !!star && star.getAttribute('href') === '#i-star' && r.width >= 30,
+    gold: getComputedStyle(p, '::before').backgroundImage.includes('rgb(255, 204, 31)'),
+    ink: getComputedStyle(p.querySelector('.pick') || p).color};
 })"""
 
 
 def check_my_pick(pg, sample):
-    """Every game card says plainly who the pick is: a MY PICK tag (with its
-    definition), the team's badge, its name and the win probability."""
+    """Every game card shows the pick on a gold banner with a star crest: a MY PICK
+    tag (with its definition), the team's badge, its name and the win probability,
+    in the same dark ink on gold in the light and the dark theme."""
     pg.click('#tabs button[data-tab="today"]')
-    got, fails = pg.evaluate(PICK_JS), []
-    for g, c in zip(sample["slate"]["games"], got):
-        if not g.get("projected"):
-            continue
-        want = {"n": 1, "pill": "My pick", "tip": True, "team": g["projected"], "name": sample["teams"][g["projected"]]["name"],
-                "pct": f"{g['win_prob'] * 100:.1f}%"}
-        if c != want:
-            fails.append(f"pick line on {g['matchup']}: {c} (want {want})")
-            break
+    fails = []
+    for scheme in ("light", "dark"):
+        pg.emulate_media(color_scheme=scheme)
+        got = pg.evaluate(PICK_JS)
+        for g, c in zip(sample["slate"]["games"], got):
+            if not g.get("projected"):
+                continue
+            want = {"n": 1, "pill": "My pick", "tip": True, "team": g["projected"], "name": sample["teams"][g["projected"]]["name"],
+                    "pct": f"{g['win_prob'] * 100:.1f}%", "star": True, "gold": True, "ink": "rgb(15, 26, 43)"}
+            if c != want:
+                fails.append(f"pick banner on {g['matchup']} ({scheme}): {c} (want {want})")
+                break
+    pg.emulate_media(color_scheme="light")   # the contexts use the default, light
     return fails
 
 

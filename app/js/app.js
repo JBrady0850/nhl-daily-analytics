@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.8.0";
+  const APP_VERSION = "1.8.1";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -421,6 +421,12 @@
       : `<span class="gk-n muted">${esc(ab)}: no starter yet</span><span class="gk-s"></span>`;
     return `<span class="gks">${one(g.away, g.away_side.goalie)}${one(g.home, g.home_side.goalie)}</span>`;
   }
+  // the pick: a gold banner with a star crest, the one solid yellow field in the app.
+  // Hockey names its three stars after every game; the pick is today's first star.
+  const pickBanner = (ab, p) => `<div class="pickline">
+      <span class="pk-star" aria-hidden="true">${icon("star", "pk-ico")}</span>
+      <span class="pk-body"><span class="pk-tag"><span class="pill mypick">My pick</span> ${badge(ab)}</span><span class="pick">${esc(teamName(ab))}</span></span>
+      <span class="pick-pct"><b>${pct(p)}</b><span>to win</span></span></div>`;
   function gameCard(g) {
     const fav = g.projected;
     const mk = g.market ? (fav === g.home ? g.market.home_prob : g.market.away_prob) : null;
@@ -431,7 +437,7 @@
       <p class="match">${badge(g.away, "big", true)} <span class="at">@</span> ${badge(g.home, "big", true)}</p>
       <p class="small muted" style="margin:0">${esc(teamName(g.away))} at ${esc(teamName(g.home))}, ${esc(localTime(g.start_utc))}${g.venue ? ", " + esc(g.venue) : ""}</p>
       ${winbar(g)}
-      ${fav ? `<p class="pickline" style="--pc:${cols(fav)[0]}"><span class="pill mypick">My pick</span> ${badge(fav)} <span class="pick-team"><span class="pick">${esc(teamName(fav))}</span> <span class="pick-pct">${pct(g.win_prob)}</span></span></p>
+      ${fav ? pickBanner(fav, g.win_prob) + `
       <p style="margin:4px 0" class="row">${tierPill(g.tier)} ${g.gate_cleared ? '<span class="pill lead">Gate cleared</span>' : ""} ${yours ? '<span class="pill gold">Your team</span>' : ""}</p>` : ""}
       <dl class="kv"><dt>Market</dt><dd>${typeof mk === "number" ? pct(mk) + ` for ${esc(fav)}` + (g.market.books ? ` <span class="muted">(${esc(g.market.books)} books)</span>` : "") : '<span class="muted">no line yet</span>'}</dd>
       <dt class="gk-dt">Goalies</dt><dd class="gk-dd">${goalieLine(g)}</dd>
