@@ -239,8 +239,8 @@ UPD_JS = "() => [...document.querySelectorAll('main [data-upd]')].map(e => [e.cl
 
 
 def check_update_status(b, http_url, file_url, sample):
-    """The line under each title says when the next scheduled update is (14:05 and
-    22:20 UTC), counts down, turns into 'due' once a scheduled time passes without
+    """The line under each title says when the next scheduled update is (9:00 AM and
+    4:45 PM US Central, all year), counts down, turns into 'due' once a scheduled time passes without
     newer data, checks for the file on its own while due (every 5 minutes, every 15
     once late), loads newer data when it appears, and a saved copy says it does not
     update. The fixture was built at 2026-10-23T22:28:41Z; the clock is set around it."""
@@ -257,8 +257,8 @@ def check_update_status(b, http_url, file_url, sample):
             route.fulfill(status=200, content_type="application/json", body=body)
         return handler
 
-    def opened(when, url=http_url):
-        ctx = b.new_context(viewport={"width": 1280, "height": 900}, timezone_id="America/Chicago",
+    def opened(when, url=http_url, tz="America/Chicago"):
+        ctx = b.new_context(viewport={"width": 1280, "height": 900}, timezone_id=tz,
                             locale="en-US", service_workers="block")
         state = {"new": False}
         ctx.route("**/data/latest.json*", serve(state))
@@ -277,22 +277,22 @@ def check_update_status(b, http_url, file_url, sample):
             pg.clock.run_for(20000)
         pg.wait_for_timeout(300)                          # let a started fetch finish
 
-    # 1. an hour after the evening build: the next run is 14:05 UTC, 9:05 AM in Chicago
+    # 1. an hour after the evening build: the next run is 14:00 UTC, 9:00 AM in Chicago
     ctx, pg, _ = opened("2026-10-23T23:28:00Z")
     got = lines(pg)
-    want = "Next scheduled update about 9:05 AM CDT, in 14 h 37 min."
+    want = "Next scheduled update about 9:00 AM CDT, in 14 h 32 min."
     if not got or got[0] != ["upd fresh", want]:
         fails.append(f"fresh status wrong: {got[:1]} (want {want})")
     advance(pg, 30)
     got = lines(pg)
-    if not got or "in 14 h 7 min." not in got[0][1]:
+    if not got or "in 14 h 2 min." not in got[0][1]:
         fails.append(f"status does not count down: {got[:1]}")
     if len(hits) != 1:
         fails.append(f"fresh data: the page should not keep checking ({len(hits)} requests)")
     pg.click("main button[data-act=refresh]")
     pg.wait_for_timeout(300)
     toast = pg.inner_text("#toast")
-    if "Next scheduled update about 9:05 AM CDT" not in toast:
+    if "Next scheduled update about 9:00 AM CDT" not in toast:
         fails.append(f"the check button does not say when the next update is: {toast!r}")
     for t in ("lines", "standings"):
         pg.click(f'#tabs button[data-tab="{t}"]')
@@ -300,7 +300,7 @@ def check_update_status(b, http_url, file_url, sample):
             fails.append(f"no update status on the {t} tab")
     pg.click('#tabs button[data-tab="settings"]')
     txt = pg.inner_text("main")
-    if "Twice a day, about 9:05 AM CDT and 5:20 PM CDT your time." not in txt:
+    if "Twice a day, about 9:00 AM CDT and 4:45 PM CDT your time." not in txt:
         fails.append("Settings does not show the schedule in local time")
     for dt in ("Schedule", "Next update"):
         el = pg.locator("main dl.kv dt", has_text=dt)
@@ -308,10 +308,10 @@ def check_update_status(b, http_url, file_url, sample):
             fails.append(f"Settings row {dt!r} missing or without its definition")
     ctx.close()
 
-    # 2. 15 minutes after the 14:05 UTC run was due, with no newer file yet
+    # 2. 20 minutes after the 14:00 UTC (9:00 AM CDT) run was due, with no newer file yet
     ctx, pg, state = opened("2026-10-24T14:20:00Z")
     got = lines(pg)
-    if not got or got[0][0] != "upd due" or "New data is due: the 9:05 AM CDT update has not posted yet." not in got[0][1]:
+    if not got or got[0][0] != "upd due" or "New data is due: the 9:00 AM CDT update has not posted yet." not in got[0][1]:
         fails.append(f"due status wrong: {got[:1]}")
     advance(pg, 5)
     if len(hits) != 2:
@@ -319,7 +319,7 @@ def check_update_status(b, http_url, file_url, sample):
     state["new"] = True                                 # the run posts its file
     advance(pg, 5)
     got = lines(pg)
-    if len(hits) != 3 or not got or got[0] != ["upd fresh", "Next scheduled update about 5:20 PM CDT, in 7 h 50 min."]:
+    if len(hits) != 3 or not got or got[0] != ["upd fresh", "Next scheduled update about 4:45 PM CDT, in 7 h 15 min."]:
         fails.append(f"newer data not picked up on its own: {len(hits)} requests, {got[:1]}")
     if "Updated to the latest data" not in pg.inner_text("#toast"):
         fails.append("no toast when newer data loads")
@@ -328,14 +328,30 @@ def check_update_status(b, http_url, file_url, sample):
     # 3. more than three hours late: say so, and check less often
     ctx, pg, _ = opened("2026-10-24T17:10:00Z")
     got = lines(pg)
-    want = "The 9:05 AM CDT update is 3 h 5 min late; GitHub may have skipped it."
-    if not got or got[0][0] != "upd late" or want not in got[0][1] or "about 5:20 PM CDT" not in got[0][1]:
+    want = "The 9:00 AM CDT update is 3 h 10 min late; GitHub may have skipped it."
+    if not got or got[0][0] != "upd late" or want not in got[0][1] or "about 4:45 PM CDT" not in got[0][1]:
         fails.append(f"late status wrong: {got[:1]}")
     advance(pg, 10)
     n10 = len(hits)
     advance(pg, 5)
     if n10 != 1 or len(hits) != 2:
         fails.append(f"once late the page should check every 15 minutes ({n10} then {len(hits)} requests)")
+    ctx.close()
+
+    # 4a. standard time: the same 9:00 AM Central is 15:00 UTC after 2026-11-01
+    ctx, pg, _ = opened("2026-11-02T15:20:00Z")
+    got = lines(pg)
+    if not got or got[0][0] != "upd due" or "the 9:00 AM CST update has not posted yet" not in got[0][1]:
+        fails.append(f"standard-time status wrong: {got[:1]}")
+    pg.click('#tabs button[data-tab="settings"]')
+    if "Twice a day, about 9:00 AM CST and 4:45 PM CST your time." not in pg.inner_text("main"):
+        fails.append("Settings schedule wrong in standard time")
+    ctx.close()
+    # 4b. a viewer in another time zone sees the same moment in their own time
+    ctx, pg, _ = opened("2026-10-23T23:28:00Z", tz="America/New_York")
+    got = lines(pg)
+    if not got or got[0] != ["upd fresh", "Next scheduled update about 10:00 AM EDT, in 14 h 32 min."]:
+        fails.append(f"Eastern-time viewer status wrong: {got[:1]}")
     ctx.close()
 
     # 4. a downloaded copy never updates, and says so

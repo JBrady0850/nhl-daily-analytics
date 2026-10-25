@@ -19,7 +19,7 @@ What the app can and cannot do. Read this before you rely on a number.
 
 ## Timing
 
-- The data updates twice a day, at about 14:05 and 22:20 UTC. News after the evening
+- The data updates twice a day, at about 9:00 AM and 4:45 PM US Central time. News after the evening
   run (a late scratch, a goalie change at warmups) is not in the app until the next
   morning.
 - GitHub starts scheduled runs on a best-effort basis. A run can start late when

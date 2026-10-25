@@ -100,8 +100,8 @@ always has the latest data.
 
 ## How it works
 
-Twice a day (14:05 and 22:20 UTC, which is about 9 AM and 5 PM US Central in daylight
-time) a GitHub Actions workflow in this repository:
+Twice a day, at 9:00 AM and 4:45 PM US Central time all year, a GitHub Actions
+workflow in this repository:
 
 1. Settles the previous night's games against the final scores and adds them to the
    season record in `state/results_ledger.csv`.
@@ -125,8 +125,9 @@ now and then not at all (the 14:05 run of 2026-10-24 never started). So the work
 is started by a small timer outside GitHub: at each update time it sends the
 repository a `daily-data` dispatch event (`POST /repos/<owner>/<repo>/dispatches`
 with a token that has Contents: write), which starts a run right away. GitHub's own
-schedule stays as a fallback, with backup times at 14:47, 15:29 and 16:13 UTC after
-the morning update and 23:02 and 23:44 UTC after the evening one. Every automatic
+schedule stays as a fallback. Cron reads UTC only, so it has a line just after each
+update time in both daylight time and standard time (14:02 and 15:02, 21:47 and
+22:47 UTC), plus backups at 15:44, 16:26 and 23:29 UTC. Every automatic
 run builds only when the data file is older than the latest main update time
 (`nhlda/schedule.py`); otherwise it stops within seconds. Running the workflow by
 hand always builds. If you copy this project, point any scheduler you trust at the

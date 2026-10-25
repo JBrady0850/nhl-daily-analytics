@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.6.5";
+  const APP_VERSION = "1.7.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -348,16 +348,35 @@
     return `${head("today", "No data yet")}<div class="card empty">${EMPTY_NET}<p>The daily data file did not load. If you opened this app from a downloaded folder, make sure <code>data/latest.js</code> is next to <code>index.html</code>, or open the live app at <a href="${PUBLIC_URL}">${PUBLIC_URL}</a>.</p></div>`;
   }
   // ---------- update schedule ----------
-  // The Daily data workflow runs at these UTC times (.github/workflows/daily.yml).
-  // GitHub starts scheduled runs on a best-effort basis: one evening run started
-  // 2.5 hours late, so an update counts as "due" for 3 hours before it is "late".
-  const RUNS_UTC = [[14, 5], [22, 20]];
+  // The Daily data workflow builds at these US Central wall-clock times all year
+  // (nhlda/schedule.py MAIN_CENTRAL); their UTC times move with daylight time. A run
+  // can still arrive late, so an update counts as "due" for 3 hours before it is "late".
+  const RUNS_CENTRAL = [[9, 0], [16, 45]];
+  const CENTRAL = "America/Chicago";
   const LATE_MIN = 180;
   const CHECK_MIN = { due: 5, late: 15 };     // how often an open page looks for the new file
   const isLive = () => location.protocol.startsWith("http");
+  const centralFmt = (() => { try { return new Intl.DateTimeFormat("en-US", { timeZone: CENTRAL, hourCycle: "h23", year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric" }); } catch (e) { return null; } })();
+  function centralParts(ms) {                 // [year, month 0-11, day, hour, minute] on the US Central clock
+    if (centralFmt) {
+      try { const p = centralFmt.formatToParts(new Date(ms)), g = k => +(p.find(x => x.type === k) || {}).value; return [g("year"), g("month") - 1, g("day"), g("hour") % 24, g("minute")]; } catch (e) { /* fall through */ }
+    }
+    const t = new Date(ms - 6 * 3600000);       // no time zone support: standard time
+    return [t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate(), t.getUTCHours(), t.getUTCMinutes()];
+  }
+  function centralUtc(y, mo, d, h, mi) {      // the instant of a US Central wall-clock time
+    for (const off of [5, 6]) {
+      const t = Date.UTC(y, mo, d, h + off, mi), p = centralParts(t);
+      if (p[0] === y && p[1] === mo && p[2] === d && p[3] === h && p[4] === mi) return t;
+    }
+    return Date.UTC(y, mo, d, h + 6, mi);
+  }
   function runTimes(now) {
-    const d = new Date(now), out = [];
-    for (let k = -1; k <= 1; k++) RUNS_UTC.forEach(([h, m]) => out.push(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + k, h, m)));
+    const [y, mo, d] = centralParts(now), out = [];
+    for (let k = -1; k <= 1; k++) {
+      const day = new Date(Date.UTC(y, mo, d + k));
+      RUNS_CENTRAL.forEach(([h, m]) => out.push(centralUtc(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate(), h, m)));
+    }
     return out.sort((a, b) => a - b);
   }
   function updState(now = Date.now()) {
@@ -730,8 +749,8 @@
     const gloss = (window.NDA_GLOSSARY || []).map(([t, d]) => `<dt>${esc(t)}</dt><dd>${esc(d)}</dd>`).join("");
     const tipNote = `<p class="small">Hover over, tap, or Tab to any colored tag, summary tile, column heading or dotted-underlined abbreviation to see what it means. Click or tap a player's name to open his official NHL.com page with his full stats in a separate window.</p>`;
     return `${head("help", "How it works")}
-      <section class="card"><p>Twice a day (at 14:05 and 22:20 UTC: about 9:05 AM and 5:20 PM US Central in daylight time, an hour earlier in standard time) a free GitHub workflow reads the NHL's public schedule, standings and game logs, MoneyPuck's season numbers, Daily Faceoff's starting goalies, line combinations and injured lists, and ESPN's public injury report. It scores every team on five pillars (form, missing players, playoff-race motivation, the starting goalie and rest), turns the gap between the two teams into a win probability, and publishes one data file that this app reads.</p>
-      <p>The line under each page title tells you when the next update is due. GitHub starts scheduled runs on a best-effort basis, often late and now and then not at all, so the workflow also runs at backup times during the two hours after each update time; a backup run builds only when the update has not posted yet. While an update is due, an open copy of the app checks for the new file every ${CHECK_MIN.due} minutes and loads it on its own; the Check for newer data button checks right away.</p>
+      <section class="card"><p>Twice a day (at 9:00 AM and 4:45 PM US Central time) a free GitHub workflow reads the NHL's public schedule, standings and game logs, MoneyPuck's season numbers, Daily Faceoff's starting goalies, line combinations and injured lists, and ESPN's public injury report. It scores every team on five pillars (form, missing players, playoff-race motivation, the starting goalie and rest), turns the gap between the two teams into a win probability, and publishes one data file that this app reads.</p>
+      <p>The line under each page title tells you when the next update is due. GitHub starts its own scheduled runs late or now and then not at all, so a small timer outside GitHub starts each update, with GitHub's schedule as a backup; a backup run builds only when the update has not posted yet. While an update is due, an open copy of the app checks for the new file every ${CHECK_MIN.due} minutes and loads it on its own; the Check for newer data button checks right away.</p>
       <p>Each morning it also settles the previous night's games, keeps the season record, and every 10 settled games tests whether a refit of the model would predict better. A refit is adopted only after it proves itself on games it has not seen.</p></section>
       <section class="card"><h2 style="margin-top:0">Limits</h2><ul class="steps-list"><li>Hockey is close to a coin flip: last season the model picked 56 percent of winners on games it had not seen, and about 64 percent on picks that cleared the gate. Treat the numbers as estimates.</li>
       <li>Morning starting goalies are mostly projections; check the evening update or the team's own news before relying on one.</li>
@@ -752,6 +771,7 @@
     } catch (e) { if (manual) toast("Could not reach the data file; showing the saved copy"); }
   }
   // keep the "next update" lines current, and while an update is due, look for it
+  const TICK_MS = 20000;
   let lastAuto = Date.now();
   function tick() {
     const s = updState(), txt = updText(s);
@@ -763,7 +783,8 @@
       wrapText(el);
     });
     const every = CHECK_MIN[s.kind];
-    if (every && document.visibilityState === "visible" && Date.now() - lastAuto >= every * 60000) { lastAuto = Date.now(); refresh(false); }
+    // half a tick of slack, so a check is not put off by a 20-second tick for a few milliseconds
+    if (every && document.visibilityState === "visible" && Date.now() - lastAuto >= every * 60000 - TICK_MS / 2) { lastAuto = Date.now(); refresh(false); }
   }
 
   // ---------- start ----------
@@ -775,6 +796,6 @@
   decorate(document.querySelector(".foot-in"));
   showInstall();
   refresh(false);
-  setInterval(tick, 20000);
+  setInterval(tick, TICK_MS);
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { lastAuto = Date.now(); refresh(false); tick(); } });
 })();

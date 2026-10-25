@@ -301,25 +301,34 @@ def test_install_identity_is_this_app_only():
 
 
 def test_schedule_builds_only_when_the_main_update_is_missing():
-    """A scheduled run builds when the data predates the latest main update time
-    (14:05 or 22:20 UTC) and stops otherwise, so the backup times only fill in for a
-    main run GitHub started late or skipped (as on 2026-10-24, when 14:05 never ran)."""
+    """An automatic run builds when the data predates the latest main update time
+    (9:00 AM or 4:45 PM US Central, all year) and stops otherwise, so extra triggers
+    only fill in for a main run that GitHub started late or skipped."""
     import datetime as dt
     from nhlda import schedule as S
     t = lambda s: dt.datetime.fromisoformat(s.replace("Z", "+00:00"))
-    assert S.last_main(t("2026-10-24T13:59:00Z")) == t("2026-10-23T22:20:00Z")
-    assert S.last_main(t("2026-10-24T14:05:00Z")) == t("2026-10-24T14:05:00Z")
-    assert S.last_main(t("2026-10-24T23:44:00Z")) == t("2026-10-24T22:20:00Z")
-    assert S.last_main(t("2026-10-25T00:30:00Z")) == t("2026-10-24T22:20:00Z")
-    # the morning of 2026-10-24: Friday evening's file, then the main run, then a backup
-    assert S.due("2026-10-24T00:48:42Z", t("2026-10-24T13:30:00Z"))[0] is False
-    assert S.due("2026-10-24T00:48:42Z", t("2026-10-24T14:47:00Z"))[0] is True
-    assert S.due("2026-10-24T14:48:10Z", t("2026-10-24T15:29:00Z"))[0] is False
-    # a backup that GitHub starts very late still serves the next main time
-    assert S.due("2026-10-24T14:48:10Z", t("2026-10-24T22:31:00Z"))[0] is True
+    # daylight time (CDT, UTC-5): 9:00 AM is 14:00Z and 4:45 PM is 21:45Z
+    assert S.last_main(t("2026-10-25T13:59:00Z")) == t("2026-10-24T21:45:00Z")
+    assert S.last_main(t("2026-10-25T14:00:00Z")) == t("2026-10-25T14:00:00Z")
+    assert S.last_main(t("2026-10-25T23:44:00Z")) == t("2026-10-25T21:45:00Z")
+    assert S.last_main(t("2026-10-26T03:30:00Z")) == t("2026-10-25T21:45:00Z")   # 10:30 PM Central
+    # standard time (CST, UTC-6) from 2026-11-01: 9:00 AM is 15:00Z and 4:45 PM is 22:45Z
+    assert S.last_main(t("2026-11-02T14:30:00Z")) == t("2026-11-01T22:45:00Z")
+    assert S.last_main(t("2026-11-02T15:00:00Z")) == t("2026-11-02T15:00:00Z")
+    assert S.last_main(t("2026-11-02T23:00:00Z")) == t("2026-11-02T22:45:00Z")
+    # the day daylight time ends: Saturday's evening update was 21:45Z, Sunday's morning is 15:00Z
+    assert S.last_main(t("2026-11-01T14:59:00Z")) == t("2026-10-31T21:45:00Z")
+    assert S.last_main(t("2026-11-01T15:00:00Z")) == t("2026-11-01T15:00:00Z")
+    # Saturday evening's file, then the morning run, then an extra trigger
+    assert S.due("2026-10-24T22:35:29Z", t("2026-10-25T13:58:12Z"))[0] is False      # 108 s early
+    assert S.due("2026-10-24T22:35:29Z", t("2026-10-25T14:01:00Z"))[0] is True
+    assert S.due("2026-10-25T14:02:00Z", t("2026-10-25T14:47:00Z"))[0] is False
+    # a cron fallback that GitHub starts very late still serves the next main time
+    assert S.due("2026-10-25T14:02:00Z", t("2026-10-25T22:31:00Z"))[0] is True
+    assert "(04:45 PM CDT)" in S.due("2026-10-25T14:02:00Z", t("2026-10-25T22:31:00Z"))[1]
     # no file or no build time: build
-    assert S.due(None, t("2026-10-24T15:00:00Z"))[0] is True
-    assert S.due("not a time", t("2026-10-24T15:00:00Z"))[0] is True
+    assert S.due(None, t("2026-10-25T15:00:00Z"))[0] is True
+    assert S.due("not a time", t("2026-10-25T15:00:00Z"))[0] is True
 
 
 def test_schedule_command_prints_a_workflow_output(tmp_path):
@@ -332,23 +341,26 @@ def test_schedule_command_prints_a_workflow_output(tmp_path):
 
 
 def test_workflow_app_and_guard_share_the_main_times():
-    """The two main update times appear the same in the workflow (first cron of each
-    group), the guard (MAIN_UTC) and the app's status line (RUNS_UTC), and every
-    backup time falls within three hours after a main time, before the app calls the
-    update late. Automatic runs (the outside timer's daily-data dispatch and the cron
-    fallback) pass through the guard; a manual run always builds."""
+    """The guard (MAIN_CENTRAL) and the app's status line (RUNS_CENTRAL) list the same
+    US Central main times; the cron fallback has a line within 5 minutes after each
+    main time in both daylight time (UTC-5) and standard time (UTC-6); every cron line
+    falls within three hours after a main time (before the app calls an update late)
+    and avoids the top and bottom of the hour. Automatic runs (the outside timer's
+    daily-data dispatch and the cron fallback) pass through the guard; a manual run
+    always builds."""
     from nhlda import schedule as S
     wf = open(os.path.join(ROOT, ".github", "workflows", "daily.yml"), encoding="utf-8").read()
-    crons = [(int(h), int(m)) for m, h in re.findall(r'cron: "(\d+) (\d+) \* \* \*"', wf)]
-    main = [c for c in crons if c in S.MAIN_UTC]
-    assert sorted(main) == sorted(S.MAIN_UTC) and len(crons) > len(main)
-    for h, m in crons:
-        gaps = [((h * 60 + m) - (mh * 60 + mm)) % 1440 for mh, mm in S.MAIN_UTC]
-        assert min(gaps) < 180, f"backup {h:02d}:{m:02d} is not within 3 hours after a main time"
-        assert m not in (0, 30), "GitHub is busiest at the top and bottom of the hour"
+    crons = [int(h) * 60 + int(m) for m, h in re.findall(r'cron: "(\d+) (\d+) \* \* \*"', wf)]
+    mains = [((h + off) * 60 + m) % 1440 for h, m in S.MAIN_CENTRAL for off in (5, 6)]
+    for mt in mains:
+        assert any(0 <= (c - mt) % 1440 <= 5 for c in crons), f"no cron line just after {mt // 60:02d}:{mt % 60:02d} UTC"
+    for c in crons:
+        assert min((c - mt) % 1440 for mt in mains) < 180, f"cron {c // 60:02d}:{c % 60:02d} is not within 3 hours after a main time"
+        assert c % 60 not in (0, 30), "GitHub is busiest at the top and bottom of the hour"
     app = open(os.path.join(ROOT, "app", "js", "app.js"), encoding="utf-8").read()
-    runs = re.search(r"const RUNS_UTC = (\[\[.*?\]\]);", app).group(1)
-    assert [tuple(x) for x in json.loads(runs)] == list(S.MAIN_UTC)
+    runs = re.search(r"const RUNS_CENTRAL = (\[\[.*?\]\]);", app).group(1)
+    assert [tuple(x) for x in json.loads(runs)] == list(S.MAIN_CENTRAL)
+    assert 'const CENTRAL = "America/Chicago"' in app
     assert "python3 -m nhlda.schedule app/data/latest.json" in wf and "needs.when.outputs.build == 'true'" in wf
     assert 'github.event_name }}" = "workflow_dispatch"' in wf
     assert re.search(r"repository_dispatch:\s*\n\s*types: \[daily-data\]", wf), "the outside timer's event must start the workflow"

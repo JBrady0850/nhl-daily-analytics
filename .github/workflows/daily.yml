@@ -2,27 +2,30 @@ name: Daily data
 # Builds the day's data file twice a day on GitHub's free runners and publishes the
 # app to GitHub Pages. Free public sources only; no keys or secrets are used.
 # One-time setup: repository Settings > Pages > Build and deployment > Source: "GitHub Actions".
-# When it runs: GitHub starts scheduled runs on a best-effort basis, and for this
-# repository they have started hours late or not at all (the 14:05 run of
-# 2026-10-24 never started). So the main trigger is a repository_dispatch event of
-# type "daily-data", sent at each main update time by a small timer outside GitHub;
-# dispatch events start a run right away. The cron lines stay as a fallback. Every
-# automatic run (dispatch or schedule) builds only when the data file predates the
-# latest main time (nhlda/schedule.py), so extra triggers stop within seconds.
-# Running the workflow by hand (Run workflow) always builds.
+# When it runs: the two daily updates are at 9:00 AM and 4:45 PM US Central time,
+# all year (nhlda/schedule.py MAIN_CENTRAL). GitHub starts scheduled runs on a
+# best-effort basis, and for this repository they have started hours late or not
+# at all (the 14:05 UTC run of 2026-10-24 never started). So the main trigger is a
+# repository_dispatch event of type "daily-data", sent at each main update time by
+# a small timer outside GitHub; dispatch events start a run right away. The cron
+# lines stay as a fallback; cron reads UTC only, so there is a line for each main
+# time in daylight time and in standard time. Every automatic run (dispatch or
+# schedule) builds only when the data file predates the latest main time, so extra
+# triggers stop within seconds. Running the workflow by hand (Run workflow) always
+# builds.
 # To send the event yourself: POST /repos/<owner>/<repo>/dispatches with
 # {"event_type": "daily-data"}, using a token with Contents: write on this repository.
 on:
   repository_dispatch:
     types: [daily-data]
   schedule:
-    - cron: "5 14 * * *"     # main, 14:05 UTC: 9:05 AM US Central in daylight time, 8:05 AM in standard time
-    - cron: "47 14 * * *"    # backup
-    - cron: "29 15 * * *"    # backup
-    - cron: "13 16 * * *"    # backup
-    - cron: "20 22 * * *"    # main, 22:20 UTC: 5:20 PM / 4:20 PM US Central, after most goalie confirmations
-    - cron: "2 23 * * *"     # backup
-    - cron: "44 23 * * *"    # backup
+    - cron: "2 14 * * *"     # 9:02 AM Central in daylight time (CDT)
+    - cron: "2 15 * * *"     # 9:02 AM Central in standard time (CST); a backup in daylight time
+    - cron: "44 15 * * *"    # backup
+    - cron: "26 16 * * *"    # backup
+    - cron: "47 21 * * *"    # 4:47 PM CDT
+    - cron: "47 22 * * *"    # 4:47 PM CST; a backup in daylight time
+    - cron: "29 23 * * *"    # backup
   workflow_dispatch:
 permissions:
   contents: write
