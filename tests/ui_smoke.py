@@ -22,7 +22,7 @@ from playwright.sync_api import sync_playwright
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-TABS = ["today", "myteams", "lines", "goalies", "matchups", "standings", "results", "model", "dfs", "settings", "help"]
+TABS = ["today", "myteams", "lines", "goalies", "injuries", "matchups", "standings", "results", "model", "dfs", "settings", "help"]
 SIZES = [("phone", 390, 844, True), ("ipad", 834, 1194, True), ("android", 800, 1280, True), ("desktop", 1280, 900, False)]
 BANNED = ["!bet", "discord", "points staked", "base net", "allocation"]
 # Checked independently of the app's own tables: any of these left as plain text is a miss.
@@ -235,6 +235,86 @@ def check_dfs_goalies(pg, n):
     return []
 
 
+PICK_JS = """() => [...document.querySelectorAll('main article.game')].map(c => {
+  const p = c.querySelector('.pickline');
+  return p ? {n: c.querySelectorAll('.pickline').length, pill: (p.querySelector('.pill.mypick') || {}).textContent || '',
+    tip: !!(p.querySelector('.pill.mypick') || {dataset: {}}).dataset.tip, team: (p.querySelector('.tm') || {}).textContent || '',
+    name: (p.querySelector('.pick') || {}).textContent || '', pct: (p.querySelector('.pick-pct') || {}).textContent || ''} : null;
+})"""
+
+
+def check_my_pick(pg, sample):
+    """Every game card says plainly who the pick is: a MY PICK tag (with its
+    definition), the team's badge, its name and the win probability."""
+    pg.click('#tabs button[data-tab="today"]')
+    got, fails = pg.evaluate(PICK_JS), []
+    for g, c in zip(sample["slate"]["games"], got):
+        if not g.get("projected"):
+            continue
+        want = {"n": 1, "pill": "My pick", "tip": True, "team": g["projected"], "name": sample["teams"][g["projected"]]["name"],
+                "pct": f"{g['win_prob'] * 100:.1f}%"}
+        if c != want:
+            fails.append(f"pick line on {g['matchup']}: {c} (want {want})")
+            break
+    return fails
+
+
+INJ_JS = """() => {
+  const main = document.querySelector('main');
+  return {
+    pressed: [...main.querySelectorAll('.seg.inj button[aria-pressed="true"]')].map(b => b.dataset.arg),
+    teams: [...main.querySelectorAll('section.card[data-team]')].map(s => s.dataset.team),
+    rows: main.querySelectorAll('table.inj tbody tr').length,
+    links: main.querySelectorAll('table.inj tbody a.plink').length,
+    pills: [...main.querySelectorAll('table.inj .pill.inj')].map(p => [p.textContent.trim(), !!p.dataset.tip]),
+    lineup: [...main.querySelectorAll('table.inj .pill.ok')].map(p => { const td = p.closest('td'), a = td.querySelector('a.plink');
+      return [(a ? a.childNodes[0] : td.childNodes[0]).textContent.trim(), !!p.dataset.tip]; }),
+    statusTip: (main.querySelector('table.inj th:nth-child(3)') || {dataset: {}}).dataset.tip || '',
+    tiles: [...main.querySelectorAll('.tile b')].map(b => +b.textContent),
+    empty: (main.querySelector('.card.empty') || {}).textContent || ''
+  };
+}"""
+
+
+def check_injuries_tab(pg, sample, mob):
+    """The Injuries tab lists every injured player by team with a status tag and
+    its definition, links players with an NHL id, marks the one Daily Faceoff has
+    in today's lineup, filters to today's games and to My Teams (FLA is followed
+    by now), and remembers the filter."""
+    rows, fails = sample["injuries"]["players"], []
+    today = {t for g in sample["slate"]["games"] for t in (g["away"], g["home"])}
+    pg.click('#tabs button[data-tab="injuries"]')
+    pg.click('main .seg.inj button[data-arg="all"]')
+    a = pg.evaluate(INJ_JS)
+    ids = sum(1 for r in rows if r.get("player_id"))
+    if a["rows"] != len(rows) or a["links"] != ids:
+        fails.append(f"injuries, all teams: {a['rows']} rows and {a['links']} links (want {len(rows)} and {ids})")
+    if a["tiles"][:1] != [len(rows)] or sum(a["tiles"][1:]) != len(rows):
+        fails.append(f"injury tiles {a['tiles']} do not add up to {len(rows)}")
+    if not all(t for _, t in a["pills"]) or len(a["pills"]) != len(rows):
+        fails.append("an injury status tag has no definition")
+    if "LTIR long-term injured reserve" not in a["statusTip"]:
+        fails.append(f"Status heading on Injuries has the wrong definition: {a['statusTip'][:60]!r}")
+    lineup = [r["name"] for r in rows if r.get("in_lineup")]
+    if [n for n, _ in a["lineup"]] != lineup or not all(t for _, t in a["lineup"]):
+        fails.append(f"IN LINEUP tags {a['lineup']} (want {lineup}, each with a definition)")
+    pg.click('main .seg.inj button[data-arg="today"]')
+    b = pg.evaluate(INJ_JS)
+    want = sum(1 for r in rows if r["team"] in today)
+    if b["pressed"] != ["today"] or not set(b["teams"]) <= today or b["rows"] != want:
+        fails.append(f"injuries, today's games: teams {b['teams']} with {b['rows']} rows (want {want})")
+    pg.click('main .seg.inj button[data-arg="mine"]')
+    c = pg.evaluate(INJ_JS)
+    fla = sum(1 for r in rows if r["team"] == "FLA")
+    if c["teams"] != (["FLA"] if fla else []) or c["rows"] != fla:
+        fails.append(f"injuries, My Teams: teams {c['teams']} with {c['rows']} rows (want FLA with {fla})")
+    pg.reload()
+    if pg.evaluate(INJ_JS)["pressed"] != ["mine"]:
+        fails.append("the injuries filter is not remembered after a reload")
+    pg.click('main .seg.inj button[data-arg="all"]')
+    return fails
+
+
 UPD_JS = "() => [...document.querySelectorAll('main [data-upd]')].map(e => [e.className, e.textContent.trim()])"
 
 
@@ -445,6 +525,8 @@ def main():
                 fails.extend(f"{name}: {m}" for m in check_team_places(pg, sample, "FLA", mob))
                 fails.extend(f"{name}: {m}" for m in check_lines_tab(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_dfs_goalies(pg, len(sample["dfs"]["goalies"])))
+                fails.extend(f"{name}: {m}" for m in check_my_pick(pg, sample))
+                fails.extend(f"{name}: {m}" for m in check_injuries_tab(pg, sample, mob))
                 pg.click('#tabs button[data-tab="today"]')
                 tile = pg.locator(".tile").nth(2)
                 if mob:

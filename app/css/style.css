@@ -141,6 +141,16 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
   @keyframes puck-in { from { left: 50%; } to { left: var(--split); } }
 }
 .pick { font-weight: 700; }
+/* the pick, said plainly on every game card: "My pick" + the team, in its color */
+.pickline { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 8px 0 2px; padding: 6px 10px; border-radius: 10px;
+  border-left: 5px solid var(--pc, var(--accent)); background: color-mix(in srgb, var(--pc, var(--accent)) 10%, var(--panel)); }
+.pickline .pick { font-size: 1.08rem; }
+.pickline .tm { font-size: 1.05rem; }
+.pick-pct { font-weight: 700; font-variant-numeric: tabular-nums; }
+.pill.mypick { background: var(--ink); color: var(--panel); }
+/* injuries */
+.inj-note { margin-top: 2px; max-width: 46em; line-height: 1.35; }
+table.inj td:first-child { min-width: 12em; }
 .kv { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 8px 0 0; font-size: .92rem; }
 .kv dt { color: var(--muted); } .kv dd { margin: 0; }
 /* goalies: one per row, the status tag in its own column beside the name. On a narrow

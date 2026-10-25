@@ -137,6 +137,7 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
 
         slate = await SlateDetector(target_date).detect(f)
         games, top_sk, top_g, gate, intel_status = [], [], [], {}, {}
+        espn = dfo_inj = hr_list = None
         if slate.matchups:
             gl, mp, st = await asyncio.gather(
                 TeamGameLog(season_open, target_date, slate.game_type, exclude_from=target_date).load(f),
@@ -156,7 +157,6 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
             # the lineup check), and Hockey-Reference only when ESPN cannot be read,
             # because Hockey-Reference refuses GitHub's servers. A note appears in
             # the app only when the main list is missing.
-            espn = dfo_inj = hr_list = None
             try:
                 espn = await I.EspnInjuries().resolve(f, as_of=target_date)
             except Exception as exc:  # noqa: BLE001
@@ -252,6 +252,26 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
                 for g in games if g.get("home_win_prob") is not None]},
                 open(os.path.join(state_dir, "slates", f"{target_date}.json"), "w", encoding="utf-8"), indent=1)
 
+        # The Injuries tab: every team's injured players, on game days and off days
+        if espn is None:
+            try:
+                espn = await I.EspnInjuries().resolve(f, as_of=target_date)
+            except Exception as exc:  # noqa: BLE001
+                log.warning("ESPN injuries: %s", exc)
+        try:
+            master = json.load(open(os.path.join(state_dir, C.MASTER_LIST_NAME), encoding="utf-8")).get("players") or []
+        except (OSError, ValueError):
+            master = []
+        inj_rows = I.injury_list([espn, hr_list, dfo_inj], master, lineup=dfo_inj.lineup if dfo_inj else None,
+                                 forbidden=FORBIDDEN_TEXT)
+        try:
+            await I.resolve_injury_ids(f, inj_rows, os.path.join(state_dir, "injury_ids.json"))
+        except Exception as exc:  # noqa: BLE001
+            log.warning("injury ids: %s", exc)
+        injuries = {"sources": [n for n, o in (("espn", espn), ("hockey_reference", hr_list), ("daily_faceoff", dfo_inj))
+                                if o is not None and o.loaded],
+                    "players": inj_rows}
+
         try:
             lines, lines_status = await all_team_lines(f, teams, target_date, season, state_dir, use_dfo=use_dfo)
         except Exception as exc:  # noqa: BLE001
@@ -282,6 +302,7 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
                                                                 "forward", "min_forward", "forward_t", "last")},
                       "calibration": std.get("calibration")},
             "dfs": {"skaters": top_sk, "goalies": top_g},
+            "injuries": injuries,
             "sources": dict(intel_status, lines=lines_status, requests=f.stats,
                             seconds=round((dt.datetime.now(dt.timezone.utc) - started).total_seconds())),
             "problems": problems,

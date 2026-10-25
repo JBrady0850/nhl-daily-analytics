@@ -555,6 +555,97 @@ class NhlPlayerWindows:
 # =============================================================================
 # HOCKEY-REFERENCE - INJURY STATUS
 # =============================================================================
+# The injury lists name a player's status in different words; the app shows one code.
+INJURY_STATUS = {"day-to-day": "DTD", "day to day": "DTD", "dtd": "DTD", "dd": "DTD",
+                 "gtd": "GTD", "game-time decision": "GTD", "questionable": "GTD",
+                 "out": "OUT", "o": "OUT",
+                 "ir": "IR", "injured reserve": "IR",
+                 "ir-lt": "LTIR", "ltir": "LTIR", "long-term injured reserve": "LTIR", "long term injured reserve": "LTIR",
+                 "ir-nr": "IR-NR", "inr": "IR-NR", "injured non-roster": "IR-NR", "non-roster": "IR-NR",
+                 "susp": "SUSP", "suspension": "SUSP", "suspended": "SUSP"}
+INJURY_ORDER = ["GTD", "DTD", "OUT", "IR", "LTIR", "IR-NR", "SUSP"]   # shortest absence first
+NHL_SEARCH_URL = "https://search.d3.nhle.com/api/v1/search/player"
+
+
+def injury_status_code(text):
+    t = re.sub(r"\s+", " ", str(text or "").strip().lower().replace("_", " "))
+    return INJURY_STATUS.get(t) or (t.upper() if t else "OUT")
+
+
+def injury_list(sources, players=None, lineup=None, forbidden=()):
+    """Every injured player the reachable reports name, league-wide, one row each.
+    sources: injury lists in order of preference (ESPN, Hockey-Reference, Daily
+    Faceoff); the first that names a player supplies his row. players: the NHL
+    player master list (team, name, player_id, position) for ids and positions.
+    lineup: names (accents removed) Daily Faceoff has in today's lineup, by team.
+    forbidden: words a public note must not hold (the build's FORBIDDEN_TEXT)."""
+    by_team_name = {(p.get("team"), _norm_name(p.get("name"))): p for p in players or []}
+    rows, seen = [], set()
+    for s in sources:
+        if s is None or not getattr(s, "loaded", False):
+            continue
+        tag = getattr(s, "TAG", "HR")
+        for ab, entries in s.by_team.items():
+            for e in entries:
+                key = (ab, _norm_name(e.get("player_name")))
+                if not key[1] or key in seen:
+                    continue
+                seen.add(key)
+                m = by_team_name.get(key) or {}
+                note = str(e.get("comment") if "comment" in e else e.get("injury_note") or "").strip()
+                if any(w in note.lower() for w in forbidden):
+                    note = ""
+                row = {"team": ab, "name": e.get("player_name"), "player_id": m.get("player_id"),
+                       "position": m.get("position") or e.get("position") or None,
+                       "status": e.get("status") or injury_status_code(e.get("injury_type")),
+                       "injury": e.get("body") or None, "reported": e.get("date_injury") or None,
+                       "return_est": e.get("return_est") or None, "note": note or None,
+                       "source": e.get("tag") or tag}
+                if lineup and key[1] in (lineup.get(ab) or ()):
+                    row["in_lineup"] = True
+                rows.append(row)
+    rank = {c: i for i, c in enumerate(INJURY_ORDER)}
+    rows.sort(key=lambda r: (r["team"], rank.get(r["status"], len(rank)), r["name"]))
+    return rows
+
+
+async def resolve_injury_ids(f, rows, cache_path=None):
+    """Fill in NHL player ids the master list lacks (players on long-term or
+    non-roster injured reserve are off the current roster) from the NHL's public
+    player search, one request per new name, cached between runs."""
+    cache = {}
+    if cache_path and os.path.exists(cache_path):
+        try:
+            cache = json.load(open(cache_path, encoding="utf-8"))
+        except (OSError, ValueError):
+            cache = {}
+    todo = [r for r in rows if not r.get("player_id") and f"{r['team']}|{_norm_name(r['name'])}" not in cache]
+
+    async def one(r):
+        res = await f.get(NHL_SEARCH_URL, params={"culture": "en-us", "limit": "10", "q": r["name"]})
+        best = None
+        for c in res if isinstance(res, list) else []:
+            if _norm_name(c.get("name")) != _norm_name(r["name"]):
+                continue
+            if r["team"] in (c.get("teamAbbrev"), c.get("lastTeamAbbrev")):
+                best = c
+                break
+        cache[f"{r['team']}|{_norm_name(r['name'])}"] = (
+            {"id": str(best["playerId"]), "pos": best.get("positionCode")} if best else None)
+    for i in range(0, len(todo), 4):                              # gentle on the source
+        await asyncio.gather(*[one(r) for r in todo[i:i + 4]])
+    for r in rows:
+        hit = cache.get(f"{r['team']}|{_norm_name(r['name'])}")
+        if not r.get("player_id") and hit:
+            r["player_id"] = str(hit["id"])                     # the master list keeps ids as text too
+            r["position"] = r.get("position") or hit.get("pos")
+    if cache_path and todo:
+        keep = {k: v for k, v in cache.items() if v is not None}  # misses are tried again next run
+        with open(cache_path, "w", encoding="utf-8") as fh:
+            json.dump(dict(sorted(keep.items())), fh, indent=0)
+    return rows
+
+
 class EspnInjuries:
     """ESPN's public NHL injury feed, the main injury list since 1.4.0: one JSON
     request, every team, each player's status (Out, Day-To-Day, Injured
@@ -564,6 +655,7 @@ class EspnInjuries:
 
     TAG = "ESPN"
     STATUS_CODES = {"injured reserve": "IR", "day-to-day": "DTD", "out": "OUT", "suspension": "SUSP"}
+    QUIET = {"undisclosed", "not specified", ""}
 
     def __init__(self):
         self.by_team = {}
@@ -587,10 +679,23 @@ class EspnInjuries:
                 if not name:
                     continue
                 status = str(x.get("status") or "").strip()
+                det = x.get("details") or {}
+                fantasy = str((det.get("fantasyStatus") or {}).get("description") or "").strip()
+                body = str(det.get("type") or "").strip()
+                more = str(det.get("detail") or "").strip()
+                ret = str(det.get("returnDate") or "")[:10]
+                short = str(x.get("shortComment") or "").strip()
                 self.by_team.setdefault(ab, []).append({
                     "player_name": name, "date_injury": str(x.get("date") or "")[:10],
                     "injury_type": self.STATUS_CODES.get(status.lower(), status.upper() or "OUT"),
-                    "injury_note": self.note(x, as_of), "tag": self.TAG})
+                    "injury_note": self.note(x, as_of), "tag": self.TAG,
+                    # the list he is on (fantasyStatus tells long-term and non-roster IR apart)
+                    "status": injury_status_code(fantasy or status),
+                    "body": (body.capitalize() + (f" ({more.lower()})" if more.lower() not in self.QUIET else ""))
+                    if body.lower() not in self.QUIET else ("Undisclosed" if body else ""),
+                    "return_est": ret if ret and (not as_of or ret >= as_of) else "",
+                    "position": str(((x.get("athlete") or {}).get("position") or {}).get("abbreviation") or ""),
+                    "comment": short if len(short) > 24 else ""})
         self.loaded = True
         log.info("ESPN injuries: %d players on %d teams",
                  sum(len(v) for v in self.by_team.values()), len(self.by_team))
@@ -729,7 +834,9 @@ class DailyFaceoffInjuries:
             note = str(news.get("details") or "").strip() or f"Listed {status} by Daily Faceoff."
             self.by_team.setdefault(ab, []).append({
                 "player_name": p["name"], "date_injury": str(news.get("createdAt") or "")[:10],
-                "injury_type": status, "injury_note": note, "tag": self.TAG})
+                "injury_type": status, "injury_note": note, "tag": self.TAG,
+                "status": injury_status_code(status),
+                "comment": str(news.get("details") or "").strip()})
         self.loaded = True
         return True
 

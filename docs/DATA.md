@@ -26,6 +26,7 @@ no wager, account or chat wording.
 | `lines` | object | Lines and pairs for all 32 teams. See below. |
 | `results` | object | Settled picks. See below. |
 | `model` | object | Settings, learning and calibration. See below. |
+| `injuries` | object | Every injured player the injury reports name, league-wide. See below. |
 | `dfs` | object | DraftKings projections: `skaters` (top 30 by projection) and `goalies` (every probable starter, highest team win probability first, ties by projection). |
 | `sources` | object | What loaded: goalie and injury counts, `injuries.sources` (the reports read: `espn`, `hockey_reference`, `daily_faceoff`) and `injuries.source` (the same joined with `+`, or `none`), market games, lines by source, request counts, build seconds. |
 | `problems` | list | Plain-text notes about anything that failed or fell back. Empty on a clean run. |
@@ -125,6 +126,30 @@ Trophy, `e` eliminated, or `null`).
 | `settings_in_use`, `baseline` | `h` (home ice in rating points), `k` (logistic slope) and `w` (the five pillar weights). |
 | `learning` | `games`, `next_at`, `cycles`, `accepted_cycles`, `forward` (the candidate's score on unseen games: `games`, `mean_gain`, `t`, `passed`), `min_forward`, `forward_t`, `last`. |
 | `calibration` | Probability bands: `lo`, `hi`, `games`, `correct`, `hit_rate`, `mean_prob`. |
+
+## `injuries`
+
+`sources`: the reports read, in order of preference (`espn`, `hockey_reference`,
+`daily_faceoff`). `players`: one row per injured player, team by team, shortest
+absence first. The first report that names a player supplies his row.
+
+| Field | Meaning |
+| --- | --- |
+| `team` | Team abbreviation. |
+| `name` | Player name as the report spells it. |
+| `player_id` | NHL player id (text), from the NHL roster list or the NHL's player search; `null` when not found. |
+| `position` | `C`, `L`/`LW`, `R`/`RW`, `D` or `G`; `null` when unknown. |
+| `status` | `GTD` game-time decision, `DTD` day to day, `OUT`, `IR` injured reserve, `LTIR` long-term injured reserve, `IR-NR` injured non-roster, `SUSP` suspended. |
+| `injury` | Body part, with ESPN's detail in brackets (`Hip (surgery)`); `Undisclosed`; or `null`. |
+| `reported` | Date of the latest report, `YYYY-MM-DD`, or `null`. |
+| `return_est` | ESPN's estimated return date (today or later), or `null`. |
+| `note` | The report's short comment, or `null`. |
+| `source` | `ESPN`, `HR` (Hockey-Reference) or `DFO` (Daily Faceoff). |
+| `in_lineup` | Present and `true` when Daily Faceoff has him in today's lineup anyway. |
+
+Ids the roster list lacks (players on long-term or non-roster injured reserve) come
+from the NHL's public player search and are kept in `state/injury_ids.json` between
+runs, so each name is looked up once.
 
 ## `dfs`
 

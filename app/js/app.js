@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.7.0";
+  const APP_VERSION = "1.8.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -17,8 +17,9 @@
   const saved = load();
   const st = { teams: Array.isArray(saved.teams) ? saved.teams.filter(t => TEAMS_ORDER.includes(t)) : [],
     win: saved.win === "season" ? "season" : "last10", tab: saved.tab || "today",
-    stand: ["wildcard", "division", "conference", "league"].includes(saved.stand) ? saved.stand : "wildcard" };
-  const persist = () => { try { localStorage.setItem(KEY, JSON.stringify({ teams: st.teams, win: st.win, tab: st.tab, stand: st.stand })); } catch (e) { /* storage blocked: keep working in memory */ } };
+    stand: ["wildcard", "division", "conference", "league"].includes(saved.stand) ? saved.stand : "wildcard",
+    inj: ["all", "today", "mine"].includes(saved.inj) ? saved.inj : "all" };
+  const persist = () => { try { localStorage.setItem(KEY, JSON.stringify({ teams: st.teams, win: st.win, tab: st.tab, stand: st.stand, inj: st.inj })); } catch (e) { /* storage blocked: keep working in memory */ } };
   let D = window.NDA_DATA || null;
 
   // ---------- helpers ----------
@@ -204,7 +205,7 @@
     if (!root) return;
     root.querySelectorAll("table").forEach(t => {
       const heads = [...t.querySelectorAll("thead th")];
-      heads.forEach(h => { const k = h.textContent.trim(); setTip(h, TIPS.heads[k] || (/^[A-Z]{3}$/.test(k) ? inlineMap[k] : null), true); });
+      heads.forEach(h => { const k = h.textContent.trim(); setTip(h, h.dataset.tip || TIPS.heads[k] || (/^[A-Z]{3}$/.test(k) ? inlineMap[k] : null), true); });
       const posCol = heads.findIndex(h => h.textContent.trim() === "Pos");
       if (posCol >= 0) t.querySelectorAll("tbody tr").forEach(r => {
         const c = r.children[posCol];
@@ -307,7 +308,7 @@
   window.addEventListener("resize", followTip);
 
   // ---------- tabs ----------
-  const VIEWS = { today: vToday, myteams: vMyTeams, lines: vLines, goalies: vGoalies, matchups: vMatchups, standings: vStandings, results: vResults, model: vModel, dfs: vDfs, settings: vSettings, help: vHelp };
+  const VIEWS = { today: vToday, myteams: vMyTeams, lines: vLines, goalies: vGoalies, injuries: vInjuries, matchups: vMatchups, standings: vStandings, results: vResults, model: vModel, dfs: vDfs, settings: vSettings, help: vHelp };
   function setTab(t) {
     if (!VIEWS[t]) t = "today";
     st.tab = t;
@@ -338,6 +339,7 @@
     clearTeams: () => { st.teams = []; render(); },
     win: w => { st.win = w === "season" ? "season" : "last10"; render(); },
     stand: v => { st.stand = ["wildcard", "division", "conference", "league"].includes(v) ? v : "wildcard"; render(); },
+    inj: v => { st.inj = ["all", "today", "mine"].includes(v) ? v : "all"; render(); },
     reset: () => { if (window.confirm("Clear your saved teams and settings in this browser?")) { try { localStorage.removeItem(KEY); localStorage.removeItem(HINT); } catch (e) { } location.reload(); } },
     install: () => { if (installEvt) { installEvt.prompt(); installEvt = null; } else setTab("settings"); },
     hideInstall: () => { try { localStorage.setItem(HINT, "hide"); } catch (e) { } showInstall(); },
@@ -429,7 +431,8 @@
       <p class="match">${badge(g.away, "big", true)} <span class="at">@</span> ${badge(g.home, "big", true)}</p>
       <p class="small muted" style="margin:0">${esc(teamName(g.away))} at ${esc(teamName(g.home))}, ${esc(localTime(g.start_utc))}${g.venue ? ", " + esc(g.venue) : ""}</p>
       ${winbar(g)}
-      ${fav ? `<p style="margin:4px 0" class="row"><span class="pick">${esc(teamName(fav))} ${pct(g.win_prob)}</span> ${tierPill(g.tier)} ${g.gate_cleared ? '<span class="pill lead">Gate cleared</span>' : ""} ${yours ? '<span class="pill gold">Your team</span>' : ""}</p>` : ""}
+      ${fav ? `<p class="pickline" style="--pc:${cols(fav)[0]}"><span class="pill mypick">My pick</span> ${badge(fav)} <span class="pick-team"><span class="pick">${esc(teamName(fav))}</span> <span class="pick-pct">${pct(g.win_prob)}</span></span></p>
+      <p style="margin:4px 0" class="row">${tierPill(g.tier)} ${g.gate_cleared ? '<span class="pill lead">Gate cleared</span>' : ""} ${yours ? '<span class="pill gold">Your team</span>' : ""}</p>` : ""}
       <dl class="kv"><dt>Market</dt><dd>${typeof mk === "number" ? pct(mk) + ` for ${esc(fav)}` + (g.market.books ? ` <span class="muted">(${esc(g.market.books)} books)</span>` : "") : '<span class="muted">no line yet</span>'}</dd>
       <dt class="gk-dt">Goalies</dt><dd class="gk-dd">${goalieLine(g)}</dd>
       <dt>Rating gap</dt><dd>${num(g.delta, 1)} <span class="muted">RAA points</span></dd></dl>
@@ -586,6 +589,49 @@
         ${td(gk.reported_by ? (gk.source_url ? `<a href="${esc(gk.source_url)}" target="_blank" rel="noopener">${esc(gk.reported_by)}</a>` : esc(gk.reported_by)) : "-", "hm small")}</tr>`).join("");
     return `${head("goalies", "Starting goalies")}${stamp()}<p class="small muted">Every probable starter tonight, highest season save percentage first (ties: GSAx, then high-danger save percentage). Projected starters often change by late afternoon; the evening update carries the later confirmations.</p>
       ${tbl(th("Team") + th("Starter") + th("SV%", "n") + th("GSAx", "n") + th("HDSV%", "n hm") + th("Window", "n hm") + th("Rest", "n") + th("Status") + th("Reported by", "hm"), body)}`;
+  }
+
+  // ---------- injuries ----------
+  // Every injured player the injury reports name, league-wide (ESPN first, Daily
+  // Faceoff's injured lists for today's teams), grouped by team.
+  const INJ_VIEWS = [["all", "All teams"], ["today", "Today's games"], ["mine", "My Teams"]];
+  const INJ_CLASS = { GTD: "projected", DTD: "projected", OUT: "bad", IR: "bad", LTIR: "bad", "IR-NR": "rotation", SUSP: "rotation" };
+  const injPill = c => `<span class="pill inj ${INJ_CLASS[c] || "bad"}">${esc(c || "OUT")}</span>`;
+  const shortDay = ymd => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(ymd || "")); return m ? new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString([], { month: "short", day: "numeric" }) : "-"; };
+  const thT = (label, tip, cls = "") => `<th class="${cls}" data-tip="${esc(tip)}">${esc(label)}</th>`;
+  function vInjuries() {
+    const I = D.injuries;
+    const seg = `<div class="seg inj" role="group" aria-label="Injuries view">${INJ_VIEWS.map(([k, lab]) =>
+      `<button data-act="inj" data-arg="${k}" aria-pressed="${st.inj === k}">${lab}</button>`).join("")}</div>`;
+    const top = `${head("injuries", "Injuries")}${stamp()}<div class="row noprint" style="margin-bottom:10px">${seg}</div>`;
+    if (!I || !Array.isArray(I.players)) return top + emptyCard("The injury list is not in this data file yet.");
+    const playing = {};
+    games().forEach(g => { playing[g.away] = g; playing[g.home] = g; });
+    const teams = st.inj === "today" ? games().flatMap(g => [g.away, g.home]) : st.inj === "mine" ? st.teams.slice() : TEAMS_ORDER.slice();
+    if (st.inj === "mine" && !teams.length) return top + emptyCard('Pick your teams in <button class="linkish" data-tab="myteams">My Teams</button> to see their injuries here.');
+    if (st.inj === "today" && !teams.length) return top + emptyCard("No games today.");
+    const rows = I.players.filter(p => teams.includes(p.team));
+    const n = (...codes) => rows.filter(p => codes.includes(p.status)).length;
+    const tiles = `<div class="tiles"><div class="tile"><b>${rows.length}</b><span>players listed</span></div>
+      <div class="tile"><b>${n("DTD", "GTD")}</b><span>day to day</span></div>
+      <div class="tile"><b>${n("OUT")}</b><span>out</span></div>
+      <div class="tile"><b>${n("IR", "LTIR", "IR-NR")}</b><span>on injured reserve</span></div></div>`;
+    const thead = thT("Player", "The injured player; his name opens his official NHL.com page. The line under it is the latest report.") + th("Pos", "hm") +
+      thT("Status", "The list he is on: GTD game-time decision, DTD day to day, OUT out, IR injured reserve, LTIR long-term injured reserve, IR-NR injured non-roster, SUSP suspended.") +
+      thT("Injury", "The body part the report names; Undisclosed when the team has not said.") +
+      thT("Reported", "Date of the latest report on this player.", "n hm") +
+      thT("Est. return", "The injury report's estimated return date. Teams rarely confirm these, so they often move.", "n");
+    const card = ab => {
+      const list = rows.filter(p => p.team === ab), g = playing[ab];
+      const body = list.map(p => `<tr>${td(`${pname(p.name, p.player_id)}${p.in_lineup ? ' <span class="pill ok">In lineup</span>' : ""}${p.note ? `<div class="tiny muted inj-note">${esc(p.note)}</div>` : ""}`)}${td(esc(p.position || "-"), "hm")}${td(injPill(p.status))}${td(esc(p.injury || "-"), "small")}${td(esc(shortDay(p.reported)), "n hm")}${td(esc(shortDay(p.return_est)), "n")}</tr>`).join("");
+      return `<section class="card ${mine(ab) ? "edge" : ""}" data-team="${esc(ab)}"><h2 class="teamline" style="margin-top:0">${badge(ab, "", true)} ${esc(teamName(ab))} <span class="small muted">${list.length} listed${g ? `; today ${esc(g.away)} @ ${esc(g.home)}, ${esc(localTime(g.start_utc))}` : ""}</span></h2>${tbl(thead, body, "inj")}</section>`;
+    };
+    const listed = teams.filter(ab => rows.some(p => p.team === ab)), none = teams.filter(ab => !rows.some(p => p.team === ab));
+    const names = { espn: "ESPN's injury report", hockey_reference: "Hockey-Reference's injury report", daily_faceoff: "Daily Faceoff's injured lists for today's teams" };
+    const src = (I.sources || []).map(u => names[u] || u);
+    return top + tiles + listed.map(card).join("") +
+      (none.length ? `<p class="small muted">No injuries listed: ${none.map(esc).join(", ")}.</p>` : "") +
+      `<p class="tiny muted">${src.length ? "From " + src.map(esc).join(" and ") + ". " : ""}Estimated returns are estimates and often move. IN LINEUP means Daily Faceoff has him in today's lineup, so he is expected to play.</p>`;
   }
 
   // ---------- standings ----------

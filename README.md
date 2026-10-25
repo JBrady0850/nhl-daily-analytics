@@ -70,6 +70,8 @@ Names with a solid underline are links; a dotted underline marks a definition.
 | --- | --- |
 | ![Wild-card standings with the playoff line](docs/images/standings-desktop.png) | ![Wild-card standings on a phone](docs/images/standings-phone.png) |
 
+![Injuries by team with each player's status and estimated return](docs/images/injuries-desktop.png)
+
 ![Model learning and calibration](docs/images/model-desktop.png)
 
 The screenshots use the sample data file in `tests/fixtures`.
@@ -86,10 +88,11 @@ always has the latest data.
 
 | Tab | What you see |
 | --- | --- |
-| **Today** | Every game ranked by the projected winner's win probability, with the confidence tier (HIGH, MODERATE, LOW), the market's view for comparison, both starting goalies, and a "Why this pick" breakdown. |
+| **Today** | Every game ranked by the projected winner's win probability. Each card names the pick plainly (a MY PICK tag, the team and its win probability), with the confidence tier (HIGH, MODERATE, LOW), the market's view for comparison, both starting goalies, and a "Why this pick" breakdown. |
 | **My Teams** | The teams you follow: record, place in the wild-card race, division, conference and league, today's game, all four lines and three pairs with last-10 or season stats, and which line leads the team in points, shots and penalty minutes. |
 | **Lines** | The four forward lines and three defense pairs of each game's projected winner, in rank order, with every player's stats (last 10 games or season) and line and pair totals. |
 | **Goalies** | Every probable starter tonight, highest season save percentage first, with goals saved above expected, high-danger save percentage, rest days and whether the start is confirmed. |
+| **Injuries** | Every injured player the injury reports name, team by team: status (GTD, DTD, OUT, IR, LTIR, IR-NR, SUSP), the injury, the latest report and its date, and the estimated return. Filter to all teams, today's games or your teams; the app remembers the filter. IN LINEUP marks a listed player Daily Faceoff still has in today's lineup. |
 | **Matchups** | Each game's five-factor scores side by side, recent shot share and form, and the key missing players. |
 | **Standings** | The league standings four ways: Wild Card (the top three in each division, then the wild-card race with the playoff line drawn under the second wild card), Division, Conference and League. Each row has games played, wins, losses, overtime losses, points, points percentage, regulation and regulation-plus-overtime wins, goals for and against, goal differential, the last 10 games and the current streak. Your teams are shaded, and the app remembers the view you picked. |
 | **Results** | Last night's picks against the finals, the season pick rate, results by confidence tier, and a comparison with the betting market. |
@@ -169,8 +172,9 @@ All free and public. No keys, accounts or paid services.
 | Source | Used for |
 | --- | --- |
 | NHL web and stats feeds (`api-web.nhle.com`, `api.nhle.com/stats`) | Schedule, scores, standings, rosters, team and player game logs, shift charts, and the sportsbook lines the NHL publishes in its score feed |
+| NHL player search (`search.d3.nhle.com`) | The NHL id of an injured player who is off the current roster (long-term or non-roster injured reserve), looked up once and remembered |
 | [MoneyPuck](https://moneypuck.com) season data | Expected goals, goals saved above expected, high-danger save percentage |
-| [ESPN](https://www.espn.com/nhl/injuries) public injury feed | The league injury report: each player's status, body part and estimated return |
+| [ESPN](https://www.espn.com/nhl/injuries) public injury feed | The league injury report for the Injuries tab and the model: each player's status (including long-term and non-roster injured reserve), body part, latest report and estimated return |
 | [Daily Faceoff](https://www.dailyfaceoff.com) | Starting goalie confirmations, current line combinations, and each playing team's injured list and projected lineup |
 | [Hockey-Reference](https://www.hockey-reference.com) | A backup injury report, used only when ESPN cannot be reached |
 

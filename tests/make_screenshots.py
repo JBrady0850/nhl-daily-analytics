@@ -26,6 +26,7 @@ SHOTS = [
     ("model-desktop.png", 1280, 900, False, "model", None, 1280),
     ("standings-desktop.png", 1280, 900, False, "standings", None, 1280),
     ("standings-phone.png", 390, 844, True, "standings", 850, 520),
+    ("injuries-desktop.png", 1280, 900, False, "injuries", None, 1280),
 ]
 
 
@@ -46,13 +47,15 @@ def main():
                 continue
             scale = 2 if mob else 1
             ctx = b.new_context(viewport={"width": w, "height": h}, is_mobile=mob, device_scale_factor=scale,
-                                color_scheme="light")
+                                color_scheme="light", timezone_id="America/Chicago", locale="en-US")
             pg = ctx.new_page()
             pg.goto(url)
             pg.click('#tabs button[data-tab="myteams"]')
             for team in ("FLA", "TBL"):              # sample picks: one team off tonight, one playing
                 pg.click(f'button.chip[data-arg="{team}"]')
             pg.click(f'#tabs button[data-tab="{tab}"]')
+            # a downloaded copy says it does not update; the README pictures leave that line out
+            pg.add_style_tag(content=".upd-line { display: none !important; }")
             pg.wait_for_timeout(150)
             raw = os.path.join(tmp, name)
             pg.screenshot(path=raw, full_page=crop is not None)

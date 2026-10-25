@@ -364,3 +364,93 @@ def test_workflow_app_and_guard_share_the_main_times():
     assert "python3 -m nhlda.schedule app/data/latest.json" in wf and "needs.when.outputs.build == 'true'" in wf
     assert 'github.event_name }}" = "workflow_dispatch"' in wf
     assert re.search(r"repository_dispatch:\s*\n\s*types: \[daily-data\]", wf), "the outside timer's event must start the workflow"
+
+
+ESPN_LISTS = {"injuries": [
+    {"displayName": "Anaheim Ducks", "injuries": [
+        {"status": "Injured Reserve", "date": "2026-09-30T18:00Z",
+         "shortComment": "Terry (hip) was moved from the non-roster list to long-term injured reserve Wednesday.",
+         "details": {"fantasyStatus": {"description": "IR-LT"}, "type": "Hip", "detail": "Surgery", "returnDate": "2026-11-21"},
+         "athlete": {"displayName": "Troy Terry", "position": {"abbreviation": "RW"}}},
+        {"status": "Injured Reserve", "date": "2026-10-20T18:00Z", "shortComment": "ir-nr",
+         "details": {"fantasyStatus": {"description": "IR-NR"}, "type": "Undisclosed", "returnDate": "2026-10-01"},
+         "athlete": {"displayName": "Someone Else", "position": {"abbreviation": "D"}}},
+        {"status": "Day-To-Day", "date": "2026-10-24T12:00Z", "shortComment": "day-to-day",
+         "details": {"fantasyStatus": {"description": "Day-To-Day"}, "type": "Upper Body", "returnDate": "2026-10-27"},
+         "athlete": {"displayName": "Leo Carlsson", "position": {"abbreviation": "C"}}},
+        {"status": "Out", "date": "2026-10-24T12:00Z", "shortComment": "He was seen on a discord stream saying he is out tonight.",
+         "details": {"type": "Face"}, "athlete": {"displayName": "Mason McTavish", "position": {"abbreviation": "C"}}}]}]}
+
+
+def test_espn_keeps_the_injury_list_each_player_is_on():
+    """ESPN's fantasyStatus tells long-term and non-roster injured reserve apart;
+    the app shows LTIR and IR-NR, the body part and ESPN's estimated return."""
+    from nhlda.intel import EspnInjuries, injury_status_code
+    e = EspnInjuries().read(ESPN_LISTS, as_of="2026-10-24")
+    terry, other, leo, mason = e.get("ANA")
+    assert (terry["status"], terry["body"], terry["return_est"], terry["position"]) == ("LTIR", "Hip (surgery)", "2026-11-21", "RW")
+    assert terry["injury_type"] == "IR"                       # the engine's own code is unchanged
+    assert (other["status"], other["body"], other["return_est"], other["comment"]) == ("IR-NR", "Undisclosed", "", "")
+    assert (leo["status"], leo["body"]) == ("DTD", "Upper body") and mason["status"] == "OUT"
+    assert [injury_status_code(x) for x in ("Injured Reserve", "IR-LT", "ltir", "dtd", "Suspension", "")] == \
+        ["IR", "LTIR", "LTIR", "DTD", "SUSP", "OUT"]
+
+
+def test_injury_list_merges_reports_and_finds_ids():
+    """One row per player, league-wide: ESPN's row wins, Daily Faceoff adds who ESPN
+    lacks, ids and positions come from the player master list, a player Daily
+    Faceoff has in today's lineup is marked, and a note holding forbidden text is
+    dropped rather than failing the public check. Rows run team by team, shortest
+    absence first."""
+    from nhlda.intel import DailyFaceoffInjuries, EspnInjuries, injury_list
+    from nhlda.build import FORBIDDEN_TEXT
+    espn = EspnInjuries().read(ESPN_LISTS, as_of="2026-10-24")
+    dfo = DailyFaceoffInjuries()
+    dfo.add_page("ANA", _dfo_page([
+        {"name": "Leo Carlsson", "playerId": 1, "groupIdentifier": "f1"},
+        {"name": "Troy Terry", "playerId": 2, "groupIdentifier": "ir", "injuryStatus": "ir"},
+        {"name": "Radko Gudas", "playerId": 3, "groupIdentifier": "ir", "injuryStatus": "dtd",
+         "latestNews": {"details": "Gudas is day to day.", "createdAt": "2026-10-23T10:00:00"}}]))
+    master = [{"team": "ANA", "name": "Leo Carlsson", "player_id": "8484153", "position": "C"},
+              {"team": "ANA", "name": "Radko Gudas", "player_id": "8475462", "position": "D"}]
+    rows = injury_list([espn, None, dfo], master, lineup=dfo.lineup, forbidden=FORBIDDEN_TEXT)
+    by = {r["name"]: r for r in rows}
+    assert len(rows) == 5 and by["Troy Terry"]["status"] == "LTIR" and by["Troy Terry"]["source"] == "ESPN"
+    assert by["Radko Gudas"]["source"] == "DFO" and by["Radko Gudas"]["player_id"] == "8475462" and by["Radko Gudas"]["note"] == "Gudas is day to day."
+    assert by["Leo Carlsson"]["in_lineup"] is True and by["Leo Carlsson"]["player_id"] == "8484153"
+    assert by["Mason McTavish"]["note"] is None                 # "discord" would fail check_public
+    assert [r["status"] for r in rows] == ["DTD", "DTD", "OUT", "LTIR", "IR-NR"]
+    check_public({"injuries": {"players": rows}})
+
+
+def test_injury_ids_come_from_the_nhl_search_and_are_cached(tmp_path):
+    import asyncio
+    from nhlda.intel import resolve_injury_ids
+
+    class FakeFetcher:
+        def __init__(self):
+            self.calls = []
+
+        async def get(self, url, params=None, **kw):
+            self.calls.append(params["q"])
+            return [{"playerId": "8478873", "name": "Troy Terry", "positionCode": "R", "teamAbbrev": "ANA"},
+                    {"playerId": "1", "name": "Troy Terry", "teamAbbrev": "DAL"}]
+    cache = tmp_path / "injury_ids.json"
+    rows = [{"team": "ANA", "name": "Troy Terry", "player_id": None, "position": None},
+            {"team": "ANA", "name": "Leo Carlsson", "player_id": "8484153", "position": "C"}]
+    f = FakeFetcher()
+    asyncio.run(resolve_injury_ids(f, rows, str(cache)))
+    assert f.calls == ["Troy Terry"] and rows[0]["player_id"] == "8478873" and rows[0]["position"] == "R"
+    again = [{"team": "ANA", "name": "Troy Terry", "player_id": None, "position": None}]
+    asyncio.run(resolve_injury_ids(f, again, str(cache)))
+    assert f.calls == ["Troy Terry"] and again[0]["player_id"] == "8478873"     # second run: from the cache
+
+
+def test_sample_injury_list_is_complete():
+    d = json.load(open(SAMPLE, encoding="utf-8"))
+    rows = d["injuries"]["players"]
+    known = {"GTD", "DTD", "OUT", "IR", "LTIR", "IR-NR", "SUSP"}
+    assert len(rows) > 50 and all(r["team"] in d["teams"] and r["status"] in known and r["name"] for r in rows)
+    assert {"LTIR", "IR-NR", "DTD", "OUT", "IR"} <= {r["status"] for r in rows}
+    assert sum(1 for r in rows if r.get("player_id")) > 0.9 * len(rows)
+    assert any(r.get("in_lineup") for r in rows)

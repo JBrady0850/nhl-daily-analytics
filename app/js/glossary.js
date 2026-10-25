@@ -29,6 +29,8 @@ window.NDA_GLOSSARY = [
   ["P/GP, SOG/GP", "Per game played. A line's figure adds each player's own rate, so a player with fewer games is not understated."],
   ["MOST POINTS / MOST SHOTS", "The team's line with the highest combined points per game, or shots on goal per game, in the chosen window. TIED when lines are level."],
   ["GTD / DTD / IR", "Game-time decision / day to day / injured reserve, as Daily Faceoff lists them."],
+  ["My pick", "The team the model picks to win the game: the side with the higher win probability. Every game card names it."],
+  ["Injury list (Injuries tab)", "Every injured player the injury reports name, by team: GTD game-time decision, DTD day to day, OUT out, IR injured reserve, LTIR long-term injured reserve, IR-NR injured non-roster, SUSP suspended. Mostly ESPN's public injury report; Daily Faceoff's injured lists fill in for today's teams. Estimated return dates are estimates and often move."],
   ["Brier", "Average squared error of the win probabilities. Lower is better; 0.25 is a coin flip."],
   ["Log loss", "Average penalty for the probability given to the team that lost. Lower is better; 0.693 is a coin flip."],
   ["Calibration", "How often picks in each probability band actually won. A well-calibrated model's 60 percent picks win about 60 percent of the time."],
@@ -58,6 +60,10 @@ window.NDA_TIPS = {
     "LOW": "Low confidence: the projected winner is below 54.0 percent, close to a coin flip.",
     "GATE CLEARED": "The rating gap between the teams reached today's gate: 70 percent of the slate's largest gap, never below 13 rating points, and at most 40 percent of the games. Information only.",
     "YOUR TEAM": "A team you follow in My Teams plays in this game.",
+    "MY PICK": "The team the model picks to win: the side with the higher win probability.",
+    "IN LINEUP": "Daily Faceoff has him in today's lineup, so he is expected to play despite the injury listing.",
+    "IR-NR": "Injured, non-roster: out with an injury that kept him off the active roster, usually from before the season.",
+    "SUSP": "Suspended by the league.",
     "CONFIRMED": "Daily Faceoff lists this goalie as the confirmed starter, from a team or reporter announcement.",
     "PROJECTED": "Daily Faceoff expects this goalie to start, but no one has confirmed it yet. Projections often change by late afternoon.",
     "ROTATION": "No source named a starter, so the model picked the goalie from his recent workload.",
@@ -67,7 +73,7 @@ window.NDA_TIPS = {
     "DTD": "Day to day: a minor injury; he could return at any game.",
     "IR": "Injured reserve: out with an injury for at least a week.",
     "LTIR": "Long-term injured reserve: out for at least 10 games and 24 days.",
-    "OUT": "Will not play tonight.",
+    "OUT": "Out: not expected to play in his team's next game.",
     "MOST POINTS": "This line has the most combined points per game on its team in the chosen window (Last 10 or Season).",
     "MOST SHOTS": "This line has the most combined shots on goal per game on its team in the chosen window.",
     "MOST PIM": "Most penalty minutes among the team's listed players in the chosen window.",
@@ -79,7 +85,7 @@ window.NDA_TIPS = {
     "E": "Eliminated from playoff contention.",
     "WRONG": "The projected winner lost.",
     "_tied": "Tied: another line or player has the same value.",
-    "_injury": "Injury status as Daily Faceoff lists it, for example IR (injured reserve), DTD (day to day) or OUT.",
+    "_injury": "Injury status from the injury report, for example IR (injured reserve), DTD (day to day) or OUT.",
     "_other": "A status tag from today's data. The Help tab lists every term."
   },
   heads: {
@@ -148,7 +154,11 @@ window.NDA_TIPS = {
     "season pick rate": "Share of this season's projected winners that won. Overtime and shootout wins count.",
     "gate-cleared picks": "How often this season's picks that cleared the gate were right.",
     "brier": "Average squared error of the win probabilities this season. Lower is better; 0.250 is a coin flip.",
-    "log loss": "Average penalty for the probability given to the team that lost. Lower is better; 0.693 is a coin flip."
+    "log loss": "Average penalty for the probability given to the team that lost. Lower is better; 0.693 is a coin flip.",
+    "players listed": "Injured players the injury reports name for the teams in this view.",
+    "day to day": "Players listed day to day or as a game-time decision: minor injuries, could play in any game.",
+    "out": "Players listed out: not expected to play in their team's next game, but not on injured reserve.",
+    "on injured reserve": "Players on injured reserve, long-term injured reserve or the injured non-roster list."
   },
   dt: {
     "Schedule": "When the free GitHub workflow builds new data: 9:00 AM and 4:45 PM US Central time, all year, shown in this device's time. A run can still arrive a few minutes late; backup runs in the hours after each time fill in for a missed one.",
