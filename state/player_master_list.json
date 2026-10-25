@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-10-25",
-"count": 803,
+"count": 806,
 "players": [
 {
 "team": "ANA",
@@ -1526,6 +1526,20 @@
 "team": "DAL",
 "name": "Arttu Hyry",
 "player_id": "8484938",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Dylan Hryckowian",
+"player_id": "8486130",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "DAL",
+"name": "Matthew Seminoff",
+"player_id": "8483514",
 "position": "R",
 "role": "skater"
 },
@@ -3241,6 +3255,13 @@
 "team": "NYR",
 "name": "Igor Shesterkin",
 "player_id": "8478048",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "NYR",
+"name": "James Reimer",
+"player_id": "8473503",
 "position": "G",
 "role": "goalie"
 },

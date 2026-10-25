@@ -7,8 +7,8 @@
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.3686,
-    "away_prob": 0.6314,
+    "home_prob": 0.3687,
+    "away_prob": 0.6313,
     "books": 6
    },
    "home_pillars": {
@@ -33,11 +33,7 @@
    "home_win_prob": 0.3387,
    "tier": "HIGH",
    "gate_cleared": false,
-   "market": {
-    "home_prob": 0.3761,
-    "away_prob": 0.6239,
-    "books": 6
-   },
+   "market": null,
    "home_pillars": {
     "p1_form": -20.0,
     "p2_absence": -1.529,
@@ -61,8 +57,8 @@
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.3288,
-    "away_prob": 0.6712,
+    "home_prob": 0.3224,
+    "away_prob": 0.6776,
     "books": 6
    },
    "home_pillars": {
@@ -88,8 +84,8 @@
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4788,
-    "away_prob": 0.5212,
+    "home_prob": 0.4822,
+    "away_prob": 0.5178,
     "books": 6
    },
    "home_pillars": {
@@ -111,21 +107,21 @@
   },
   {
    "matchup": "NYI @ DAL",
-   "home_win_prob": 0.5702,
+   "home_win_prob": 0.5631,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.6332,
-    "away_prob": 0.3668,
+    "home_prob": 0.6215,
+    "away_prob": 0.3785,
     "books": 6
    },
    "home_pillars": {
     "p1_form": 13.58,
-    "p2_absence": -1.763,
+    "p2_absence": -2.876,
     "p3_motivation": 0.0,
     "p4_gvi": 2.869,
     "p5_friction": 0.0,
-    "adj_raa": 64.686
+    "adj_raa": 63.573
    },
    "away_pillars": {
     "p1_form": 7.571,
