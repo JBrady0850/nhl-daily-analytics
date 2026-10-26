@@ -27,6 +27,7 @@ no wager, account or chat wording.
 | `results` | object | Settled picks. See below. |
 | `model` | object | Settings, learning and calibration. See below. |
 | `injuries` | object | Every injured player the injury reports name, league-wide. See below. |
+| `gamescore` | object | Each team's last finished game, scored player by player. See below. |
 | `dfs` | object | DraftKings projections: `skaters` (top 30 by projection) and `goalies` (every probable starter, highest team win probability first, ties by projection). |
 | `sources` | object | What loaded: goalie and injury counts, `injuries.sources` (the reports read: `espn`, `hockey_reference`, `daily_faceoff`) and `injuries.source` (the same joined with `+`, or `none`), market games, lines by source, request counts, build seconds. |
 | `problems` | list | Plain-text notes about anything that failed or fell back. Empty on a clean run. |
@@ -152,6 +153,44 @@ absence first. The first report that names a player supplies his row.
 Ids the roster list lacks (players on long-term or non-roster injured reserve) come
 from the NHL's public player search and are kept in `state/injury_ids.json` between
 runs, so each name is looked up once.
+
+## `gamescore`
+
+`teams` holds one entry per team that has a scored game, keyed by abbreviation, and
+`credit` names the sources. Each entry:
+
+| Key | Meaning |
+| --- | --- |
+| `game_id`, `date`, `opp`, `home` | The NHL game id, its date, the opponent, and whether the team was at home. |
+| `for`, `against`, `last_period`, `result` | The final score from the team's side, `REG`, `OT` or `SO`, and `W`, `L` or `OTL`. |
+| `inputs` | `full`, or `production` when the shift charts or the shot values were still missing two days after the game (only the production parts are then scored). |
+| `skaters` | Forwards then defensemen, each best first: `id`, `name`, `pos`, `toi` (minutes), `gs` (the Game Score, the sum of the eight parts), `o` and `d` (offense and defense, each `[production, play driving, special teams, usage]`), and `box` (`g`, `a1`, `a2`, `sog`, `blk`, `pd` penalties drawn, `pt` penalties taken). |
+| `goalies` | `id`, `name`, `shots` faced, `ga`, `xga` (expected goals of the unblocked shots he faced) and `gsax` (`xga` minus `ga`). |
+
+The model is this app's own, in the units of the public Game Score (Dom Luszczyszyn,
+Hockey Graphs, 2016):
+
+- Production. Offense: 0.75 per goal, 0.70 per first assist, 0.55 per second assist,
+  0.075 per shot on goal, 0.15 per penalty drawn, 0.01 per faceoff won minus 0.01 per
+  faceoff lost. Defense: 0.05 per blocked shot minus 0.15 per penalty taken.
+- Play driving, at 5 on 5 while he was on the ice. Offense: 0.9 x (expected goals for
+  minus the league rate for his 5-on-5 time) + 0.15 x (goals for minus the league
+  rate). Defense: the same for expected goals and goals against, the other way round.
+- Special teams. Offense: 0.15 x (power-play goals for on the ice minus the league
+  power-play rate for his power-play time). Defense: 0.15 x (the league rate for his
+  short-handed time minus the goals against on the ice).
+- Usage, at 5 on 5: -0.45 x hours x [(teammates' season on-ice xGF/60 - league) +
+  (opponents' xGA/60 - league)] for offense, and -0.45 x hours x [(league -
+  teammates' xGA/60) + (league - opponents' xGF/60)] for defense, from MoneyPuck's
+  season rows, each shrunk toward the league with one hour of league play and weighted
+  by the seconds shared.
+
+Who was on the ice comes from the NHL shift charts; the strength (5 on 5, power play,
+penalty kill, empty net) from the play-by-play `situationCode`; expected goals for each
+unblocked shot from MoneyPuck's season shot file, updated nightly, matched on period,
+second (within two) and shooter. League rates come from MoneyPuck's season team file.
+A game is scored the first update after both are published (usually the next morning),
+and `state/gamescore.json` keeps each team's latest scored game.
 
 ## `dfs`
 

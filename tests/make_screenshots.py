@@ -70,6 +70,21 @@ def main():
                 im = im.resize((width, round(im.height * width / im.width)), Image.LANCZOS)
             im.quantize(colors=128, method=Image.Quantize.MEDIANCUT).save(os.path.join(OUT, name), optimize=True)
             print("wrote", os.path.join("docs", "images", name))
+        if not only or "lastgame-desktop.png" in only:
+            ctx = b.new_context(viewport={"width": 1100, "height": 900}, color_scheme="light",
+                                timezone_id="America/Chicago", locale="en-US")
+            pg = ctx.new_page()
+            pg.goto(url)
+            pg.click('#tabs button[data-tab="myteams"]')
+            pg.click('button.chip[data-arg="FLA"]')
+            pg.add_style_tag(content=".top { position: static !important; }")
+            pg.wait_for_timeout(150)
+            raw = os.path.join(tmp, "lastgame.png")
+            pg.locator("main details.lastgame").first.screenshot(path=raw)
+            ctx.close()
+            Image.open(raw).convert("RGB").quantize(colors=128, method=Image.Quantize.MEDIANCUT).save(
+                os.path.join(OUT, "lastgame-desktop.png"), optimize=True)
+            print("wrote", os.path.join("docs", "images", "lastgame-desktop.png"))
         b.close()
     if not only:
         shutil.copy(os.path.join(ROOT, "app", "qr-app.png"), os.path.join(OUT, "open-app-qr.png"))

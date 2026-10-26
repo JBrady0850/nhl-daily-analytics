@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.9.0";
+  const APP_VERSION = "1.10.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -570,11 +570,75 @@
       ${place("League", ordinal(r.league_rank), `of ${rows.length} teams`, "Place among all NHL teams, in the NHL's order: points, then the tiebreakers.")}
     </div><p class="tiny muted" style="margin:2px 0 8px">Standings ${(D.standings || {}).as_of_utc ? "as of " + esc(localStamp(D.standings.as_of_utc)) : "from today's data"}. <button class="linkish" data-tab="standings">Open the full standings</button></p>`;
   }
+  // ---------- My Teams: last game, Game Score by player ----------
+  // Each player's game in two thin bars on one axis: offense on top, defense below,
+  // each split into production, play driving, special teams and usage. Parts above
+  // zero stack right of the zero line, parts below it stack left.
+  const GS_PARTS = [["prod", "Production"], ["drive", "Play driving"], ["st", "Special teams"], ["use", "Usage"]];
+  const GS_RESULT = { W: "Won", L: "Lost", OTL: "OT loss" };
+  function gsTrack(vals, side, lo, span) {
+    let pos = 0, neg = 0, out = "";
+    const segs = vals.map((v, i) => ({ v, i })).filter(s => Math.abs(s.v) >= 0.005);
+    const ends = { p: segs.filter(s => s.v > 0).pop(), n: segs.filter(s => s.v < 0).pop() };
+    segs.forEach(s => {
+      const w = Math.abs(s.v) / span * 100;
+      const left = s.v > 0 ? (0 - lo + pos) / span * 100 : (0 - lo - neg - Math.abs(s.v)) / span * 100;
+      if (s.v > 0) pos += s.v; else neg += -s.v;
+      const end = s === (s.v > 0 ? ends.p : ends.n) ? (s.v > 0 ? " endp" : " endn") : "";
+      out += `<i class="gs-seg gs-${GS_PARTS[s.i][0]}${s.v < 0 ? " neg" : ""}${end}" style="left:${left.toFixed(2)}%;width:${w.toFixed(2)}%" data-tip="${esc(GS_PARTS[s.i][1])}, ${side}: ${signed(s.v)}"></i>`;
+    });
+    return out;
+  }
+  function gsRow(p, lo, span) {
+    const say = (lab, v) => `${lab} ${GS_PARTS.map(([, n], i) => `${n.toLowerCase()} ${signed(v[i])}`).join(", ")}`;
+    return `<div class="gs-row"><span class="gs-name">${pname(p.name, p.id)}</span><b class="gs-val">${signed(p.gs)}</b>
+      <div class="gs-bars" style="--z:${((0 - lo) / span * 100).toFixed(2)}%" role="img" aria-label="${esc(p.name)}: ${signed(p.gs)}. ${esc(say("Offense", p.o))}. ${esc(say("Defense", p.d))}.">
+      <span class="gs-trk o">${gsTrack(p.o, "offense", lo, span)}</span><span class="gs-trk d">${gsTrack(p.d, "defense", lo, span)}</span></div></div>`;
+  }
+  function gsGoalie(g, lo, span) {
+    if (typeof g.gsax !== "number") return `<div class="gs-row"><span class="gs-name">${pname(g.name, g.id)}</span><b class="gs-val">-</b><span class="small muted">${esc(g.shots)} shots, ${esc(g.ga)} goals against</span></div>`;
+    const w = Math.abs(g.gsax) / span * 100, left = (g.gsax >= 0 ? 0 - lo : 0 - lo + g.gsax) / span * 100;
+    return `<div class="gs-row"><span class="gs-name">${pname(g.name, g.id)}</span><b class="gs-val">${signed(g.gsax)}</b>
+      <div class="gs-bars gk" style="--z:${((0 - lo) / span * 100).toFixed(2)}%" role="img" aria-label="${esc(g.name)}: ${signed(g.gsax)} goals saved above expected on ${esc(g.shots)} shots.">
+      <span class="gs-trk g"><i class="gs-seg gs-gk ${g.gsax >= 0 ? "endp" : "endn"}" style="left:${left.toFixed(2)}%;width:${w.toFixed(2)}%" data-tip="Goals saved above expected: ${signed(g.gsax)} (${esc(g.xga)} expected, ${esc(g.ga)} allowed, ${esc(g.shots)} shots)"></i></span></div></div>`;
+  }
+  function lastGame(ab) {
+    const t = ((D.gamescore || {}).teams || {})[ab];
+    if (!t || !Array.isArray(t.skaters)) return "";
+    const sk = t.skaters, gk = t.goalies || [];
+    const ends = sk.flatMap(p => [p.o, p.d].map(v => [v.filter(x => x < 0).reduce((a, b) => a + b, 0), v.filter(x => x > 0).reduce((a, b) => a + b, 0)]));
+    let lo = Math.min(0, ...ends.map(e => e[0]), ...gk.map(g => g.gsax || 0)), hi = Math.max(0, ...ends.map(e => e[1]), ...gk.map(g => g.gsax || 0));
+    lo = Math.floor(lo * 2) / 2; hi = Math.ceil(hi * 2) / 2;
+    if (hi - lo < 1) hi = lo + 1;
+    const span = hi - lo;
+    const per = t.last_period && t.last_period !== "REG" ? "/" + t.last_period : "";
+    const us = `<span class="fs-team${t.result === "W" ? " w" : ""}"><span>${esc(ab)}</span> <b>${esc(t.for)}</b></span>`, them = `<span class="fs-team${t.result !== "W" ? " w" : ""}"><span>${esc(t.opp)}</span> <b>${esc(t.against)}</b></span>`;
+    const strip = `<div class="finalbar team ${t.result === "W" ? "won" : "lost"}"><span class="fs-lab">Final${esc(per)}</span>${t.home ? them + us : us + them}<span class="pill ${t.result === "W" ? "win" : "loss"}">${GS_RESULT[t.result] || esc(t.result)}</span></div>`;
+    const group = (lab, rows) => rows ? `<p class="gs-grp">${lab}</p>${rows}` : "";
+    const fw = sk.filter(p => p.pos !== "D"), dm = sk.filter(p => p.pos === "D");
+    const key = GS_PARTS.map(([k, n]) => `<span class="gs-key" data-tip="${esc((TIPS.gs || {})[n] || n)}"><i class="gs-sw gs-${k}"></i>${esc(n)}</span>`).join("");
+    const ticks = [lo, 0, hi].filter((v, i, a) => a.indexOf(v) === i).map(v => `<span style="left:${((v - lo) / span * 100).toFixed(2)}%">${v === 0 ? "0" : signed(v, 1)}</span>`).join("");
+    const cells = v => v.map(x => td(signed(x), "n")).join("");
+    const rows = sk.map(p => `<tr>${td(esc(p.name))}${td(esc(p.pos))}${td(p.toi == null ? "-" : num(p.toi, 1), "n hm")}${td(`<b>${signed(p.gs)}</b>`, "n")}${cells(p.o)}${cells(p.d)}</tr>`).join("");
+    const hd = thT("Player", "The player. His name in the chart above opens his NHL.com page.") + thT("Pos", TIPS.heads.Pos) + thT("TOI", "Time on ice in the game, minutes.", "n hm") + thT("GS", TIPS.gs["Game Score"], "n") +
+      ["Production", "Play driving", "Special teams", "Usage"].map(n => thT("O " + n.split(" ")[0], `Offense, ${n.toLowerCase()}: ${TIPS.gs[n]}`, "n")).join("") +
+      ["Production", "Play driving", "Special teams", "Usage"].map(n => thT("D " + n.split(" ")[0], `Defense, ${n.toLowerCase()}: ${TIPS.gs[n]}`, "n")).join("");
+    const note = t.inputs === "full" ? "" : `<p class="small muted">Play driving, special teams and usage were not available for this game (the shift charts or shot values were missing), so only production is scored.</p>`;
+    return `<details class="lastgame" open><summary><span class="lg-title">Last game</span> <span class="small muted">${esc(shortDay(t.date))}, ${t.home ? "vs" : "at"} ${esc(t.opp)}</span></summary>
+      ${strip}
+      <p class="small muted gs-how">Game Score: what each player added to the game. Top bar offense, bottom bar defense; parts right of the line helped, parts left of it hurt.</p>
+      <div class="gs-legend">${key}<span class="gs-key" data-tip="${esc(TIPS.gs.Goalie)}"><i class="gs-sw gs-gk"></i>Goalie: saved above expected</span></div>
+      <div class="gs-chart">${group("Forwards", fw.map(p => gsRow(p, lo, span)).join(""))}${group("Defense", dm.map(p => gsRow(p, lo, span)).join(""))}${group("Goalie", gk.map(g => gsGoalie(g, lo, span)).join(""))}
+      <div class="gs-axis"><span class="gs-name"></span><span class="gs-val"></span><div class="gs-ticks">${ticks}</div></div></div>
+      ${note}
+      <details class="more"><summary>Numbers</summary>${tbl(hd, rows, "gs-table")}</details>
+      <p class="tiny muted">This app's own Game Score, built on the public Game Score formula (Dom Luszczyszyn, Hockey Graphs, 2016). Data: NHL play-by-play and shift charts; expected goals and season rates from <a href="https://moneypuck.com" target="_blank" rel="noopener">MoneyPuck.com</a>.</p></details>`;
+  }
   function teamCard(ab) {
     const t = (D.teams || {})[ab] || {};
     const g = games().find(x => x.home === ab || x.away === ab);
     const tonight = g ? `<p class="row small">Tonight: ${esc(g.away)} @ ${esc(g.home)}, ${esc(localTime(g.start_utc))}. ${g.projected ? `Projected winner ${esc(g.projected)} ${pct(g.win_prob)} ${tierPill(g.tier)}` : ""}</p>` : `<p class="small muted">No game today.</p>`;
-    return `<section class="card edge teamcard" style="${teamVars(ab)}"><div class="tc-head">${badge(ab, "xl", true)}<div><h2>${esc(t.name || ab)}</h2><span class="small muted">${t.record ? esc(t.record) + ", " + esc(t.pts) + " pts" : ""}${t.division ? ", " + esc(t.division) : ""}</span></div></div>${standPlaces(ab)}${tonight}${linesTable((D.lines || {})[ab])}</section>`;
+    return `<section class="card edge teamcard" style="${teamVars(ab)}"><div class="tc-head">${badge(ab, "xl", true)}<div><h2>${esc(t.name || ab)}</h2><span class="small muted">${t.record ? esc(t.record) + ", " + esc(t.pts) + " pts" : ""}${t.division ? ", " + esc(t.division) : ""}</span></div></div>${standPlaces(ab)}${tonight}${lastGame(ab)}${linesTable((D.lines || {})[ab])}</section>`;
   }
   function vMyTeams() {
     const body = st.teams.length ? st.teams.map(teamCard).join("") : `<div class="card empty">No teams picked yet. Choose any of the 32 teams below.</div>`;

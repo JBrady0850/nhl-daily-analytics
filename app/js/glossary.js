@@ -29,6 +29,7 @@ window.NDA_GLOSSARY = [
   ["P/GP, SOG/GP", "Per game played. A line's figure adds each player's own rate, so a player with fewer games is not understated."],
   ["MOST POINTS / MOST SHOTS", "The team's line with the highest combined points per game, or shots on goal per game, in the chosen window. TIED when lines are level."],
   ["GTD / DTD / IR", "Game-time decision / day to day / injured reserve, as Daily Faceoff lists them."],
+  ["Last game and Game Score (My Teams)", "Each team you follow shows its most recent finished game: the final score, then every player's Game Score, what he added to the game in goals-like units (0 is an ordinary game). The top bar is offense and the bottom bar defense, each split into production, play driving, special teams and usage; parts right of the line helped, parts left of it hurt. Goalies show goals saved above expected. It is this app's own model, built on the public Game Score formula by Dom Luszczyszyn (Hockey Graphs, 2016), from NHL play-by-play and shift charts with expected goals from MoneyPuck.com. A game appears the morning after it is played, once the expected goals are published."],
   ["Final score and Win or Loss", "When a game is over by the time of an update, its card shows the final score on a scoreboard strip under the pick banner, with WIN or LOSS for the pick. The pick is the one made before puck drop; a later update never changes it. Games that end after the 4:45 PM update show in Results the next morning."],
   ["My pick", "The team the model picks to win the game: the side with the higher win probability. Every game card shows it on a gold banner with a star, as hockey names the first of its three stars after a game."],
   ["Injury list (Injuries tab)", "Every injured player the injury reports name, by team: GTD game-time decision, DTD day to day, OUT out, IR injured reserve, LTIR long-term injured reserve, IR-NR injured non-roster, SUSP suspended. Mostly ESPN's public injury report; Daily Faceoff's injured lists fill in for today's teams. Estimated return dates are estimates and often move."],
@@ -55,6 +56,14 @@ window.NDA_GLOSSARY = [
    the text, matched exactly as written. Team abbreviations and your time zone are
    added by the app from the day's data. */
 window.NDA_TIPS = {
+  gs: {
+    "Game Score": "Game Score: what the player added to the game, in goals-like units. The sum of the eight offense and defense parts; 0 is an ordinary game.",
+    "Production": "Offense: goals (0.75 each), first assists (0.70), second assists (0.55), shots on goal (0.075), penalties drawn (0.15) and faceoffs won minus lost (0.01 each). Defense: blocked shots (0.05 each) minus penalties taken (0.15 each).",
+    "Play driving": "At 5 on 5 while he was on the ice: expected goals (0.9 each) and goals (0.15 each) for his team (offense) and against it (defense), compared with the league rate for his 5-on-5 time.",
+    "Special teams": "Power-play goals his team scored while he was on the ice (offense) and short-handed goals it allowed while he was on (defense), compared with the league power-play rate for that time, 0.15 per goal.",
+    "Usage": "A small adjustment for who he played with and against at 5 on 5, from their season on-ice rates: strong teammates or weak opponents take a little credit away, tough opponents add a little.",
+    "Goalie": "Goals saved above expected: the expected-goal value of the unblocked shots he faced minus the goals he allowed."
+  },
   pills: {
     "HIGH": "High confidence: the model gives the projected winner 58.5 percent or more.",
     "MODERATE": "Moderate confidence: the projected winner is at 54.0 to 58.4 percent.",
@@ -86,6 +95,9 @@ window.NDA_TIPS = {
     "E": "Eliminated from playoff contention.",
     "WRONG": "The projected winner lost.",
     "WIN": "The game is over and my pick won it. Overtime and shootout wins count.",
+    "WON": "This team won its last game.",
+    "LOST": "This team lost its last game in regulation.",
+    "OT LOSS": "This team lost its last game in overtime or a shootout, which still earns a point in the standings.",
     "LOSS": "The game is over and my pick lost it.",
     "_tied": "Tied: another line or player has the same value.",
     "_injury": "Injury status from the injury report, for example IR (injured reserve), DTD (day to day) or OUT.",

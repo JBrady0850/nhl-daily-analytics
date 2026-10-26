@@ -164,6 +164,55 @@ def check_team_places(pg, sample, ab, mob):
     return out
 
 
+LAST_GAME_JS = """(ab) => {
+  const c = [...document.querySelectorAll('main section.teamcard')].find(s => s.querySelector('.tc-head .tm').textContent.trim() === ab);
+  if (!c) return {card: false};
+  const lg = c.querySelector('details.lastgame');
+  if (!lg) return {card: true, last: false};
+  const rows = [...lg.querySelectorAll('.gs-chart .gs-row')];
+  const segs = [...lg.querySelectorAll('.gs-seg')];
+  const pill = lg.querySelector('.finalbar .pill') || {dataset: {}};
+  return {card: true, last: true, open: lg.open,
+    names: rows.map(r => { const a = r.querySelector('.gs-name a'); return (a ? a.childNodes[0] : r.querySelector('.gs-name')).textContent.trim(); }),
+    vals: rows.map(r => r.querySelector('.gs-val').textContent.trim()),
+    segs: segs.length, segTips: segs.every(x => !!x.dataset.tip),
+    keys: [...lg.querySelectorAll('.gs-legend .gs-key')].map(k => [k.textContent.trim(), !!k.dataset.tip]),
+    result: [pill.textContent, !!pill.dataset.tip],
+    scores: [...lg.querySelectorAll('.finalbar .fs-team')].map(t => t.textContent.replace(/\\s+/g, ' ').trim()),
+    tableRows: lg.querySelectorAll('table.gs-table tbody tr').length,
+    heads: [...lg.querySelectorAll('table.gs-table th')].every(h => !!h.dataset.tip),
+    credit: !!lg.querySelector('a[href="https://moneypuck.com"]'),
+    labels: [...lg.querySelectorAll('.gs-bars')].every(b => (b.getAttribute('aria-label') || '').length > 10)};
+}"""
+
+
+def check_last_game(pg, sample, ab):
+    """My Teams: a followed team's card shows its last game, the final score and its
+    result, then every player's Game Score (offense and defense bars with a definition
+    on every part), the goalie, a numbers table and the MoneyPuck credit."""
+    t = sample["gamescore"]["teams"][ab]
+    pg.click('#tabs button[data-tab="myteams"]')
+    pg.wait_for_timeout(40)
+    got = pg.evaluate(LAST_GAME_JS, ab)
+    if not got.get("last"):
+        return [f"my teams {ab}: no last game ({got})"]
+    sign = lambda v: ("+" if v > 0 else "") + f"{v:.2f}"
+    order = [p for p in t["skaters"] if p["pos"] != "D"] + [p for p in t["skaters"] if p["pos"] == "D"]
+    nseg = sum(1 for p in t["skaters"] for v in p["o"] + p["d"] if abs(v) >= 0.005) + sum(1 for g in t["goalies"] if g.get("gsax") is not None)
+    away, home = (t["opp"], ab) if t["home"] else (ab, t["opp"])
+    sc = {ab: t["for"], t["opp"]: t["against"]}
+    want = {"names": [p["name"] for p in order] + [g["name"] for g in t["goalies"]],
+            "vals": [sign(p["gs"]) for p in order] + [sign(g["gsax"]) for g in t["goalies"]],
+            "segs": nseg, "segTips": True,
+            "keys": [["Production", True], ["Play driving", True], ["Special teams", True], ["Usage", True], ["Goalie: saved above expected", True]],
+            "result": [{"W": "Won", "L": "Lost", "OTL": "OT loss"}[t["result"]], True],
+            "scores": [f"{away} {sc[away]}", f"{home} {sc[home]}"], "tableRows": len(t["skaters"]), "heads": True, "credit": True, "labels": True}
+    out = [f"my teams {ab} last game {k}: {got.get(k)} (want {v})" for k, v in want.items() if got.get(k) != v]
+    if not got.get("open"):
+        out.append(f"my teams {ab}: the last game starts closed")
+    return out
+
+
 WIN_MARKER_JS = """() => [...document.querySelectorAll('main .winbar')].map(w => {
   const p = w.querySelector('.puck'), bg = getComputedStyle(p).backgroundImage;
   const rgb = h => [1, 3, 5].map(i => parseInt(h.trim().slice(i, i + 2), 16));
@@ -568,6 +617,7 @@ def main():
                 fails.extend(f"{name}: {m}" for m in check_goalie_rows(pg, len(sample["slate"]["games"])))
                 fails.extend(f"{name}: {m}" for m in check_win_marker(pg))
                 fails.extend(f"{name}: {m}" for m in check_team_places(pg, sample, "FLA", mob))
+                fails.extend(f"{name}: {m}" for m in check_last_game(pg, sample, "FLA"))
                 fails.extend(f"{name}: {m}" for m in check_lines_tab(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_dfs_goalies(pg, len(sample["dfs"]["goalies"])))
                 fails.extend(f"{name}: {m}" for m in check_my_pick(pg, sample))
@@ -615,6 +665,8 @@ def main():
                 pg.click('#tabs button[data-tab="myteams"]')
                 links = pg.evaluate("[...document.querySelectorAll('main a.plink')].map(a => [a.getAttribute('href'), a.target, a.rel, a.childNodes[0].textContent])")
                 want = sum(1 for grp in ("lines", "pairs") for ln in sample["lines"]["FLA"][grp] for p in ln["players"] if p.get("nhl_id"))
+                lg = sample["gamescore"]["teams"]["FLA"]
+                want += len(lg["skaters"]) + len(lg["goalies"])        # the last game's chart links each player once
                 if len(links) != want or want < 15:
                     fails.append(f"{name}: {len(links)} player links on My Teams, expected {want}")
                 bad = [l for l in links if not re.match(r"^https://www\.nhl\.com/player/\d{6,8}$", l[0] or "") or l[1] != "_blank" or "noopener" not in (l[2] or "")]

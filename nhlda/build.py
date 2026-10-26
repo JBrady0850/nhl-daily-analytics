@@ -25,6 +25,7 @@ from .data import (Fetcher, SlateDetector, TeamGameLog, MoneyPuckLoader, Standin
                    PlayoffSeriesResolver, GAME_TYPE_PLAYOFFS, season_string, next_slate,
                    fetch_market_odds, fetch_finals)
 from .lines import all_team_lines
+from . import gamescore as GS
 
 FORMAT = "nhl-daily-analytics/1"
 APP_DATA_VERSION = 1
@@ -324,6 +325,13 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
             problems.append(f"lines: {exc}")
             lines, lines_status = {}, {"error": str(exc)[:160]}
 
+        # My Teams: every team's latest finished game, broken down by player
+        try:
+            gamescore = await GS.update(f, session, state_dir, target_date, int(season[:4]))
+        except Exception as exc:  # noqa: BLE001
+            log.warning("game score: %s", exc)
+            gamescore = None
+
         std = results.get("season_to_date") or {}
         last_rows = [{k: r.get(k) for k in ("date", "matchup", "projected", "win_prob", "tier", "actual",
                                             "away_score", "home_score", "last_period", "correct", "market_prob")}
@@ -349,6 +357,7 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
                       "calibration": std.get("calibration")},
             "dfs": {"skaters": top_sk, "goalies": top_g},
             "injuries": injuries,
+            "gamescore": gamescore,
             "sources": dict(intel_status, lines=lines_status, requests=f.stats,
                             seconds=round((dt.datetime.now(dt.timezone.utc) - started).total_seconds())),
             "problems": problems,

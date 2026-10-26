@@ -34,8 +34,9 @@ The app then opens full screen like any other app. The Settings tab repeats thes
 
 Open **My Teams** and tap any of the 32 teams. Each team you follow shows its record,
 its place in the standings (wild-card race, division, conference and league), today's
-game (if it plays), and its four forward lines and three defense pairs with
-each player's numbers over his last 10 games or the whole season. Your games are also
+game (if it plays), its last game (the final score and every player's Game Score,
+split into offense and defense), and its four forward lines and three defense pairs
+with each player's numbers over his last 10 games or the whole season. Your games are also
 marked on the Today and Goalies tabs.
 
 Your picks stay in your own browser on your own device. Nothing is sent anywhere. To
@@ -72,6 +73,8 @@ Names with a solid underline are links; a dotted underline marks a definition.
 
 ![Injuries by team with each player's status and estimated return](docs/images/injuries-desktop.png)
 
+![A team's last game: the final score and each player's Game Score as offense and defense bars](docs/images/lastgame-desktop.png)
+
 ![Model learning and calibration](docs/images/model-desktop.png)
 
 The screenshots use the sample data file in `tests/fixtures`.
@@ -89,7 +92,7 @@ always has the latest data.
 | Tab | What you see |
 | --- | --- |
 | **Today** | Every game ranked by the projected winner's win probability. Each card shows the pick on a gold banner with a star crest (MY PICK, the team and its chance to win), with the confidence tier (HIGH, MODERATE, LOW), the market's view for comparison, both starting goalies, and a "Why this pick" breakdown. A game that is over by an update gets the final score on a scoreboard strip under the banner and WIN or LOSS for the pick; once a game starts, its pick never changes. |
-| **My Teams** | The teams you follow: record, place in the wild-card race, division, conference and league, today's game, all four lines and three pairs with last-10 or season stats, and which line leads the team in points, shots and penalty minutes. |
+| **My Teams** | The teams you follow: record, place in the wild-card race, division, conference and league, today's game, the last game (final score, then each player's Game Score as offense and defense bars: production, play driving, special teams and usage, and the goalie's goals saved above expected), all four lines and three pairs with last-10 or season stats, and which line leads the team in points, shots and penalty minutes. |
 | **Lines** | The four forward lines and three defense pairs of each game's projected winner, in rank order, with every player's stats (last 10 games or season) and line and pair totals. |
 | **Goalies** | Every probable starter tonight, highest season save percentage first, with goals saved above expected, high-danger save percentage, rest days and whether the start is confirmed. |
 | **Injuries** | Every injured player the injury reports name, team by team: status (GTD, DTD, OUT, IR, LTIR, IR-NR, SUSP), the injury, the latest report and its date, and the estimated return. Filter to all teams, today's games or your teams; the app remembers the filter. IN LINEUP marks a listed player Daily Faceoff still has in today's lineup. |
@@ -171,9 +174,10 @@ All free and public. No keys, accounts or paid services.
 
 | Source | Used for |
 | --- | --- |
-| NHL web and stats feeds (`api-web.nhle.com`, `api.nhle.com/stats`) | Schedule, scores, standings, rosters, team and player game logs, shift charts, and the sportsbook lines the NHL publishes in its score feed |
+| NHL web and stats feeds (`api-web.nhle.com`, `api.nhle.com/stats`) | Schedule, scores, standings, rosters, team and player game logs, play-by-play, shift charts, and the sportsbook lines the NHL publishes in its score feed |
 | NHL player search (`search.d3.nhle.com`) | The NHL id of an injured player who is off the current roster (long-term or non-roster injured reserve), looked up once and remembered |
 | [MoneyPuck](https://moneypuck.com) season data | Expected goals, goals saved above expected, high-danger save percentage |
+| [MoneyPuck](https://moneypuck.com) shot data (updated nightly) | The expected-goal value of each shot in a finished game, for the Game Score on My Teams |
 | [ESPN](https://www.espn.com/nhl/injuries) public injury feed | The league injury report for the Injuries tab and the model: each player's status (including long-term and non-roster injured reserve), body part, latest report and estimated return |
 | [Daily Faceoff](https://www.dailyfaceoff.com) | Starting goalie confirmations, current line combinations, and each playing team's injured list and projected lineup |
 | [Hockey-Reference](https://www.hockey-reference.com) | A backup injury report, used only when ESPN cannot be reached |
@@ -201,7 +205,7 @@ source. See [docs/LIMITS.md](docs/LIMITS.md).
 | `app/` | The web app: `index.html`, `css/`, `js/app.js`, `js/glossary.js`, the service worker `sw.js`, icons and the manifest |
 | `app/data/` | Today's data file, rewritten by the workflow |
 | `nhlda/` | The Python program that builds the data file |
-| `state/` | The season record, the model's learning history, a player list and yesterday's slate (for settling results) |
+| `state/` | The season record, the model's learning history, a player list, yesterday's slate (for settling results) and each team's last scored game |
 | `.github/workflows/` | `daily.yml` builds and publishes (main and backup times; `nhlda/schedule.py` decides whether a scheduled run builds); `tests.yml` runs the tests; `pages.yml` republishes the app after a code change |
 | `docs/` | [Data file format](docs/DATA.md), [privacy](docs/PRIVACY.md), [limits](docs/LIMITS.md) and the screenshots |
 | `tests/` | Engine tests, a browser test of every tab, the screenshot and artwork makers and the sample data |
@@ -250,6 +254,8 @@ teams or forgets the chosen view.
 
 Data from the NHL's public web and stats feeds, MoneyPuck.com, Daily Faceoff and
 Hockey-Reference.com. Team names and abbreviations belong to the NHL and its teams.
+The Game Score on My Teams is this app's own model, built on the public Game Score
+formula by Dom Luszczyszyn (Hockey Graphs, 2016), with expected goals from MoneyPuck.com.
 
 The artwork (the rink, the scoreboard, the empty net, the icons) is original to this
 project and uses no league or team logos and no player photos. Team badges are the team

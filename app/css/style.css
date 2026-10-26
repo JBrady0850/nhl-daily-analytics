@@ -17,6 +17,7 @@
   --display: "Teko", "Bahnschrift SemiCondensed", "Bahnschrift", "Avenir Next Condensed", "Roboto Condensed", "Arial Narrow", sans-serif-condensed, system-ui, sans-serif;
   --redline: #C8102E; --blueline: #1D4F91; --crease: #8EC3EC; --sb: #07090C; --led: #FFB21A; --ice-hi: #FBFDFF; --ice-lo: #E2ECF5;
   --mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+  --gs-prod: #2a78d6; --gs-drive: #eb6834; --gs-st: #1baf7a; --gs-use: #8a8880;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
@@ -27,6 +28,7 @@
     --high: #5fcf8a; --mod: #f0a35a; --low: #a9b6c3; --ok: #5fcf8a; --bad: #ff8a7d; --warn: #f0c060;
     --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3); color-scheme: dark;
     --ice-hi: #13202E; --ice-lo: #0C151F; --crease: #3E78A8;
+    --gs-prod: #3987e5; --gs-drive: #d95926; --gs-st: #199e70; --gs-use: #8f8d85;
   }
 }
 * { box-sizing: border-box; }
@@ -173,6 +175,47 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
 .fs-team.w { color: #FFFFFF; } .fs-team.w > b { color: var(--led); text-shadow: 0 0 10px rgba(255,170,20,.45); }
 .finalbar > .pill { margin-left: auto; font-size: 1.15rem; padding: 4px 12px 2px; letter-spacing: .1em; }
 .pill.win { background: #2BB36B; color: #04150B; } .pill.loss { background: #E5483B; color: #FFFFFF; }
+/* My Teams, last game: the final score strip, then each player's Game Score as two
+   thin bars on one axis (offense on top, defense below), parts stacked out from the
+   zero line, a 2px surface gap between parts and a rounded end on the outermost */
+.lastgame { margin: 10px 0 12px; border-top: 1px solid var(--line); padding-top: 6px; }
+.lastgame > summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; min-height: 40px; padding-top: 6px; }
+.lastgame > summary::-webkit-details-marker { display: none; }
+.lastgame > summary::before { content: "\25BE"; color: var(--accent); font-size: .9em; }
+.lastgame:not([open]) > summary::before { content: "\25B8"; }
+.lg-title { font: 600 1.4rem/1 var(--display); letter-spacing: .02em; }
+.finalbar.team { margin: 2px 0 8px; border-top: 2px solid #26303C; border-radius: 10px; }
+.gs-how { margin: 0 0 6px; }
+.gs-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0 0 6px; font-size: .86rem; color: var(--muted); }
+.gs-key { display: inline-flex; align-items: center; gap: 6px; cursor: help; }
+.gs-sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
+.gs-row, .gs-axis { display: grid; grid-template-columns: minmax(6.5em, 10.5em) 3.4em minmax(0, 1fr); align-items: center; gap: 0 8px; }
+.gs-row { padding: 3px 0; border-bottom: 1px solid color-mix(in srgb, var(--line) 55%, transparent); }
+.gs-name { font-size: .88rem; line-height: 1.15; overflow-wrap: anywhere; }
+.gs-val { font: 600 .9rem/1 var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+.gs-grp { font: 600 .98rem/1 var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 10px 0 2px; }
+.gs-bars { position: relative; height: 22px; }
+.gs-bars.gk { height: 14px; }
+.gs-bars::before { content: ""; position: absolute; top: -4px; bottom: -4px; left: var(--z); width: 1px; background: var(--muted); opacity: .55; }
+.gs-trk { position: absolute; left: 0; right: 0; height: 10px; }
+.gs-trk.o { top: 0; } .gs-trk.d { top: 12px; } .gs-trk.g { top: 2px; }
+.gs-seg { position: absolute; top: 0; bottom: 0; display: block; cursor: help; }
+.gs-seg:not(.neg):not(.endp) { box-shadow: inset -2px 0 0 var(--panel); }
+.gs-seg.neg:not(.endn) { box-shadow: inset 2px 0 0 var(--panel); }
+.gs-seg.endp { border-radius: 0 4px 4px 0; } .gs-seg.endn { border-radius: 4px 0 0 4px; }
+.gs-prod { background: var(--gs-prod); } .gs-drive { background: var(--gs-drive); } .gs-st { background: var(--gs-st); }
+.gs-use { background: var(--gs-use); } .gs-gk { background: var(--muted); }
+.gs-axis { margin-top: 2px; }
+.gs-ticks { position: relative; height: 1.2em; font: .74rem/1.2 var(--mono); color: var(--muted); }
+.gs-ticks > span { position: absolute; top: 0; transform: translateX(-50%); }
+.gs-ticks > span:first-child { transform: none; } .gs-ticks > span:last-child { transform: translateX(-100%); }
+table.gs-table td:first-child { min-width: 10em; }
+/* phones: the name and value on one line, the bars across the full width below */
+@media (max-width: 640px) {
+  .gs-row, .gs-axis { grid-template-columns: minmax(0, 1fr) auto; row-gap: 3px; }
+  .gs-bars, .gs-ticks { grid-column: 1 / -1; }
+  .gs-axis > .gs-name, .gs-axis > .gs-val { display: none; }
+}
 @media print { .pickline::before { box-shadow: none; } .pk-star { box-shadow: 0 0 0 2px var(--star-ink); } }
 /* injuries */
 .inj-note { margin-top: 2px; max-width: 46em; line-height: 1.35; }

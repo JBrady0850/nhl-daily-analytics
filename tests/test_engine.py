@@ -512,3 +512,136 @@ def test_sample_shows_finished_games_with_a_result():
         assert g["state"] in ("OFF", "FINAL") and r["winner"] in (g["home"], g["away"])
         assert r["pick"] == ("win" if r["winner"] == g["projected"] else "loss")
         assert (r["home_score"] > r["away_score"]) == (r["winner"] == g["home"])
+
+
+# ---------- Game Score breakdown (My Teams, last game) ----------
+GAME = os.path.join(HERE, "fixtures", "game_2026020180.json")
+
+
+def _csv_text(rows):
+    import io as _io
+    buf = _io.StringIO()
+    w = csv.DictWriter(buf, fieldnames=list(rows[0]))
+    w.writeheader()
+    w.writerows(rows)
+    return buf.getvalue()
+
+
+def _game_inputs():
+    from nhlda import gamescore as G
+    fx = json.load(open(GAME, encoding="utf-8"))
+    rates = G.league_rates(_csv_text(fx["mp_teams"]))
+    return fx, G.shot_values(fx["shots"]), rates, G.player_quality(_csv_text(fx["mp_skaters"]), rates)
+
+
+def test_strength_reads_the_nhl_situation_code():
+    from nhlda.gamescore import _strength
+    assert _strength("1551", True) == "5v5" and _strength("1551", False) == "5v5"
+    assert _strength("1451", True) == "PP" and _strength("1451", False) == "PK"     # away team short-handed
+    assert _strength("1541", True) == "PK" and _strength("1441", True) == "EV"
+    assert _strength("0651", True) == "EN" and _strength("1560", False) == "EN"
+
+
+def test_game_score_of_a_real_game():
+    from nhlda.gamescore import breakdown
+    fx, xg, rates, q = _game_inputs()
+    assert 2.4 < rates["xg"] < 2.7 and 6 < rates["pp"] < 9
+    assert len(xg) == 92
+    res = breakdown(fx["pbp"], fx["shifts"], xg, rates, q)
+    assert res["inputs"] == "full" and set(res["teams"]) == {"FLA", "CHI"}
+    fla = res["teams"]["FLA"]
+    assert fla["opp"] == "CHI" and fla["home"] is False
+    sk = {p["name"]: p for p in fla["skaters"]}
+    assert len(sk) == 18 and all(p["toi"] > 0 for p in sk.values())
+    for p in sk.values():
+        assert abs(p["gs"] - sum(p["o"]) - sum(p["d"])) < 0.02
+        b = p["box"]
+        assert abs(p["d"][0] - (0.05 * b["blk"] - 0.15 * b["pt"])) < 0.006, p["name"]
+    # Verhaeghe: second assist, three shots on goal, and he drove 5-on-5 play
+    v = sk["Carter Verhaeghe"]
+    assert v["box"]["a2"] == 1 and v["box"]["sog"] == 3 and v["o"][1] > 0.5
+    # the order follows the game: Jones leads the defense, Gudas trails it
+    dmen = [p["name"] for p in fla["skaters"] if p["pos"] == "D"]
+    assert dmen[0] == "Seth Jones" and dmen[-1] == "Radko Gudas"
+    fwd = [p["gs"] for p in fla["skaters"] if p["pos"] != "D"]
+    assert fwd == sorted(fwd, reverse=True), "forwards first, best first"
+    g = fla["goalies"][0]
+    assert g["name"] == "Akira Schmid" and g["shots"] == 21 and g["ga"] == 2
+    assert abs(g["gsax"] - (g["xga"] - g["ga"])) < 0.011 and g["gsax"] > 1
+    assert res["teams"]["CHI"]["goalies"][0]["ga"] == 3
+
+
+def test_game_score_without_shift_charts_is_production_only():
+    from nhlda.gamescore import breakdown
+    fx, xg, rates, q = _game_inputs()
+    res = breakdown(fx["pbp"], [], xg, rates, q)
+    assert res["inputs"] == "production"
+    for p in res["teams"]["FLA"]["skaters"]:
+        assert p["o"][1:] == [0, 0, 0] and p["d"][1:] == [0, 0, 0] and p["toi"] is None
+    assert res["teams"]["FLA"]["goalies"][0]["gsax"] is None
+
+
+class _FakeFetch:
+    def __init__(self, fx, day):
+        self.fx, self.day = fx, day
+
+    async def get(self, url, params=None, as_text=False, **kw):
+        if "/score/" in url:
+            g = {"id": 2026020180, "gameDate": "2026-10-25", "gameState": "OFF", "gameType": 2}
+            return {"games": [g] if url.endswith("2026-10-25") else []}
+        if "play-by-play" in url:
+            return self.fx["pbp"]
+        if "shiftcharts" in url:
+            return {"data": self.fx["shifts"]}
+        if url.endswith("teams.csv"):
+            return _csv_text(self.fx["mp_teams"])
+        if url.endswith("skaters.csv"):
+            return _csv_text(self.fx["mp_skaters"])
+        return None
+
+
+def _run_update(tmp_path, fx, day, shots):
+    import asyncio
+    from nhlda import gamescore as G
+
+    async def fake_rows(session, year, want):
+        return {20180: shots} if shots and 20180 in want else {}
+    orig = G._shot_rows
+    G._shot_rows = fake_rows
+    try:
+        return asyncio.run(G.update(_FakeFetch(fx, day), None, str(tmp_path), day, 2026))
+    finally:
+        G._shot_rows = orig
+
+
+def test_last_game_waits_for_the_shot_values_then_keeps_the_latest_game(tmp_path):
+    fx = json.load(open(GAME, encoding="utf-8"))
+    # the morning after: no shot values yet, so the game waits
+    out = _run_update(tmp_path, fx, "2026-10-26", [])
+    assert out["teams"] == {}
+    # the shot values arrive: both teams get the game, scored in full, and it is cached
+    out = _run_update(tmp_path, fx, "2026-10-26", fx["shots"])
+    assert set(out["teams"]) == {"FLA", "CHI"} and "MoneyPuck.com" in out["credit"]
+    t = out["teams"]["FLA"]
+    assert (t["game_id"], t["date"], t["opp"], t["for"], t["against"], t["result"], t["inputs"]) == \
+        (2026020180, "2026-10-25", "CHI", 3, 2, "W", "full")
+    assert out["teams"]["CHI"]["result"] == "L"
+    cache = json.load(open(tmp_path / "gamescore.json", encoding="utf-8"))
+    assert list(cache["games"]) == ["2026020180"] and cache["games"]["2026020180"]["complete"]
+    check_public(out)
+
+
+def test_last_game_falls_back_to_production_after_two_days(tmp_path):
+    fx = json.load(open(GAME, encoding="utf-8"))
+    assert _run_update(tmp_path, fx, "2026-10-26", [])["teams"] == {}
+    out = _run_update(tmp_path, fx, "2026-10-27", [])
+    assert out["teams"]["FLA"]["inputs"] == "production"
+
+
+def test_sample_carries_a_last_game_for_every_team():
+    d = json.load(open(SAMPLE, encoding="utf-8"))
+    gs = d["gamescore"]["teams"]
+    assert sorted(gs) == sorted(d["teams"])
+    for ab, t in gs.items():
+        assert t["date"] < d["date"] and t["result"] in ("W", "L", "OTL") and t["opp"] in d["teams"]
+        assert t["skaters"] and all(len(p["o"]) == 4 and len(p["d"]) == 4 for p in t["skaters"])
