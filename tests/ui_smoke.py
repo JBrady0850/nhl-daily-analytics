@@ -182,6 +182,11 @@ LAST_GAME_JS = """(ab) => {
     tableRows: lg.querySelectorAll('table.gs-table tbody tr').length,
     heads: [...lg.querySelectorAll('table.gs-table th')].every(h => !!h.dataset.tip),
     credit: !!lg.querySelector('a[href="https://moneypuck.com"]'),
+    head: (() => { const h = lg.querySelector('.gs-chart > .gs-head'); if (!h) return null;
+      const v = h.querySelector('.gs-val'); return [h.querySelector('.gs-name').textContent.trim(), v.textContent.trim(), !!v.dataset.tip,
+        h.querySelector('.hurt').textContent.trim(), h.querySelector('.helped').textContent.trim()]; })(),
+    valTips: rows.every(r => !!r.querySelector('.gs-val').dataset.tip),
+    tableScore: [...lg.querySelectorAll('table.gs-table th')].some(h => h.textContent.trim() === 'Game Score'),
     labels: [...lg.querySelectorAll('.gs-bars')].every(b => (b.getAttribute('aria-label') || '').length > 10)};
 }"""
 
@@ -206,7 +211,9 @@ def check_last_game(pg, sample, ab):
             "segs": nseg, "segTips": True,
             "keys": [["Production", True], ["Play driving", True], ["Special teams", True], ["Usage", True], ["Goalie: saved above expected", True]],
             "result": [{"W": "Won", "L": "Lost", "OTL": "OT loss"}[t["result"]], True],
-            "scores": [f"{away} {sc[away]}", f"{home} {sc[home]}"], "tableRows": len(t["skaters"]), "heads": True, "credit": True, "labels": True}
+            "scores": [f"{away} {sc[away]}", f"{home} {sc[home]}"], "tableRows": len(t["skaters"]), "heads": True, "credit": True, "labels": True,
+            # the number beside each name is labeled and defined (John, 2026-10-26)
+            "head": ["Player", "Game Score", True, "\u25c2 Hurt", "Helped \u25b8"], "valTips": True, "tableScore": True}
     out = [f"my teams {ab} last game {k}: {got.get(k)} (want {v})" for k, v in want.items() if got.get(k) != v]
     if not got.get("open"):
         out.append(f"my teams {ab}: the last game starts closed")

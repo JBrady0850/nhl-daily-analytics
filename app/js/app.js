@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.10.0";
+  const APP_VERSION = "1.10.1";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -591,14 +591,14 @@
   }
   function gsRow(p, lo, span) {
     const say = (lab, v) => `${lab} ${GS_PARTS.map(([, n], i) => `${n.toLowerCase()} ${signed(v[i])}`).join(", ")}`;
-    return `<div class="gs-row"><span class="gs-name">${pname(p.name, p.id)}</span><b class="gs-val">${signed(p.gs)}</b>
+    return `<div class="gs-row"><span class="gs-name">${pname(p.name, p.id)}</span><b class="gs-val" data-tip="Game Score ${signed(p.gs)}: offense ${signed(p.o.reduce((a, b) => a + b, 0))} plus defense ${signed(p.d.reduce((a, b) => a + b, 0))}. Above 0 he helped his team; below 0 he hurt it.">${signed(p.gs)}</b>
       <div class="gs-bars" style="--z:${((0 - lo) / span * 100).toFixed(2)}%" role="img" aria-label="${esc(p.name)}: ${signed(p.gs)}. ${esc(say("Offense", p.o))}. ${esc(say("Defense", p.d))}.">
       <span class="gs-trk o">${gsTrack(p.o, "offense", lo, span)}</span><span class="gs-trk d">${gsTrack(p.d, "defense", lo, span)}</span></div></div>`;
   }
   function gsGoalie(g, lo, span) {
     if (typeof g.gsax !== "number") return `<div class="gs-row"><span class="gs-name">${pname(g.name, g.id)}</span><b class="gs-val">-</b><span class="small muted">${esc(g.shots)} shots, ${esc(g.ga)} goals against</span></div>`;
     const w = Math.abs(g.gsax) / span * 100, left = (g.gsax >= 0 ? 0 - lo : 0 - lo + g.gsax) / span * 100;
-    return `<div class="gs-row"><span class="gs-name">${pname(g.name, g.id)}</span><b class="gs-val">${signed(g.gsax)}</b>
+    return `<div class="gs-row"><span class="gs-name">${pname(g.name, g.id)}</span><b class="gs-val" data-tip="Goals saved above expected: ${signed(g.gsax)}. He allowed ${esc(g.ga)} goals on shots worth ${esc(g.xga)} expected goals; above 0 he stopped more than an average goalie would.">${signed(g.gsax)}</b>
       <div class="gs-bars gk" style="--z:${((0 - lo) / span * 100).toFixed(2)}%" role="img" aria-label="${esc(g.name)}: ${signed(g.gsax)} goals saved above expected on ${esc(g.shots)} shots.">
       <span class="gs-trk g"><i class="gs-seg gs-gk ${g.gsax >= 0 ? "endp" : "endn"}" style="left:${left.toFixed(2)}%;width:${w.toFixed(2)}%" data-tip="Goals saved above expected: ${signed(g.gsax)} (${esc(g.xga)} expected, ${esc(g.ga)} allowed, ${esc(g.shots)} shots)"></i></span></div></div>`;
   }
@@ -620,15 +620,17 @@
     const ticks = [lo, 0, hi].filter((v, i, a) => a.indexOf(v) === i).map(v => `<span style="left:${((v - lo) / span * 100).toFixed(2)}%">${v === 0 ? "0" : signed(v, 1)}</span>`).join("");
     const cells = v => v.map(x => td(signed(x), "n")).join("");
     const rows = sk.map(p => `<tr>${td(esc(p.name))}${td(esc(p.pos))}${td(p.toi == null ? "-" : num(p.toi, 1), "n hm")}${td(`<b>${signed(p.gs)}</b>`, "n")}${cells(p.o)}${cells(p.d)}</tr>`).join("");
-    const hd = thT("Player", "The player. His name in the chart above opens his NHL.com page.") + thT("Pos", TIPS.heads.Pos) + thT("TOI", "Time on ice in the game, minutes.", "n hm") + thT("GS", TIPS.gs["Game Score"], "n") +
+    const hd = thT("Player", "The player. His name in the chart above opens his NHL.com page.") + thT("Pos", TIPS.heads.Pos) + thT("TOI", "Time on ice in the game, minutes.", "n hm") + thT("Game Score", TIPS.gs["Game Score"], "n") +
       ["Production", "Play driving", "Special teams", "Usage"].map(n => thT("O " + n.split(" ")[0], `Offense, ${n.toLowerCase()}: ${TIPS.gs[n]}`, "n")).join("") +
       ["Production", "Play driving", "Special teams", "Usage"].map(n => thT("D " + n.split(" ")[0], `Defense, ${n.toLowerCase()}: ${TIPS.gs[n]}`, "n")).join("");
     const note = t.inputs === "full" ? "" : `<p class="small muted">Play driving, special teams and usage were not available for this game (the shift charts or shot values were missing), so only production is scored.</p>`;
     return `<details class="lastgame" open><summary><span class="lg-title">Last game</span> <span class="small muted">${esc(shortDay(t.date))}, ${t.home ? "vs" : "at"} ${esc(t.opp)}</span></summary>
       ${strip}
-      <p class="small muted gs-how">Game Score: what each player added to the game. Top bar offense, bottom bar defense; parts right of the line helped, parts left of it hurt.</p>
+      <p class="small muted gs-how">Game Score: what each player added to the game, in goals-like units. The number beside each name is his total: above 0 he helped his team, below 0 he hurt it, and 0 is an ordinary game. In the bars, the top one is offense and the bottom one defense; parts right of the line helped, parts left of it hurt.</p>
       <div class="gs-legend">${key}<span class="gs-key" data-tip="${esc(TIPS.gs.Goalie)}"><i class="gs-sw gs-gk"></i>Goalie: saved above expected</span></div>
-      <div class="gs-chart">${group("Forwards", fw.map(p => gsRow(p, lo, span)).join(""))}${group("Defense", dm.map(p => gsRow(p, lo, span)).join(""))}${group("Goalie", gk.map(g => gsGoalie(g, lo, span)).join(""))}
+      <div class="gs-chart"><div class="gs-head"><span class="gs-name">Player</span><span class="gs-val" data-tip="${esc(TIPS.gs["Game Score"])}">Game Score</span>
+      <div class="gs-sides" style="--z:${((0 - lo) / span * 100).toFixed(2)}%"><span class="hurt">&#9666; Hurt</span><span class="helped">Helped &#9656;</span></div></div>
+      ${group("Forwards", fw.map(p => gsRow(p, lo, span)).join(""))}${group("Defense", dm.map(p => gsRow(p, lo, span)).join(""))}${group("Goalie: goals saved above expected", gk.map(g => gsGoalie(g, lo, span)).join(""))}
       <div class="gs-axis"><span class="gs-name"></span><span class="gs-val"></span><div class="gs-ticks">${ticks}</div></div></div>
       ${note}
       <details class="more"><summary>Numbers</summary>${tbl(hd, rows, "gs-table")}</details>

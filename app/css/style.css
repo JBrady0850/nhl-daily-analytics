@@ -189,10 +189,16 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
 .gs-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0 0 6px; font-size: .86rem; color: var(--muted); }
 .gs-key { display: inline-flex; align-items: center; gap: 6px; cursor: help; }
 .gs-sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
-.gs-row, .gs-axis { display: grid; grid-template-columns: minmax(6.5em, 10.5em) 3.4em minmax(0, 1fr); align-items: center; gap: 0 8px; }
+.gs-head, .gs-row, .gs-axis { display: grid; grid-template-columns: minmax(6.5em, 10.5em) 4.6em minmax(0, 1fr); align-items: center; gap: 0 8px; }
 .gs-row { padding: 3px 0; border-bottom: 1px solid color-mix(in srgb, var(--line) 55%, transparent); }
 .gs-name { font-size: .88rem; line-height: 1.15; overflow-wrap: anywhere; }
 .gs-val { font: 600 .9rem/1 var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+.gs-head { padding: 4px 0 5px; border-bottom: 1px solid var(--line); font: 600 .98rem/1.05 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.gs-head > .gs-val { font: inherit; cursor: help; }
+.gs-sides { position: relative; height: 1.1em; }
+.gs-sides > span { position: absolute; top: 0; white-space: nowrap; }
+.gs-sides > .hurt { left: 0; } .gs-sides > .helped { right: 0; }
+.gs-sides::before { content: ""; position: absolute; top: -2px; bottom: -6px; left: var(--z); width: 1px; background: var(--muted); opacity: .55; }
 .gs-grp { font: 600 .98rem/1 var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 10px 0 2px; }
 .gs-bars { position: relative; height: 22px; }
 .gs-bars.gk { height: 14px; }
@@ -212,8 +218,8 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
 table.gs-table td:first-child { min-width: 10em; }
 /* phones: the name and value on one line, the bars across the full width below */
 @media (max-width: 640px) {
-  .gs-row, .gs-axis { grid-template-columns: minmax(0, 1fr) auto; row-gap: 3px; }
-  .gs-bars, .gs-ticks { grid-column: 1 / -1; }
+  .gs-head, .gs-row, .gs-axis { grid-template-columns: minmax(0, 1fr) auto; row-gap: 3px; }
+  .gs-bars, .gs-ticks, .gs-sides { grid-column: 1 / -1; }
   .gs-axis > .gs-name, .gs-axis > .gs-val { display: none; }
 }
 @media print { .pickline::before { box-shadow: none; } .pk-star { box-shadow: 0 0 0 2px var(--star-ink); } }
