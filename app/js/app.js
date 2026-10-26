@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.11.0";
+  const APP_VERSION = "1.11.1";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -626,19 +626,20 @@
       <div class="gs-bars" style="--z:${((0 - lo) / span * 100).toFixed(2)}%" role="img" aria-label="${esc(p.name)}: ${signed(p.gs)}. ${esc(say("Offense", p.o))}. ${esc(say("Defense", p.d))}.">
       <span class="gs-trk o">${gsTrack(p.o, "offense", lo, span)}</span><span class="gs-trk d">${gsTrack(p.d, "defense", lo, span)}</span></div></div>`;
   }
-  function gsGoalie(g, lo, span) {
-    if (typeof g.gsax !== "number") return `<div class="gs-row"><span class="gs-name">${pname(g.name, g.id)}</span><b class="gs-val">-</b><span class="small muted">${esc(g.shots)} shots, ${esc(g.ga)} goals against</span></div>`;
-    const w = Math.abs(g.gsax) / span * 100, left = (g.gsax >= 0 ? 0 - lo : 0 - lo + g.gsax) / span * 100;
-    return `<div class="gs-row"><span class="gs-name">${pname(g.name, g.id)}</span><b class="gs-val" data-tip="Goals saved above expected: ${signed(g.gsax)}. He allowed ${esc(g.ga)} goals on shots worth ${esc(g.xga)} expected goals; above 0 he stopped more than an average goalie would.">${signed(g.gsax)}</b>
-      <div class="gs-bars gk" style="--z:${((0 - lo) / span * 100).toFixed(2)}%" role="img" aria-label="${esc(g.name)}: ${signed(g.gsax)} goals saved above expected on ${esc(g.shots)} shots.">
-      <span class="gs-trk g"><i class="gs-seg gs-gk ${g.gsax >= 0 ? "endp" : "endn"}" style="left:${left.toFixed(2)}%;width:${w.toFixed(2)}%" data-tip="Goals saved above expected: ${signed(g.gsax)} (${esc(g.xga)} expected, ${esc(g.ga)} allowed, ${esc(g.shots)} shots)"></i></span></div></div>`;
+  // the goalie is measured in goals saved, not Game Score, so he gets a plain sentence
+  // instead of a bar on the skaters' scale
+  function gsGoalie(g) {
+    const has = typeof g.gsax === "number";
+    const say = !has ? `Faced ${esc(g.shots)} shots and allowed ${esc(g.ga)} goals; expected goals were not available for this game.`
+      : `Allowed ${esc(g.ga)} goal${g.ga === 1 ? "" : "s"} on ${esc(g.shots)} shots. An average goalie would have allowed ${num(g.xga, 2)} on those shots, so he ${g.gsax >= 0 ? "saved" : "allowed"} ${num(Math.abs(g.gsax), 2)} goals more than expected.`;
+    return `<div class="gs-row gk"><span class="gs-name">${pname(g.name, g.id)}</span><b class="gs-val" data-tip="Goals saved above expected: the goals an average goalie would have allowed on his shots minus the goals he allowed. Above 0 he stopped more than expected.">${has ? signed(g.gsax) : "-"}</b><span class="gs-gk-txt small">${say}</span></div>`;
   }
   function lastGame(ab) {
     const t = ((D.gamescore || {}).teams || {})[ab];
     if (!t || !Array.isArray(t.skaters)) return "";
     const sk = t.skaters, gk = t.goalies || [];
     const ends = sk.flatMap(p => [p.o, p.d].map(v => [v.filter(x => x < 0).reduce((a, b) => a + b, 0), v.filter(x => x > 0).reduce((a, b) => a + b, 0)]));
-    let lo = Math.min(0, ...ends.map(e => e[0]), ...gk.map(g => g.gsax || 0)), hi = Math.max(0, ...ends.map(e => e[1]), ...gk.map(g => g.gsax || 0));
+    let lo = Math.min(0, ...ends.map(e => e[0])), hi = Math.max(0, ...ends.map(e => e[1]));
     // keep the zero line between 30% and 70% of the width, so the Hurt and Helped tags
     // beside it always fit, even on a phone
     lo = Math.floor(lo * 2) / 2; hi = Math.ceil(hi * 2) / 2;
@@ -652,7 +653,6 @@
     const group = (lab, rows) => rows ? `<p class="gs-grp">${lab}</p>${rows}` : "";
     const fw = sk.filter(p => p.pos !== "D"), dm = sk.filter(p => p.pos === "D");
     const key = GS_PARTS.map(([k, n]) => `<span class="gs-key" data-tip="${esc((TIPS.gs || {})[n] || n)}"><i class="gs-sw gs-${k}"></i>${esc(n)}</span>`).join("");
-    const ticks = [lo, 0, hi].filter((v, i, a) => a.indexOf(v) === i).map(v => `<span style="left:${((v - lo) / span * 100).toFixed(2)}%">${v === 0 ? "0" : signed(v, 1)}</span>`).join("");
     const cells = v => v.map(x => td(signed(x), "n")).join("");
     const rows = sk.map(p => `<tr>${td(esc(p.name))}${td(esc(p.pos))}${td(p.toi == null ? "-" : num(p.toi, 1), "n hm")}${td(`<b>${signed(p.gs)}</b>`, "n")}${cells(p.o)}${cells(p.d)}</tr>`).join("");
     const hd = thT("Player", "The player. His name in the chart above opens his NHL.com page.") + thT("Pos", TIPS.heads.Pos) + thT("TOI", "Time on ice in the game, minutes.", "n hm") + thT("Game Score", TIPS.gs["Game Score"], "n") +
@@ -662,11 +662,11 @@
     return `<details class="lastgame" open><summary><span class="lg-title">Last game</span> <span class="small muted">${esc(shortDay(t.date))}, ${t.home ? "vs" : "at"} ${esc(t.opp)}</span></summary>
       ${strip}
       <p class="small muted gs-how">Game Score: what each player added to the game, in goals-like units. The number beside each name is his total: above 0 he helped his team, below 0 he hurt it, and 0 is an ordinary game. In the bars, the top one is offense and the bottom one defense; parts right of the line helped, parts left of it hurt.</p>
-      <div class="gs-legend">${key}<span class="gs-key" data-tip="${esc(TIPS.gs.Goalie)}"><i class="gs-sw gs-gk"></i>Goalie: saved above expected</span></div>
+      <div class="gs-legend">${key}</div>
       <div class="gs-chart"><div class="gs-head"><span class="gs-name">Player</span><span class="gs-val" data-tip="${esc(TIPS.gs["Game Score"])}">Game Score</span>
       <div class="gs-sides" style="--z:${((0 - lo) / span * 100).toFixed(2)}%"><span class="hurt" data-tip="Left of the line: the parts of his game that cost his team.">Hurt</span><span class="helped" data-tip="Right of the line: the parts of his game that helped his team.">Helped</span></div></div>
-      ${group("Forwards", fw.map(p => gsRow(p, lo, span)).join(""))}${group("Defense", dm.map(p => gsRow(p, lo, span)).join(""))}${group("Goalie: goals saved above expected", gk.map(g => gsGoalie(g, lo, span)).join(""))}
-      <div class="gs-axis"><span class="gs-name"></span><span class="gs-val"></span><div class="gs-ticks">${ticks}</div></div></div>
+      ${group("Forwards", fw.map(p => gsRow(p, lo, span)).join(""))}${group("Defense", dm.map(p => gsRow(p, lo, span)).join(""))}</div>
+      ${gk.length ? `<div class="gs-goalies"><div class="gs-head"><span class="gs-name">Goalie</span><span class="gs-val" data-tip="${esc(TIPS.gs.Goalie)}">Goals saved</span><span></span></div>${gk.map(gsGoalie).join("")}</div>` : ""}
       ${note}
       <details class="more"><summary>Numbers</summary>${tbl(hd, rows, "gs-table")}</details>
       <p class="tiny muted">This app's own Game Score, built on the public Game Score formula (Dom Luszczyszyn, Hockey Graphs, 2016). Data: NHL play-by-play and shift charts; expected goals and season rates from <a href="https://moneypuck.com" target="_blank" rel="noopener">MoneyPuck.com</a>.</p></details>`;

@@ -169,7 +169,7 @@ LAST_GAME_JS = """(ab) => {
   if (!c) return {card: false};
   const lg = c.querySelector('details.lastgame');
   if (!lg) return {card: true, last: false};
-  const rows = [...lg.querySelectorAll('.gs-chart .gs-row')];
+  const rows = [...lg.querySelectorAll('.gs-chart .gs-row, .gs-goalies .gs-row')];
   const segs = [...lg.querySelectorAll('.gs-seg')];
   const pill = lg.querySelector('.finalbar .pill') || {dataset: {}};
   return {card: true, last: true, open: lg.open,
@@ -193,6 +193,9 @@ LAST_GAME_JS = """(ab) => {
       return h.right <= x && x - h.right <= 10 && p.left >= x && p.left - x <= 10 && h.left >= r.left - 1 && p.right <= r.right + 1
         && !!s.querySelector('.hurt').dataset.tip && !!s.querySelector('.helped').dataset.tip; })(),
     tableScore: [...lg.querySelectorAll('table.gs-table th')].some(h => h.textContent.trim() === 'Game Score'),
+    ticks: lg.querySelectorAll('.gs-ticks, .gs-axis').length,
+    goalieBars: lg.querySelectorAll('.gs-goalies .gs-bars, .gs-chart .gs-row.gk').length,
+    goalieText: [...lg.querySelectorAll('.gs-goalies .gs-gk-txt')].map(x => x.textContent.trim()),
     labels: [...lg.querySelectorAll('.gs-bars')].every(b => (b.getAttribute('aria-label') || '').length > 10)};
 }"""
 
@@ -209,24 +212,26 @@ def check_last_game(pg, sample, ab):
         return [f"my teams {ab}: no last game ({got})"]
     sign = lambda v: ("+" if v > 0 else "") + f"{v:.2f}"
     order = [p for p in t["skaters"] if p["pos"] != "D"] + [p for p in t["skaters"] if p["pos"] == "D"]
-    nseg = sum(1 for p in t["skaters"] for v in p["o"] + p["d"] if abs(v) >= 0.005) + sum(1 for g in t["goalies"] if g.get("gsax") is not None)
+    nseg = sum(1 for p in t["skaters"] for v in p["o"] + p["d"] if abs(v) >= 0.005)
     away, home = (t["opp"], ab) if t["home"] else (ab, t["opp"])
     sc = {ab: t["for"], t["opp"]: t["against"]}
     want = {"names": [p["name"] for p in order] + [g["name"] for g in t["goalies"]],
             "vals": [sign(p["gs"]) for p in order] + [sign(g["gsax"]) for g in t["goalies"]],
             "segs": nseg, "segTips": True,
-            "keys": [["Production", True], ["Play driving", True], ["Special teams", True], ["Usage", True], ["Goalie: saved above expected", True]],
+            "keys": [["Production", True], ["Play driving", True], ["Special teams", True], ["Usage", True]],
             "result": [{"W": "Won", "L": "Lost", "OTL": "OT loss"}[t["result"]], True],
             "scores": [f"{away} {sc[away]}", f"{home} {sc[home]}"], "tableRows": len(t["skaters"]), "heads": True, "credit": True, "labels": True,
             # the number beside each name is labeled and defined (John, 2026-10-26)
-            "head": ["Player", "Game Score", True, "Hurt", "Helped"], "sides": True, "valTips": True, "tableScore": True}
+            "head": ["Player", "Game Score", True, "Hurt", "Helped"], "sides": True,
+            "ticks": 0, "goalieBars": 0,
+            "goalieText": [f"Allowed {g['ga']} goal{'' if g['ga'] == 1 else 's'} on {g['shots']} shots. An average goalie would have allowed {g['xga']:.2f} on those shots, so he {'saved' if g['gsax'] >= 0 else 'allowed'} {abs(g['gsax']):.2f} goals more than expected." for g in t["goalies"]], "valTips": True, "tableScore": True}
     out = [f"my teams {ab} last game {k}: {got.get(k)} (want {v})" for k, v in want.items() if got.get(k) != v]
     # the arena palette (John, 2026-10-26): scoreboard gold, blue-line blue, goal-light rose,
     # slate, and a navy goalie bar; lighter steps on the dark theme. Validated with the
     # data-viz checks (all pairs, both themes).
-    swatch = "() => ['prod', 'drive', 'st', 'use', 'gk'].map(k => getComputedStyle(document.querySelector('main .gs-legend .gs-sw.gs-' + k)).backgroundColor)"
-    for scheme, cols in (("light", ["rgb(217, 154, 11)", "rgb(46, 111, 216)", "rgb(201, 71, 142)", "rgb(127, 138, 156)", "rgb(31, 58, 95)"]),
-                         ("dark", ["rgb(191, 138, 16)", "rgb(74, 139, 232)", "rgb(204, 85, 144)", "rgb(141, 152, 170)", "rgb(184, 199, 216)"])):
+    swatch = "() => ['prod', 'drive', 'st', 'use'].map(k => getComputedStyle(document.querySelector('main .gs-legend .gs-sw.gs-' + k)).backgroundColor)"
+    for scheme, cols in (("light", ["rgb(217, 154, 11)", "rgb(46, 111, 216)", "rgb(201, 71, 142)", "rgb(127, 138, 156)"]),
+                         ("dark", ["rgb(191, 138, 16)", "rgb(74, 139, 232)", "rgb(204, 85, 144)", "rgb(141, 152, 170)"])):
         pg.emulate_media(color_scheme=scheme)
         seen = pg.evaluate(swatch)
         if seen != cols:
