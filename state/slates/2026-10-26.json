@@ -7,8 +7,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5509,
-    "away_prob": 0.4491,
+    "home_prob": 0.5449,
+    "away_prob": 0.4551,
     "books": 6
    },
    "home_pillars": {
@@ -34,8 +34,8 @@
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.6176,
-    "away_prob": 0.3824,
+    "home_prob": 0.619,
+    "away_prob": 0.381,
     "books": 6
    },
    "home_pillars": {
