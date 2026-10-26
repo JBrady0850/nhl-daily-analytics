@@ -186,6 +186,12 @@ LAST_GAME_JS = """(ab) => {
       const v = h.querySelector('.gs-val'); return [h.querySelector('.gs-name').textContent.trim(), v.textContent.trim(), !!v.dataset.tip,
         h.querySelector('.hurt').textContent.trim(), h.querySelector('.helped').textContent.trim()]; })(),
     valTips: rows.every(r => !!r.querySelector('.gs-val').dataset.tip),
+    // Hurt sits just left of the zero line and Helped just right of it, both inside the chart
+    sides: (() => { const s = lg.querySelector('.gs-head .gs-sides'); if (!s) return false;
+      const r = s.getBoundingClientRect(), z = parseFloat(s.style.getPropertyValue('--z')), x = r.left + r.width * z / 100;
+      const h = s.querySelector('.hurt').getBoundingClientRect(), p = s.querySelector('.helped').getBoundingClientRect();
+      return h.right <= x && x - h.right <= 10 && p.left >= x && p.left - x <= 10 && h.left >= r.left - 1 && p.right <= r.right + 1
+        && !!s.querySelector('.hurt').dataset.tip && !!s.querySelector('.helped').dataset.tip; })(),
     tableScore: [...lg.querySelectorAll('table.gs-table th')].some(h => h.textContent.trim() === 'Game Score'),
     labels: [...lg.querySelectorAll('.gs-bars')].every(b => (b.getAttribute('aria-label') || '').length > 10)};
 }"""
@@ -213,8 +219,19 @@ def check_last_game(pg, sample, ab):
             "result": [{"W": "Won", "L": "Lost", "OTL": "OT loss"}[t["result"]], True],
             "scores": [f"{away} {sc[away]}", f"{home} {sc[home]}"], "tableRows": len(t["skaters"]), "heads": True, "credit": True, "labels": True,
             # the number beside each name is labeled and defined (John, 2026-10-26)
-            "head": ["Player", "Game Score", True, "\u25c2 Hurt", "Helped \u25b8"], "valTips": True, "tableScore": True}
+            "head": ["Player", "Game Score", True, "Hurt", "Helped"], "sides": True, "valTips": True, "tableScore": True}
     out = [f"my teams {ab} last game {k}: {got.get(k)} (want {v})" for k, v in want.items() if got.get(k) != v]
+    # the arena palette (John, 2026-10-26): scoreboard gold, blue-line blue, goal-light rose,
+    # slate, and a navy goalie bar; lighter steps on the dark theme. Validated with the
+    # data-viz checks (all pairs, both themes).
+    swatch = "() => ['prod', 'drive', 'st', 'use', 'gk'].map(k => getComputedStyle(document.querySelector('main .gs-legend .gs-sw.gs-' + k)).backgroundColor)"
+    for scheme, cols in (("light", ["rgb(217, 154, 11)", "rgb(46, 111, 216)", "rgb(201, 71, 142)", "rgb(127, 138, 156)", "rgb(31, 58, 95)"]),
+                         ("dark", ["rgb(191, 138, 16)", "rgb(74, 139, 232)", "rgb(204, 85, 144)", "rgb(141, 152, 170)", "rgb(184, 199, 216)"])):
+        pg.emulate_media(color_scheme=scheme)
+        seen = pg.evaluate(swatch)
+        if seen != cols:
+            out.append(f"my teams {ab} last game colors ({scheme}): {seen} (want {cols})")
+    pg.emulate_media(color_scheme="light")
     if not got.get("open"):
         out.append(f"my teams {ab}: the last game starts closed")
     return out

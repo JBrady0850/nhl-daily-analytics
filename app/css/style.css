@@ -17,7 +17,7 @@
   --display: "Teko", "Bahnschrift SemiCondensed", "Bahnschrift", "Avenir Next Condensed", "Roboto Condensed", "Arial Narrow", sans-serif-condensed, system-ui, sans-serif;
   --redline: #C8102E; --blueline: #1D4F91; --crease: #8EC3EC; --sb: #07090C; --led: #FFB21A; --ice-hi: #FBFDFF; --ice-lo: #E2ECF5;
   --mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
-  --gs-prod: #2a78d6; --gs-drive: #eb6834; --gs-st: #1baf7a; --gs-use: #8a8880;
+  --gs-prod: #d99a0b; --gs-drive: #2e6fd8; --gs-st: #c9478e; --gs-use: #7f8a9c; --gs-gk: #1f3a5f;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
@@ -28,7 +28,7 @@
     --high: #5fcf8a; --mod: #f0a35a; --low: #a9b6c3; --ok: #5fcf8a; --bad: #ff8a7d; --warn: #f0c060;
     --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3); color-scheme: dark;
     --ice-hi: #13202E; --ice-lo: #0C151F; --crease: #3E78A8;
-    --gs-prod: #3987e5; --gs-drive: #d95926; --gs-st: #199e70; --gs-use: #8f8d85;
+    --gs-prod: #bf8a10; --gs-drive: #4a8be8; --gs-st: #cc5590; --gs-use: #8d98aa; --gs-gk: #b8c7d8;
   }
 }
 * { box-sizing: border-box; }
@@ -195,14 +195,22 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
 .gs-val { font: 600 .9rem/1 var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
 .gs-head { padding: 4px 0 5px; border-bottom: 1px solid var(--line); font: 600 .98rem/1.05 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .gs-head > .gs-val { font: inherit; cursor: help; }
-.gs-sides { position: relative; height: 1.1em; }
-.gs-sides > span { position: absolute; top: 0; white-space: nowrap; }
-.gs-sides > .hurt { left: 0; } .gs-sides > .helped { right: 0; }
-.gs-sides::before { content: ""; position: absolute; top: -2px; bottom: -6px; left: var(--z); width: 1px; background: var(--muted); opacity: .55; }
+.gs-sides { position: relative; height: 26px; }
+/* two arrow tags on either side of the zero line, each pointing away from it: red
+   "Hurt" to the left, green "Helped" to the right (kept inside the chart when the
+   line sits near an edge) */
+.gs-sides > span { position: absolute; top: 50%; transform: translateY(-50%); isolation: isolate; white-space: nowrap; cursor: help;
+  font: 600 .98rem/1 var(--display); letter-spacing: .1em; text-transform: uppercase; padding: 5px 9px 3px; }
+.gs-sides > span::before { content: ""; position: absolute; inset: 0; z-index: -1; }
+.gs-sides > .hurt { right: min(calc(100% - var(--z) + 5px), calc(100% - 4.8em)); padding-left: 17px; color: var(--bad); }
+.gs-sides > .hurt::before { background: color-mix(in srgb, var(--bad) 15%, transparent); clip-path: polygon(11px 0, 100% 0, 100% 100%, 11px 100%, 0 50%); }
+.gs-sides > .helped { left: min(calc(var(--z) + 5px), calc(100% - 5.8em)); padding-right: 17px; color: var(--ok); }
+.gs-sides > .helped::before { background: color-mix(in srgb, var(--ok) 15%, transparent); clip-path: polygon(0 0, calc(100% - 11px) 0, 100% 50%, calc(100% - 11px) 100%, 0 100%); }
+.gs-sides::before { content: ""; position: absolute; top: -4px; bottom: -6px; left: var(--z); width: 2px; margin-left: -.5px; background: var(--muted); opacity: .8; }
 .gs-grp { font: 600 .98rem/1 var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 10px 0 2px; }
 .gs-bars { position: relative; height: 22px; }
 .gs-bars.gk { height: 14px; }
-.gs-bars::before { content: ""; position: absolute; top: -4px; bottom: -4px; left: var(--z); width: 1px; background: var(--muted); opacity: .55; }
+.gs-bars::before { content: ""; position: absolute; top: -4px; bottom: -4px; left: var(--z); width: 1px; background: var(--muted); opacity: .8; }
 .gs-trk { position: absolute; left: 0; right: 0; height: 10px; }
 .gs-trk.o { top: 0; } .gs-trk.d { top: 12px; } .gs-trk.g { top: 2px; }
 .gs-seg { position: absolute; top: 0; bottom: 0; display: block; cursor: help; }
@@ -210,7 +218,7 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
 .gs-seg.neg:not(.endn) { box-shadow: inset 2px 0 0 var(--panel); }
 .gs-seg.endp { border-radius: 0 4px 4px 0; } .gs-seg.endn { border-radius: 4px 0 0 4px; }
 .gs-prod { background: var(--gs-prod); } .gs-drive { background: var(--gs-drive); } .gs-st { background: var(--gs-st); }
-.gs-use { background: var(--gs-use); } .gs-gk { background: var(--muted); }
+.gs-use { background: var(--gs-use); } .gs-gk { background: var(--gs-gk); }
 .gs-axis { margin-top: 2px; }
 .gs-ticks { position: relative; height: 1.2em; font: .74rem/1.2 var(--mono); color: var(--muted); }
 .gs-ticks > span { position: absolute; top: 0; transform: translateX(-50%); }

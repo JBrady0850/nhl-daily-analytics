@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.10.1";
+  const APP_VERSION = "1.10.2";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -608,8 +608,12 @@
     const sk = t.skaters, gk = t.goalies || [];
     const ends = sk.flatMap(p => [p.o, p.d].map(v => [v.filter(x => x < 0).reduce((a, b) => a + b, 0), v.filter(x => x > 0).reduce((a, b) => a + b, 0)]));
     let lo = Math.min(0, ...ends.map(e => e[0]), ...gk.map(g => g.gsax || 0)), hi = Math.max(0, ...ends.map(e => e[1]), ...gk.map(g => g.gsax || 0));
+    // keep the zero line between 30% and 70% of the width, so the Hurt and Helped tags
+    // beside it always fit, even on a phone
     lo = Math.floor(lo * 2) / 2; hi = Math.ceil(hi * 2) / 2;
     if (hi - lo < 1) hi = lo + 1;
+    for (let k = 0; k < 40 && -lo / (hi - lo) > 0.7; k++) hi += 0.5;
+    for (let k = 0; k < 40 && -lo / (hi - lo) < 0.3; k++) lo -= 0.5;
     const span = hi - lo;
     const per = t.last_period && t.last_period !== "REG" ? "/" + t.last_period : "";
     const us = `<span class="fs-team${t.result === "W" ? " w" : ""}"><span>${esc(ab)}</span> <b>${esc(t.for)}</b></span>`, them = `<span class="fs-team${t.result !== "W" ? " w" : ""}"><span>${esc(t.opp)}</span> <b>${esc(t.against)}</b></span>`;
@@ -629,7 +633,7 @@
       <p class="small muted gs-how">Game Score: what each player added to the game, in goals-like units. The number beside each name is his total: above 0 he helped his team, below 0 he hurt it, and 0 is an ordinary game. In the bars, the top one is offense and the bottom one defense; parts right of the line helped, parts left of it hurt.</p>
       <div class="gs-legend">${key}<span class="gs-key" data-tip="${esc(TIPS.gs.Goalie)}"><i class="gs-sw gs-gk"></i>Goalie: saved above expected</span></div>
       <div class="gs-chart"><div class="gs-head"><span class="gs-name">Player</span><span class="gs-val" data-tip="${esc(TIPS.gs["Game Score"])}">Game Score</span>
-      <div class="gs-sides" style="--z:${((0 - lo) / span * 100).toFixed(2)}%"><span class="hurt">&#9666; Hurt</span><span class="helped">Helped &#9656;</span></div></div>
+      <div class="gs-sides" style="--z:${((0 - lo) / span * 100).toFixed(2)}%"><span class="hurt" data-tip="Left of the line: the parts of his game that cost his team.">Hurt</span><span class="helped" data-tip="Right of the line: the parts of his game that helped his team.">Helped</span></div></div>
       ${group("Forwards", fw.map(p => gsRow(p, lo, span)).join(""))}${group("Defense", dm.map(p => gsRow(p, lo, span)).join(""))}${group("Goalie: goals saved above expected", gk.map(g => gsGoalie(g, lo, span)).join(""))}
       <div class="gs-axis"><span class="gs-name"></span><span class="gs-val"></span><div class="gs-ticks">${ticks}</div></div></div>
       ${note}
