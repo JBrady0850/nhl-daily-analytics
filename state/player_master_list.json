@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-10-26",
-"count": 802,
+"count": 804,
 "players": [
 {
 "team": "ANA",
@@ -551,9 +551,9 @@
 },
 {
 "team": "CAR",
-"name": "Skyler Brind'Amour",
-"player_id": "8480291",
-"position": "C",
+"name": "Alexander Nikishin",
+"player_id": "8482100",
+"position": "D",
 "role": "skater"
 },
 {
@@ -3029,6 +3029,13 @@
 },
 {
 "team": "NYI",
+"name": "Kashawn Aitcheson",
+"player_id": "8485352",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYI",
 "name": "Logan Stanley",
 "player_id": "8479378",
 "position": "D",
@@ -3108,6 +3115,13 @@
 "team": "NYI",
 "name": "Ondrej Palat",
 "player_id": "8476292",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Pierre Engvall",
+"player_id": "8478115",
 "position": "L",
 "role": "skater"
 },
@@ -5234,15 +5248,15 @@
 },
 {
 "team": "VGK",
-"name": "Alexander Holtz",
-"player_id": "8482125",
+"name": "Braeden Bowman",
+"player_id": "8483890",
 "position": "R",
 "role": "skater"
 },
 {
 "team": "VGK",
-"name": "Braeden Bowman",
-"player_id": "8483890",
+"name": "Jonas Rondbjerg",
+"player_id": "8480007",
 "position": "R",
 "role": "skater"
 },
