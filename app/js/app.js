@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.10.2";
+  const APP_VERSION = "1.11.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -18,8 +18,8 @@
   const st = { teams: Array.isArray(saved.teams) ? saved.teams.filter(t => TEAMS_ORDER.includes(t)) : [],
     win: saved.win === "season" ? "season" : "last10", tab: saved.tab || "today",
     stand: ["wildcard", "division", "conference", "league"].includes(saved.stand) ? saved.stand : "wildcard",
-    inj: ["all", "today", "mine"].includes(saved.inj) ? saved.inj : "all" };
-  const persist = () => { try { localStorage.setItem(KEY, JSON.stringify({ teams: st.teams, win: st.win, tab: st.tab, stand: st.stand, inj: st.inj })); } catch (e) { /* storage blocked: keep working in memory */ } };
+    inj: ["all", "today", "mine"].includes(saved.inj) ? saved.inj : "all", logos: saved.logos !== false };
+  const persist = () => { try { localStorage.setItem(KEY, JSON.stringify({ teams: st.teams, win: st.win, tab: st.tab, stand: st.stand, inj: st.inj, logos: st.logos })); } catch (e) { /* storage blocked: keep working in memory */ } };
   let D = window.NDA_DATA || null;
 
   // ---------- helpers ----------
@@ -47,7 +47,11 @@
 
   // ---------- graphics: team colors, badges, rink art ----------
   // Team colors are each club's primary and secondary colors, shown as plain
-  // swatches behind the team abbreviation. No league or team logos are used.
+  // swatches behind the team abbreviation. Each badge also asks the NHL's own image
+  // server for the club's official logo (John, 2026-10-26); the logo replaces the
+  // badge once it has loaded, and the badge stays when it cannot load (offline, a
+  // blocked or missing image, or logos turned off in Settings). No logo files are
+  // copied into this app.
   // Checked on 2026-10-23 against teamcolorcodes.com, usteamcolors.com and ESPN's
   // public team feed: Anaheim's orange is the 2024 rebrand's (#FC4C02), Utah's
   // Mountain Blue is #6CACE3, and black is the clubs' #000000 (Los Angeles uses #111111).
@@ -76,7 +80,33 @@
     if (near(a, h)) h = "#DCE6EF";
     return [a, h];
   }
-  const badge = (ab, cls = "", focus = false) => `<span class="tm ${cls}" style="${teamVars(ab)}" data-tip="${esc(teamName(ab))}."${focus ? ' tabindex="0"' : ""}>${esc(ab)}</span>`;
+  const LOGOS = { ok: new Set(), bad: new Set() };
+  const logoImg = (ab, lightOnly) => {
+    const t = (D && D.teams || {})[ab] || {};
+    if (!st.logos || !t.logo || LOGOS.bad.has(ab)) return "";
+    const dark = !lightOnly && t.logo_dark ? `<source srcset="${esc(t.logo_dark)}" media="(prefers-color-scheme: dark)">` : "";
+    return `<picture class="tm-pic">${dark}<img class="tm-logo" src="${esc(t.logo)}" alt="" referrerpolicy="no-referrer" decoding="async" data-ab="${esc(ab)}"></picture>`;
+  };
+  // lightOnly: the badge sits on a light field in both themes (the gold pick banner)
+  const badge = (ab, cls = "", focus = false, lightOnly = false) => {
+    const img = logoImg(ab, lightOnly);
+    return `<span class="tm ${cls}${img && LOGOS.ok.has(ab) ? " logo-on" : ""}" style="${teamVars(ab)}" data-tip="${esc(teamName(ab))}."${focus ? ' tabindex="0"' : ""}>${img}<span class="tm-ab">${esc(ab)}</span></span>`;
+  };
+  // a logo that loads replaces its badge; one that fails is dropped for the session
+  document.addEventListener("load", e => {
+    const i = e.target;
+    if (!i.classList || !i.classList.contains("tm-logo")) return;
+    LOGOS.ok.add(i.dataset.ab);
+    const t = i.closest(".tm"); if (t) t.classList.add("logo-on");
+  }, true);
+  document.addEventListener("error", e => {
+    const i = e.target;
+    if (!i.classList || !i.classList.contains("tm-logo")) return;
+    LOGOS.bad.add(i.dataset.ab);
+    const t = i.closest(".tm"), p = i.closest("picture");
+    if (t) t.classList.remove("logo-on");
+    if (p) p.remove();
+  }, true);
   const icon = (name, cls = "ico") => `<svg class="${cls}" aria-hidden="true" focusable="false"><use href="#i-${name}"></use></svg>`;
   const head = (ico, title) => `<header class="pagehead"><span class="ph-ico">${icon(ico)}</span><h1>${title}</h1></header>`;
   // a regulation rink seen from above, 200 by 85 feet at 10 units to the foot
@@ -338,6 +368,7 @@
     team: ab => { st.teams = mine(ab) ? st.teams.filter(t => t !== ab) : st.teams.concat(ab).sort((a, b) => TEAMS_ORDER.indexOf(a) - TEAMS_ORDER.indexOf(b)); render(); },
     clearTeams: () => { st.teams = []; render(); },
     win: w => { st.win = w === "season" ? "season" : "last10"; render(); },
+    logos: v => { st.logos = v !== "off"; if (st.logos) LOGOS.bad.clear(); render(); },
     stand: v => { st.stand = ["wildcard", "division", "conference", "league"].includes(v) ? v : "wildcard"; render(); },
     inj: v => { st.inj = ["all", "today", "mine"].includes(v) ? v : "all"; render(); },
     reset: () => { if (window.confirm("Clear your saved teams and settings in this browser?")) { try { localStorage.removeItem(KEY); localStorage.removeItem(HINT); } catch (e) { } location.reload(); } },
@@ -425,7 +456,7 @@
   // Hockey names its three stars after every game; the pick is today's first star.
   const pickBanner = (ab, p) => `<div class="pickline">
       <span class="pk-star" aria-hidden="true">${icon("star", "pk-ico")}</span>
-      <span class="pk-body"><span class="pk-tag"><span class="pill mypick">My pick</span> ${badge(ab)}</span><span class="pick">${esc(teamName(ab))}</span></span>
+      <span class="pk-body"><span class="pk-tag"><span class="pill mypick">My pick</span> ${badge(ab, "", false, true)}</span><span class="pick">${esc(teamName(ab))}</span></span>
       <span class="pick-pct"><b>${pct(p)}</b><span>to win</span></span></div>`;
   // a finished game: the final score on a scoreboard strip under the banner, and
   // whether the pick won or lost (overtime and shootout results count)
@@ -863,6 +894,8 @@
     const lines = `${esc(ln.daily_faceoff || 0)} teams from Daily Faceoff, ${esc(ln.shift_chart || 0)} rebuilt from the last game's shift chart${(ln.missing || []).length ? ", missing: " + ln.missing.map(esc).join(", ") : ""}`;
     return `${head("settings", "Settings")}
       <section class="card"><h2 style="margin-top:0">My Teams</h2>${chooser()}<p class="row" style="margin-top:8px"><span class="small muted">Stats window:</span> ${winToggle()}</p></section>
+      <section class="card"><h2 style="margin-top:0">Team logos</h2><p class="row"><span class="seg" role="group" aria-label="Team logos"><button data-act="logos" data-arg="on" aria-pressed="${st.logos}">Show logos</button><button data-act="logos" data-arg="off" aria-pressed="${!st.logos}">Badges only</button></span></p>
+        <p class="small muted">Official team logos load from the NHL's own image server (assets.nhle.com). A team whose logo cannot load keeps its color badge. With Badges only, the app asks the NHL's server for nothing.</p></section>
       <section class="card"><h2 style="margin-top:0">Get the app</h2>${installSteps()}</section>
       <section class="card"><h2 style="margin-top:0">Today's data</h2><dl class="kv"><dt>Slate</dt><dd>${esc(longDate(D.date))}, ${esc(D.slate.game_count)} games</dd>
         <dt>Built</dt><dd>${esc(localStamp(D.generated_utc))}</dd>
@@ -873,7 +906,7 @@
         <dt>Betting lines</dt><dd>${esc(S.market_games || 0)} games</dd><dt>Lines</dt><dd>${lines}</dd>
         <dt>Model</dt><dd>RAA model ${esc(D.model_version)}, app ${APP_VERSION}</dd></dl>
         ${(D.problems || []).length ? `<p class="small" style="color:var(--warn)">Notes from this build: ${D.problems.map(esc).join("; ")}</p>` : ""}</section>
-      <section class="card"><h2 style="margin-top:0">Privacy</h2><p class="small">This app has no accounts and sends nothing about you anywhere. Your teams and settings are stored only in this browser. <button class="btn small warn" data-act="reset">Clear my settings</button></p></section>`;
+      <section class="card"><h2 style="margin-top:0">Privacy</h2><p class="small">This app has no accounts and sends nothing about you anywhere. Your teams and settings are stored only in this browser. Team logos come from the NHL's image server, which sees each request as any website would; choose Badges only above to turn that off. <button class="btn small warn" data-act="reset">Clear my settings</button></p></section>`;
   }
 
   // ---------- help ----------

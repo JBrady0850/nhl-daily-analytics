@@ -106,6 +106,14 @@ h1 { font-size: 2.5rem; font-weight: 600; line-height: .95; margin: 4px 0 6px; }
 .tm.big { font-size: 1.55rem; border-radius: 7px; }
 .tm.xl { font-size: 1.9rem; min-width: 2.7em; padding: .22em .4em .06em; border-radius: 9px; box-shadow: inset 0 -5px 0 var(--c2); }
 .tm.sm { font-size: .98rem; min-width: 2.7em; }
+/* the official logo, once loaded, replaces the badge's color swatch; the abbreviation
+   stays in the page for screen readers and copy-paste */
+.tm-pic { display: none; }
+.tm.logo-on { position: relative; background: none; box-shadow: none; padding: 0; min-width: 2.2em; }
+.tm.logo-on > .tm-pic { display: inline-flex; align-items: center; justify-content: center; }
+.tm.logo-on > .tm-ab { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.tm-logo { display: block; height: 1.5em; width: auto; max-width: 2.6em; object-fit: contain; }
+.tm.big .tm-logo { height: 1.85em; max-width: 2.7em; } .tm.xl .tm-logo { height: 2em; max-width: 2.8em; } .tm.sm .tm-logo { height: 1.35em; }
 @media (prefers-color-scheme: dark) { .tm { box-shadow: inset 0 -3px 0 var(--c2), 0 0 0 1px rgba(255,255,255,.18); } }
 .teamline { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 
@@ -161,6 +169,7 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
 .pk-tag { display: flex; align-items: center; gap: 6px; }
 .pickline .pill.mypick { background: var(--star-ink); color: var(--star); font-size: .84rem; letter-spacing: .14em; padding: 2px 8px 0; }
 .pickline .tm { font-size: .98rem; min-width: 2.6em; box-shadow: inset 0 -3px 0 var(--c2), 0 0 0 1.5px var(--star-ink); }
+.pickline .tm.logo-on { box-shadow: none; min-width: 2em; }
 .pickline .pick { font: 600 1.55rem/.92 var(--display); letter-spacing: .02em; padding-top: 3px; overflow-wrap: anywhere; }
 .pick-pct { display: flex; flex-direction: column; align-items: flex-end; line-height: 1; }
 .pick-pct > b { font: 600 2.1rem/.86 var(--display); letter-spacing: .02em; font-variant-numeric: tabular-nums; padding-top: 5px; }

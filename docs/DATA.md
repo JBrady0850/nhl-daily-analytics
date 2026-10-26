@@ -20,7 +20,7 @@ no wager, account or chat wording.
 | `date` | text | The slate date, `YYYY-MM-DD`, on the league's US Central clock. |
 | `season` | text | NHL season id, for example `20262027`. |
 | `model_version` | text | Version of the prediction model. |
-| `teams` | object | All 32 teams by abbreviation: `name`, `conference`, `division`, `record` (W-L-OTL), `pts`, `games_played`. |
+| `teams` | object | All 32 teams by abbreviation: `name`, `conference`, `division`, `record` (W-L-OTL), `pts`, `games_played`, and `logo` and `logo_dark` (the official primary logo on the NHL's image server, for light and dark backgrounds; the app loads it from there and keeps its own badge when it cannot). |
 | `standings` | object | League standings from the NHL standings feed. See below. |
 | `slate` | object | Today's games. See below. |
 | `lines` | object | Lines and pairs for all 32 teams. See below. |

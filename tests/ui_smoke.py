@@ -456,7 +456,7 @@ def check_update_status(b, http_url, file_url, sample):
         return handler
 
     def opened(when, url=http_url, tz="America/Chicago"):
-        ctx = b.new_context(viewport={"width": 1280, "height": 900}, timezone_id=tz,
+        ctx = new_ctx(b, viewport={"width": 1280, "height": 900}, timezone_id=tz,
                             locale="en-US", service_workers="block")
         state = {"new": False}
         ctx.route("**/data/latest.json*", serve(state))
@@ -570,10 +570,89 @@ SW_JS = """async () => {
 }"""
 
 
+LOGO_HOST = "https://assets.nhle.com/**"
+# a stand-in logo: a plain circle, served in place of the NHL's image so the test
+# never leaves this machine (no NHL logo is stored in this repository)
+STUB_LOGO = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="5" fill="#123456"/></svg>'
+
+
+def new_ctx(b, **kw):
+    """A browser context that cannot reach the NHL's image server, so every badge
+    keeps its color swatch (the fallback); check_logos serves a stand-in instead."""
+    ctx = b.new_context(**kw)
+    ctx.route(LOGO_HOST, lambda r: r.abort())
+    return ctx
+
+
+LOGO_JS = """() => ({
+  big: [...document.querySelectorAll('main article.game .match .tm')].map(t => [t.textContent.trim(), t.classList.contains('logo-on'),
+    !!t.querySelector('img.tm-logo') && t.querySelector('img.tm-logo').naturalWidth > 0, getComputedStyle(t).backgroundColor]),
+  pick: [...document.querySelectorAll('main .pickline .tm')].map(t => [t.classList.contains('logo-on'), !!t.querySelector('source')]),
+  src: (document.querySelector('main article.game .match img.tm-logo') || {}).src || ''})"""
+
+
+def check_logos(b, url, sample):
+    """Official logos (John, 2026-10-26): every badge whose logo loads shows the logo
+    and keeps its abbreviation in the page; the gold pick banner always uses the light
+    logo; a logo that fails leaves the color badge; Badges only in Settings asks for
+    no logo at all and is remembered."""
+    out = []
+    asked = []
+    ctx = b.new_context(viewport={"width": 1280, "height": 900})
+    def serve(route):
+        asked.append(route.request.url)
+        ab = route.request.url.rsplit("/", 1)[-1].split("_")[0]
+        if ab == "NYR":                      # one team's logo is missing: its badge must stay
+            route.fulfill(status=404, body="")
+        else:
+            route.fulfill(status=200, content_type="image/svg+xml", body=STUB_LOGO)
+    ctx.route(LOGO_HOST, serve)
+    pg = ctx.new_page()
+    pg.goto(url)
+    pg.wait_for_timeout(600)
+    got = pg.evaluate(LOGO_JS)
+    games = sample["slate"]["games"]
+    want_teams = [ab for g in games for ab in (g["away"], g["home"])]
+    if [x[0] for x in got["big"]] != want_teams:
+        out.append(f"logos: game badges lost their abbreviations {[x[0] for x in got['big']]}")
+    for ab, on, img, bg in got["big"]:
+        if ab == "NYR":
+            if on or img or bg in ("rgba(0, 0, 0, 0)", "transparent"):
+                out.append(f"logos: NYR's missing logo did not fall back to its badge ({on}, {img}, {bg})")
+        elif not (on and img):
+            out.append(f"logos: {ab} shows no logo ({on}, {img})")
+    bad = [p for p in got["pick"] if not p[0] or p[1]]
+    if bad or not got["pick"]:
+        out.append(f"logos: pick banner logos {got['pick']} (want the light logo, loaded)")
+    if "assets.nhle.com/logos/nhl/svg/" not in got["src"] or not got["src"].endswith("_light.svg"):
+        out.append(f"logos: unexpected logo address {got['src']}")
+    # a dark theme asks for the dark logo on the cards
+    pg.emulate_media(color_scheme="dark")
+    pg.reload(); pg.wait_for_timeout(600)
+    dark = pg.evaluate("() => (document.querySelector('main article.game .match img.tm-logo') || {}).currentSrc || ''")
+    if not dark.endswith("_dark.svg"):
+        out.append(f"logos: dark theme loaded {dark}, want the _dark.svg logo")
+    pg.emulate_media(color_scheme="light")
+    # Badges only: no logo requested, badges shown, the choice remembered
+    pg.click('#tabs button[data-tab="settings"]')
+    if not pg.locator('main button[data-act="logos"][data-arg="off"]').count():
+        ctx.close()
+        return out + ["logos: Settings has no Badges only choice"]
+    pg.click('main button[data-act="logos"][data-arg="off"]')
+    asked.clear()
+    pg.reload(); pg.wait_for_timeout(400)
+    pg.click('#tabs button[data-tab="today"]'); pg.wait_for_timeout(300)
+    off = pg.evaluate("() => [document.querySelectorAll('main img.tm-logo').length, document.querySelectorAll('main .tm.logo-on').length]")
+    if off != [0, 0] or asked:
+        out.append(f"logos: Badges only still shows or asks for logos ({off}, {len(asked)} requests)")
+    ctx.close()
+    return out
+
+
 def check_sw_cache(b, http_url):
     """The offline copy keeps one entry per file: checking for newer data (which adds
     ?ts= to the address) must not leave a new 300 KB copy behind every time."""
-    ctx = b.new_context(viewport={"width": 1280, "height": 900})
+    ctx = new_ctx(b, viewport={"width": 1280, "height": 900})
     pg = ctx.new_page()
     pg.goto(http_url)
     pg.wait_for_function("navigator.serviceWorker && navigator.serviceWorker.controller", timeout=15000)
@@ -601,13 +680,14 @@ def main():
         b = pw.chromium.launch()
         for url in urls:
             for name, w, h, mob in SIZES:
-                ctx = b.new_context(viewport={"width": w, "height": h}, is_mobile=mob, has_touch=mob)
+                ctx = new_ctx(b, viewport={"width": w, "height": h}, is_mobile=mob, has_touch=mob)
                 # player pages are stubbed: the test never leaves this machine
                 ctx.route("https://www.nhl.com/**", lambda r: r.fulfill(status=200, content_type="text/html", body="<title>NHL.com stub</title>"))
                 pg = ctx.new_page()
                 errs = []
                 pg.on("pageerror", lambda e: errs.append(str(e)))
-                pg.on("console", lambda m: errs.append(m.text) if m.type == "error" else None)
+                # a logo the browser cannot fetch is the badge fallback working, not a script error
+                pg.on("console", lambda m: errs.append(m.text) if m.type == "error" and "assets.nhle.com" not in (m.location or {}).get("url", "") else None)
                 pg.goto(url)
                 pg.click('#tabs button[data-tab="myteams"]')
                 pg.click('button.chip[data-arg="FLA"]')
@@ -740,7 +820,7 @@ def main():
         alt["dfs"]["goalies"] = list(reversed(alt["dfs"]["goalies"]))   # the app sorts, whatever the file order
         with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
             fh.write("window.NDA_DATA=" + json.dumps(alt) + ";\n")
-        ctx = b.new_context(viewport={"width": 1280, "height": 900})
+        ctx = new_ctx(b, viewport={"width": 1280, "height": 900})
         pg = ctx.new_page()
         pg.goto("file://" + os.path.join(noted, "index.html"))
         for t in ("today", "matchups"):
@@ -751,6 +831,8 @@ def main():
         pg.click('#tabs button[data-tab="settings"]')
         if "11 players from Daily Faceoff's injured lists" not in pg.inner_text("main"):
             fails.append("Settings does not name the injury source")
+        fails.extend(check_logos(b, urls[0], sample))
+        fails.extend(check_logos(b, urls[1], sample))
         fails.extend(f"file order reversed: {m}" for m in check_dfs_goalies(pg, len(alt["dfs"]["goalies"])))
         # a team in a division spot shows Top 3 on My Teams
         pg.click('#tabs button[data-tab="myteams"]')

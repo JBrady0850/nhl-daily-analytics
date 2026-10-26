@@ -82,6 +82,9 @@ def test_standings_from_reads_the_nhl_feed():
         _team("CCC", "Eastern", "Metropolitan", 3, pointPctg=None, wildcardSequence=1, streakCode=None, streakCount=None)]}
     names, block = standings_from(feed)
     assert set(names) == {"AAA", "BBB", "CCC"} and names["AAA"]["record"] == "6-3-1"
+    # official logos stay on the NHL's image server: the primary mark for light and dark backgrounds
+    assert names["AAA"]["logo"] == "https://assets.nhle.com/logos/nhl/svg/AAA_light.svg"
+    assert names["AAA"]["logo_dark"] == "https://assets.nhle.com/logos/nhl/svg/AAA_dark.svg"
     assert block["as_of_utc"] == "2026-10-23T21:00:00Z" and block["wildcard_format"] is True
     rows = block["teams"]
     assert [r["team"] for r in rows] == ["AAA", "BBB", "CCC"]
@@ -444,6 +447,25 @@ def test_injury_ids_come_from_the_nhl_search_and_are_cached(tmp_path):
     again = [{"team": "ANA", "name": "Troy Terry", "player_id": None, "position": None}]
     asyncio.run(resolve_injury_ids(f, again, str(cache)))
     assert f.calls == ["Troy Terry"] and again[0]["player_id"] == "8478873"     # second run: from the cache
+
+
+def test_sample_teams_name_their_logo_on_the_nhl_server():
+    d = json.load(open(SAMPLE, encoding="utf-8"))
+    for ab, t in d["teams"].items():
+        assert t["logo"] == f"https://assets.nhle.com/logos/nhl/svg/{ab}_light.svg"
+        assert t["logo_dark"] == f"https://assets.nhle.com/logos/nhl/svg/{ab}_dark.svg"
+
+
+def test_no_logo_files_are_copied_into_the_repository():
+    # the app shows the NHL's logos from the NHL's server; the repository holds none
+    found = []
+    for base, dirs, files in os.walk(ROOT):
+        dirs[:] = [x for x in dirs if x not in (".git", "node_modules", "__pycache__")]
+        for f in files:
+            low = f.lower()
+            if low.endswith(".svg") and ("_light" in low or "_dark" in low or "logo" in low):
+                found.append(os.path.join(base, f))
+    assert found == []
 
 
 def test_sample_injury_list_is_complete():

@@ -51,6 +51,8 @@ def main():
             scale = 2 if mob else 1
             ctx = b.new_context(viewport={"width": w, "height": h}, is_mobile=mob, device_scale_factor=scale,
                                 color_scheme="light", timezone_id="America/Chicago", locale="en-US")
+            # the README pictures show the app's own badges, never the NHL's logos
+            ctx.route("https://assets.nhle.com/**", lambda r: r.abort())
             pg = ctx.new_page()
             pg.goto(url)
             pg.click('#tabs button[data-tab="myteams"]')
@@ -73,6 +75,8 @@ def main():
         if not only or "lastgame-desktop.png" in only:
             ctx = b.new_context(viewport={"width": 1100, "height": 900}, color_scheme="light",
                                 timezone_id="America/Chicago", locale="en-US")
+            # the README pictures show the app's own badges, never the NHL's logos
+            ctx.route("https://assets.nhle.com/**", lambda r: r.abort())
             pg = ctx.new_page()
             pg.goto(url)
             pg.click('#tabs button[data-tab="myteams"]')

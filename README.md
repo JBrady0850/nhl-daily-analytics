@@ -175,6 +175,7 @@ All free and public. No keys, accounts or paid services.
 | Source | Used for |
 | --- | --- |
 | NHL web and stats feeds (`api-web.nhle.com`, `api.nhle.com/stats`) | Schedule, scores, standings, rosters, team and player game logs, play-by-play, shift charts, and the sportsbook lines the NHL publishes in its score feed |
+| NHL image server (`assets.nhle.com`) | The official team logos, which each visitor's browser loads from the NHL (not stored here) |
 | NHL player search (`search.d3.nhle.com`) | The NHL id of an injured player who is off the current roster (long-term or non-roster injured reserve), looked up once and remembered |
 | [MoneyPuck](https://moneypuck.com) season data | Expected goals, goals saved above expected, high-danger save percentage |
 | [MoneyPuck](https://moneypuck.com) shot data (updated nightly) | The expected-goal value of each shot in a finished game, for the Game Score on My Teams |
@@ -253,13 +254,16 @@ teams or forgets the chosen view.
 ## Credits
 
 Data from the NHL's public web and stats feeds, MoneyPuck.com, Daily Faceoff and
-Hockey-Reference.com. Team names and abbreviations belong to the NHL and its teams.
+Hockey-Reference.com. Team names, abbreviations and logos belong to the NHL and its teams.
 The Game Score on My Teams is this app's own model, built on the public Game Score
 formula by Dom Luszczyszyn (Hockey Graphs, 2016), with expected goals from MoneyPuck.com.
 
 The artwork (the rink, the scoreboard, the empty net, the icons) is original to this
-project and uses no league or team logos and no player photos. Team badges are the team
-abbreviation on the club's colors. Headings use the Teko typeface by the Teko Project
+project and uses no player photos. The live app shows each club's official logo, loaded
+straight from the NHL's own image server (`assets.nhle.com`); no logo file is copied into
+this repository, and the pictures in this README show the app's own team badges (the
+abbreviation on the club's colors), which the app also shows whenever a logo cannot load
+or when **Settings > Team logos > Badges only** is chosen. Headings use the Teko typeface by the Teko Project
 Authors, under the SIL Open Font License 1.1 (`app/css/Teko-OFL.txt`).
 
 Report a problem or suggest an idea on the

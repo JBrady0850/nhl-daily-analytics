@@ -4,8 +4,13 @@
 
 - There is no account, no sign-in and no password.
 - There are no ads, no analytics, no cookies and no tracking scripts.
-- The app loads only its own files from GitHub Pages: the page, its style sheet, its
+- The app loads its own files from GitHub Pages: the page, its style sheet, its
   scripts, its icons and the day's data file.
+- It also shows each team's official logo, which your browser loads from the NHL's own
+  image server (`assets.nhle.com`). Like any website, that server sees the request
+  (your IP address and browser); the app asks it not to send the address of the page
+  (`no-referrer`) and sends nothing else. **Settings > Team logos > Badges only** turns
+  this off, and the app then asks the NHL's server for nothing.
 - The teams you follow, the stats window you picked (Last 10 or Season) and the last
   tab you opened are saved in your browser's local storage on your device. They never
   leave your device. **Settings > Clear my settings** removes them.

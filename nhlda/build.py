@@ -28,6 +28,11 @@ from .lines import all_team_lines
 from . import gamescore as GS
 
 FORMAT = "nhl-daily-analytics/1"
+# Official team logos stay on the NHL's own image server; the app shows them from
+# there and falls back to its own badges. Primary marks for light and dark backgrounds,
+# checked for all 32 teams on 2026-10-26 (the standings feed names Washington's
+# secondary mark, so the address is built from the abbreviation instead).
+LOGO_BASE = "https://assets.nhle.com/logos/nhl/svg/"
 APP_DATA_VERSION = 1
 log = logging.getLogger("nhlda.build")
 
@@ -114,7 +119,8 @@ def standings_from(d):
         names[ab] = {"name": (t.get("teamName") or {}).get("default", ab),
                      "conference": t.get("conferenceName"), "division": t.get("divisionName"),
                      "record": f"{t.get('wins', 0)}-{t.get('losses', 0)}-{t.get('otLosses', 0)}",
-                     "pts": t.get("points"), "games_played": t.get("gamesPlayed")}
+                     "pts": t.get("points"), "games_played": t.get("gamesPlayed"),
+                     "logo": f"{LOGO_BASE}{ab}_light.svg", "logo_dark": f"{LOGO_BASE}{ab}_dark.svg"}
         rows.append({
             "team": ab, "conference": t.get("conferenceName"), "division": t.get("divisionName"),
             "gp": t.get("gamesPlayed"), "w": t.get("wins"), "l": t.get("losses"), "otl": t.get("otLosses"),
