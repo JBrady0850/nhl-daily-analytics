@@ -1,7 +1,7 @@
 {
 "season": "20262027",
-"generated": "2026-10-26",
-"count": 804,
+"generated": "2026-10-27",
+"count": 802,
 "players": [
 {
 "team": "ANA",
@@ -3029,13 +3029,6 @@
 },
 {
 "team": "NYI",
-"name": "Kashawn Aitcheson",
-"player_id": "8485352",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "NYI",
 "name": "Logan Stanley",
 "player_id": "8479378",
 "position": "D",
@@ -3115,13 +3108,6 @@
 "team": "NYI",
 "name": "Ondrej Palat",
 "player_id": "8476292",
-"position": "L",
-"role": "skater"
-},
-{
-"team": "NYI",
-"name": "Pierre Engvall",
-"player_id": "8478115",
 "position": "L",
 "role": "skater"
 },
