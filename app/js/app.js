@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.11.1";
+  const APP_VERSION = "1.12.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -372,8 +372,10 @@
     stand: v => { st.stand = ["wildcard", "division", "conference", "league"].includes(v) ? v : "wildcard"; render(); },
     inj: v => { st.inj = ["all", "today", "mine"].includes(v) ? v : "all"; render(); },
     reset: () => { if (window.confirm("Clear your saved teams and settings in this browser?")) { try { localStorage.removeItem(KEY); localStorage.removeItem(HINT); } catch (e) { } location.reload(); } },
-    install: () => { if (installEvt) { installEvt.prompt(); installEvt = null; } else setTab("settings"); },
-    hideInstall: () => { try { localStorage.setItem(HINT, "hide"); } catch (e) { } showInstall(); },
+    install: () => getApp(),
+    getApp: () => getApp(),
+    closeApp: () => closeSheet(),
+    hideInstall: () => { try { localStorage.setItem(HINT, String(Date.now() + SNOOZE_MS)); } catch (e) { } showInstall(); },
     refresh: () => refresh(true)
   };
 
@@ -860,25 +862,95 @@
   }
 
   // ---------- settings ----------
-  let installEvt = null;
+  // Install (1.12.0). Android, Chrome and Edge hand the page an install prompt
+  // (beforeinstallprompt), so one tap installs. Safari, iOS and Firefox have no such
+  // prompt: the app shows the steps instead, in place, for the device in hand.
+  let installEvt = null, installedNow = false;
+  const SNOOZE_MS = 14 * 864e5;            // Not now hides the banner for 14 days
   const isStandalone = () => window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
   const appleTouch = () => /iPad|iPhone|iPod/.test(navigator.userAgent || "") || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const deviceKind = () => appleTouch() ? "ios" : /Android/.test(navigator.userAgent || "") ? "android" : "computer";
+  const canInstall = () => location.protocol.startsWith("http") && !isStandalone() && !installedNow;
+  const uiIco = id => `<span class="ui-ico" aria-hidden="true"><svg focusable="false"><use href="#i-${id}"></use></svg></span>`;
+  function snoozedUntil() {
+    let v = null; try { v = localStorage.getItem(HINT); } catch (e) { }
+    if (v === "hide") {                   // 1.11.1 and earlier hid the banner for good: now 14 days from today
+      v = String(Date.now() + SNOOZE_MS);
+      try { localStorage.setItem(HINT, v); } catch (e) { }
+    }
+    return Number(v) || 0;
+  }
+  function howTo(os) {
+    if (os === "ios") return `<section class="howto" data-os="ios"><h3>iPhone or iPad</h3>
+      <p class="small muted">Apple does not let a website install itself, so it takes three taps.</p>
+      <ol class="steps-list"><li>In Safari, tap <b>Share</b> ${uiIco("share")}. If Share is not showing, tap <span class="kbd" aria-label="More">•••</span> beside the address bar first (iOS 26), then Share.</li>
+      <li>Scroll down and tap <b>Add to Home Screen</b> ${uiIco("addhome")}.</li>
+      <li>If you see <b>Open as Web App</b>, leave it on. Tap <b>Add</b>.</li></ol>
+      <p class="small"><b>Chrome or another browser</b> (iOS 16.4 or later): tap <b>Share</b> ${uiIco("share")}, then <b>Add to Home Screen</b>.</p></section>`;
+    if (os === "android") return `<section class="howto" data-os="android"><h3>Android</h3>
+      <ol class="steps-list"><li><b>Chrome:</b> ${installEvt ? "tap <b>Install now</b> below, or " : ""}tap the menu <span class="kbd" aria-label="Menu">⋮</span>, then <b>Install app</b> or <b>Add to Home screen</b>.</li>
+      <li><b>Other browsers:</b> open the browser menu and pick <b>Install</b> or <b>Add to Home screen</b>.</li></ol></section>`;
+    return `<section class="howto" data-os="computer"><h3>Computer</h3>
+      <ol class="steps-list"><li><b>Chrome or Edge:</b> click the install icon at the right end of the address bar${installEvt ? ", or <b>Install now</b> below" : ""}.</li>
+      <li><b>Safari on a Mac</b> (macOS Sonoma or later): choose File, then <b>Add to Dock</b>.</li></ol></section>`;
+  }
+  const deviceFirst = () => { const os = deviceKind(); return [os].concat(["ios", "android", "computer"].filter(x => x !== os)); };
+  const installNow = () => installEvt && canInstall() ? '<p><button class="btn" data-act="getApp">Install now</button></p>' : "";
   function installSteps() {
     const hosted = location.protocol.startsWith("http");
     const here = hosted ? location.href.split("#")[0].split("?")[0] : PUBLIC_URL;
     const onPublic = here.startsWith(PUBLIC_URL);
-    return `<p>Open <a href="${esc(here)}">${esc(here)}</a> on any phone, tablet or computer. Nothing to sign up for.</p>
+    return `${isStandalone() ? "<p><b>You are using the installed app.</b> Share the link or the code below to put it on another device.</p>" : ""}
+      <p>Open <a href="${esc(here)}">${esc(here)}</a> on any phone, tablet or computer. Nothing to sign up for.</p>
       ${!hosted || onPublic ? `<img class="qr" src="qr-app.png" width="160" height="160" alt="QR code for ${esc(PUBLIC_URL)}">` : ""}
-      <ol class="steps-list"><li><b>iPhone or iPad:</b> open the link in Safari, tap Share, then Add to Home Screen.</li>
-      <li><b>Android:</b> open it in Chrome, tap the menu, then Install app or Add to Home screen.</li>
-      <li><b>Computer:</b> in Chrome or Edge, use the install icon in the address bar.</li></ol>
-      ${installEvt ? '<p><button class="btn" data-act="install">Install now</button></p>' : ""}`;
+      ${deviceFirst().map(howTo).join("")}
+      ${installNow()}`;
+  }
+  function openSheet() {
+    const d = $("#getapp");
+    if (!d) return;
+    const [os, ...rest] = deviceFirst();
+    d.innerHTML = `<div class="sheet-in"><div class="sheet-head"><h2 id="getapp-title">Install NHL Daily</h2><button class="btn small ghost" data-act="closeApp">Close</button></div>
+      <p class="small muted">It opens full screen from its own icon, like any other app, and keeps working with the last data it saved when you are offline.</p>
+      ${howTo(os)}${installNow()}
+      <details class="other-dev"><summary>Other devices</summary>${rest.map(howTo).join("")}</details></div>`;
+    decorate(d);
+    if (typeof d.showModal === "function") { if (!d.open) d.showModal(); }
+    else d.setAttribute("open", "");
+  }
+  function closeSheet() {
+    const d = $("#getapp");
+    if (!d || !d.open) return;
+    if (typeof d.close === "function") d.close(); else d.removeAttribute("open");
+  }
+  function getApp() {
+    if (installEvt && canInstall()) {
+      const e = installEvt;
+      installEvt = null;                   // a prompt can be shown only once
+      closeSheet();
+      try {
+        const p = e.prompt();
+        if (p && p.catch) p.catch(() => openSheet());
+        Promise.resolve(e.userChoice).then(c => { if (c && c.outcome === "accepted") installed(); else showInstall(); }).catch(() => {});
+      } catch (err) { openSheet(); }
+      showInstall();
+      return;
+    }
+    openSheet();
+  }
+  function installed() {
+    installedNow = true;
+    installEvt = null;
+    closeSheet();
+    showInstall();
+    if (st.tab === "settings") render();
   }
   function showInstall() {
+    const btn = $("#getapp-btn");
+    if (btn) btn.hidden = !canInstall();
     const box = $("#install");
-    let hide = false; try { hide = localStorage.getItem(HINT) === "hide"; } catch (e) { }
     const touch = appleTouch() || /Android/.test(navigator.userAgent || "");
-    if (hide || isStandalone() || !(installEvt || touch) || !location.protocol.startsWith("http")) { box.hidden = true; return; }
+    if (!canInstall() || snoozedUntil() > Date.now() || !(installEvt || touch)) { box.hidden = true; return; }
     box.hidden = false;
     box.innerHTML = `<span>Add NHL Daily to your home screen for one-tap access.</span><span class="row"><button class="btn small" data-act="install">${installEvt ? "Install" : "How"}</button><button class="btn small ghost" data-act="hideInstall">Not now</button></span>`;
     decorate(box);
@@ -955,6 +1027,8 @@
   // ---------- start ----------
   $("#ver").textContent = APP_VERSION;
   window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; showInstall(); if (st.tab === "settings") render(); });
+  window.addEventListener("appinstalled", () => { installed(); toast("Installed. Open NHL Daily from your home screen or app list."); });
+  { const d = $("#getapp"); if (d) d.addEventListener("click", e => { if (e.target === d) closeSheet(); }); }   // a click on the dimmed page closes the steps
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
   setTab(st.tab);
   decorate(document.querySelector(".brand"));

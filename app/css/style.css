@@ -18,6 +18,7 @@
   --redline: #C8102E; --blueline: #1D4F91; --crease: #8EC3EC; --sb: #07090C; --led: #FFB21A; --ice-hi: #FBFDFF; --ice-lo: #E2ECF5;
   --mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
   --gs-prod: #d99a0b; --gs-drive: #2e6fd8; --gs-st: #c9478e; --gs-use: #7f8a9c;
+  --ios-blue: #0a66d6;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
@@ -29,6 +30,7 @@
     --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3); color-scheme: dark;
     --ice-hi: #13202E; --ice-lo: #0C151F; --crease: #3E78A8;
     --gs-prod: #bf8a10; --gs-drive: #4a8be8; --gs-st: #cc5590; --gs-use: #8d98aa;
+    --ios-blue: #4ea1ff;
   }
 }
 * { box-sizing: border-box; }
@@ -332,6 +334,37 @@ tr.lead td { background: color-mix(in srgb, var(--high) 9%, var(--panel)); }
 #toast.show { opacity: .95; }
 .install { margin: 12px max(16px, calc((100% - 1048px) / 2)) 0; padding: 12px 14px; background: var(--panel); border: 1px solid var(--gold); border-radius: var(--radius); box-shadow: var(--shadow); display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; }
 .install[hidden] { display: none; }
+/* Install app (1.12.0): a gold button on the board beside the name, and the steps in a
+   sheet (a bottom sheet on phones) with the device's own buttons drawn in the text */
+.getapp { margin-left: 6px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 999px; cursor: pointer;
+  background: var(--gold); color: #1d1600; padding: 6px 13px 4px 10px; min-height: 36px; white-space: nowrap;
+  font: 600 1.12rem/1 var(--display); letter-spacing: .05em; box-shadow: 0 0 0 2px rgba(255,255,255,.22); }
+.getapp .ico { width: 18px; height: 18px; stroke-width: 2.3; }
+.getapp span { padding-top: 2px; }
+.getapp:hover { filter: brightness(1.08); }
+.getapp:focus-visible { outline: 3px solid var(--board-ink); outline-offset: 2px; }
+.getapp[hidden] { display: none; }
+dialog.sheet { border: 0; padding: 0; width: min(520px, calc(100% - 24px)); max-height: calc(100% - 24px); overflow: auto;
+  border-radius: 14px; background: var(--panel); color: var(--ink); box-shadow: 0 18px 48px rgba(0,0,0,.35); }
+dialog.sheet::backdrop { background: rgba(5, 14, 26, .58); }
+.sheet-in { padding: 16px 18px max(18px, env(safe-area-inset-bottom)); }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 3px solid var(--gold); padding-bottom: 8px; margin-bottom: 8px; }
+.sheet-head h2 { margin: 0; }
+.howto { margin-top: 12px; }
+.howto h3 { margin: 0 0 2px; font: 600 1.35rem/1.1 var(--display); letter-spacing: .04em; }
+.howto p { margin: 4px 0; }
+.ui-ico { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; vertical-align: -6px; margin: 0 1px;
+  border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ios-blue); }
+.ui-ico svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.kbd { display: inline-block; min-width: 24px; padding: 0 5px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg);
+  text-align: center; font-weight: 700; line-height: 1.35; color: var(--ios-blue); }
+.other-dev { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 8px; }
+.other-dev summary { cursor: pointer; font-weight: 600; }
+@media (max-width: 360px) { .getapp-x { display: none; } }
+@media (max-width: 600px) {
+  dialog.sheet { margin: auto 0 0; width: 100%; max-width: 100%; max-height: 88%; border-radius: 16px 16px 0 0; }
+  .getapp { margin-left: auto; }
+}
 .qr { width: 160px; height: 160px; image-rendering: pixelated; background: #fff; border-radius: 8px; padding: 6px; }
 .steps-list { margin: 6px 0 0; padding-left: 1.4em; } .steps-list li { margin: 4px 0; }
 dl.gloss dt { font-weight: 700; margin-top: 8px; } dl.gloss dd { margin: 2px 0 0; }
@@ -364,7 +397,7 @@ abbr.tip { font-style: normal; }
 #tipbox[hidden] { display: none; }
 #tipbox b { display: block; font: 700 .9rem/1.3 var(--display); letter-spacing: .02em; margin-bottom: 2px; }
 
-@media print { .install, .top, .noprint, #toast, .foot, #tipbox { display: none !important; } body { background: #fff; color: #000; } .card { box-shadow: none; break-inside: avoid; } }
+@media print { .install, .sheet, .top, .noprint, #toast, .foot, #tipbox { display: none !important; } body { background: #fff; color: #000; } .card { box-shadow: none; break-inside: avoid; } }
 @media (max-width: 600px) {
   .top { position: static; flex-direction: column; align-items: stretch; gap: 6px; padding-bottom: 0; } main { padding: 12px; } h1 { font-size: 2.1rem; }
   .brand { font-size: 1.55rem; }

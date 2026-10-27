@@ -24,11 +24,24 @@ Scan the code with a phone or tablet camera to open the app.
 
 ### Add it to your home screen
 
-- **iPhone or iPad (Safari):** open the link, tap the Share button, then **Add to Home Screen**.
-- **Android (Chrome):** open the link, tap the three-dot menu, then **Install app** or **Add to Home screen**.
-- **Windows or Mac (Chrome or Edge):** open the link and click the install icon at the right end of the address bar.
+Tap the gold **Install app** button beside the name at the top of the app. It shows
+the steps for the device you are using, or opens your browser's own install box when
+the browser has one.
 
-The app then opens full screen like any other app. The Settings tab repeats these steps.
+- **iPhone or iPad (Safari):** tap the Share button, then **Add to Home Screen**, then
+  **Add**. On iOS 26, if Share is not showing, tap the three dots beside the address bar
+  first. If you see **Open as Web App**, leave it on.
+- **iPhone or iPad (Chrome or another browser, iOS 16.4 or later):** tap Share, then
+  **Add to Home Screen**.
+- **Android (Chrome, Edge or Samsung Internet):** tap **Install app** (one tap opens the
+  browser's install box), or tap the three-dot menu, then **Install app** or
+  **Add to Home screen**.
+- **Windows or Mac (Chrome or Edge):** click **Install app**, or the install icon at the
+  right end of the address bar.
+- **Mac (Safari, macOS Sonoma or later):** choose File, then **Add to Dock**.
+
+Opened from its icon, the app runs full screen like any other app and shows no Install app button.
+The Settings tab repeats these steps. **Not now** on the reminder banner hides it for 14 days.
 
 ## Pick your teams
 

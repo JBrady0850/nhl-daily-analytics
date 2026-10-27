@@ -7,7 +7,8 @@ column heading and abbreviation shows its definition on hover (mouse), on tap
 each of its four views (Wild Card, Division, Conference, League) and remembers the
 chosen view. With a fake clock it also checks the "next update" line: the countdown,
 the due and late states, the automatic checks while an update is due, and the saved
-copy note."""
+copy note, and the install button, banner and steps on Android, iPhone, a computer,
+the installed app and a downloaded copy."""
 import functools
 import http.server
 import json
@@ -654,6 +655,185 @@ def check_logos(b, url, sample):
     return out
 
 
+# Install app (1.12.0). A real install prompt from the test browser is held back so
+# each case is the same every run; FAKE_BIP plays Android's prompt.
+BLOCK_BIP = "window.addEventListener('beforeinstallprompt', e => { if (!e.ndaFake) e.stopImmediatePropagation(); }, true);"
+FAKE_BIP = """() => { window.__prompted = 0; const e = new Event('beforeinstallprompt', {cancelable: true}); e.ndaFake = true;
+  e.prompt = () => { window.__prompted++; return Promise.resolve(); };
+  e.userChoice = Promise.resolve({outcome: 'accepted', platform: 'web'});
+  window.dispatchEvent(e); return e.defaultPrevented; }"""
+STANDALONE = "Object.defineProperty(Navigator.prototype, 'standalone', {configurable: true, get: () => true});"
+IPHONE_UA = ("Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 "
+             "(KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1")
+ANDROID_UA = ("Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 "
+              "(KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36")
+INSTALL_JS = """() => { const btn = document.getElementById('getapp-btn'), dlg = document.getElementById('getapp'), ban = document.getElementById('install');
+  const vis = el => !!el && !el.hidden && el.getClientRects().length > 0, open = !!dlg && dlg.open;
+  const first = open ? dlg.querySelector('.howto') : null, r = open ? dlg.getBoundingClientRect() : null;
+  return {btn: vis(btn), btnText: btn ? btn.textContent.trim() : '', banner: vis(ban), bannerText: ban ? ban.textContent.trim() : '',
+    open: open, first: first ? first.dataset.os : '', text: open ? dlg.innerText : '',
+    share: open ? dlg.querySelectorAll('.howto[data-os="ios"] use[href="#i-share"]').length : 0,
+    box: r ? [r.left, r.right, r.top, r.bottom] : null, vw: document.documentElement.clientWidth, vh: innerHeight,
+    sw: document.documentElement.scrollWidth,
+    tab: (document.querySelector('#tabs [aria-selected="true"]') || {dataset: {}}).dataset.tab,
+    hint: localStorage.getItem('nda:installHint')}; }"""
+DAY_MS = 86400000
+
+
+def _until(hint):
+    try:
+        return float(hint)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def check_install(b, http_url, file_url):
+    """Install app (John, 2026-10-27): a header button stays until the app runs from
+    the home screen; Android's own install prompt opens in one tap; an iPhone gets the
+    steps in place (Share icon drawn, Safari on iOS 26 and Chrome); Not now hides the
+    banner for 14 days, not forever; a downloaded copy (file://) offers no install."""
+    out, errs = [], []
+
+    def opened(url, ua=None, w=390, h=844, mob=True, init=()):
+        kw = dict(viewport={"width": w, "height": h}, is_mobile=mob, has_touch=mob)
+        if ua:
+            kw["user_agent"] = ua
+        ctx = new_ctx(b, **kw)
+        ctx.add_init_script(BLOCK_BIP)
+        for js in init:
+            ctx.add_init_script(js)
+        pg = ctx.new_page()
+        pg.on("pageerror", lambda e: errs.append(str(e)))
+        pg.goto(url)
+        pg.wait_for_timeout(150)
+        return ctx, pg
+
+    def state(pg):
+        return pg.evaluate(INSTALL_JS)
+
+    # Android: the browser's own install prompt, one tap from the header button
+    ctx, pg = opened(http_url, ANDROID_UA, 412, 915)
+    if not pg.evaluate(FAKE_BIP):
+        out.append("install: the app did not keep Android's install prompt for its own button")
+    pg.wait_for_timeout(50)
+    s = state(pg)
+    if not s["btn"] or "Install" not in s["btnText"]:
+        out.append(f"install: Android has no Install app button in the header ({s['btn']}, {s['btnText']!r})")
+    elif not s["banner"] or "Install" not in s["bannerText"]:
+        out.append(f"install: Android banner has no Install button ({s['bannerText']!r})")
+    else:
+        pg.tap("#getapp-btn")
+        pg.wait_for_timeout(80)
+        if pg.evaluate("window.__prompted") != 1:
+            out.append("install: the Android header button did not open the browser's install prompt")
+        pg.evaluate("window.dispatchEvent(new Event('appinstalled'))")
+        pg.wait_for_timeout(50)
+        s = state(pg)
+        if s["btn"] or s["banner"]:
+            out.append(f"install: button or banner still shown after the install ({s['btn']}, {s['banner']})")
+    ctx.close()
+
+    # iPhone: no install prompt exists, so the steps open in place
+    ctx, pg = opened(http_url, IPHONE_UA)
+    s = state(pg)
+    if not s["btn"]:
+        out.append("install: iPhone has no Install app button in the header")
+    else:
+        pg.tap("#getapp-btn")
+        pg.wait_for_timeout(80)
+        s = state(pg)
+        if not s["open"] or s["first"] != "ios":
+            out.append(f"install: the iPhone button did not open the iPhone steps ({s['open']}, {s['first']!r})")
+        else:
+            for need in ("Add to Home Screen", "Share", "•••", "Open as Web App", "Chrome", "16.4"):
+                if need not in s["text"]:
+                    out.append(f"install: the iPhone steps miss {need!r}")
+            if s["share"] < 1:
+                out.append("install: the iPhone steps do not draw the Share icon")
+            left, right, top, bottom = s["box"]
+            if left < 0 or right > s["vw"] or top < 0 or bottom > s["vh"] + 1:
+                out.append(f"install: the steps run off the screen {s['box']} ({s['vw']}x{s['vh']})")
+            pg.tap("#getapp [data-act=closeApp]")
+            pg.wait_for_timeout(50)
+            if state(pg)["open"]:
+                out.append("install: Close did not close the steps")
+    s = state(pg)
+    if not s["banner"] or pg.locator("#install [data-act=install]").count() != 1:
+        out.append("install: the iPhone banner is missing")
+    else:
+        # the banner's How opens the same steps in place (1.11.1 jumped to Settings)
+        pg.tap("#install [data-act=install]")
+        pg.wait_for_timeout(80)
+        s = state(pg)
+        if not s["open"] or s["tab"] != "today":
+            out.append(f"install: the banner's How did not open the steps in place (open {s['open']}, tab {s['tab']})")
+        pg.keyboard.press("Escape")
+        pg.wait_for_timeout(50)
+        pg.click('#tabs button[data-tab="today"]')
+        # Not now: hidden for 14 days, the header button stays, then the banner returns
+        pg.tap("#install [data-act=hideInstall]")
+        pg.wait_for_timeout(50)
+        s, now = state(pg), pg.evaluate("Date.now()")
+        if s["banner"] or not (now + 13.9 * DAY_MS < _until(s["hint"]) < now + 14.1 * DAY_MS):
+            out.append(f"install: Not now should hide the banner for 14 days (banner {s['banner']}, saved {s['hint']!r})")
+        if not s["btn"]:
+            out.append("install: Not now also removed the header button")
+        pg.evaluate("localStorage.setItem('nda:installHint', String(Date.now() - 1000))")
+        pg.reload()
+        pg.wait_for_timeout(150)
+        if not state(pg)["banner"]:
+            out.append("install: the banner did not return after its 14 days")
+        pg.evaluate("localStorage.setItem('nda:installHint', 'hide')")    # an old, permanent Not now
+        pg.reload()
+        pg.wait_for_timeout(150)
+        s = state(pg)
+        if s["banner"] or _until(s["hint"]) < pg.evaluate("Date.now()") + 13.9 * DAY_MS:
+            out.append(f"install: an old Not now did not become 14 days ({s['banner']}, {s['hint']!r})")
+    pg.click('#tabs button[data-tab="settings"]')
+    txt = pg.inner_text("main")
+    if "Add to Home Screen" not in txt or "Chrome" not in txt or not pg.locator('main use[href="#i-share"]').count():
+        out.append("install: Settings > Get the app lacks the new iPhone steps")
+    ctx.close()
+
+    # the narrowest phones: the header button must not push the page sideways
+    ctx, pg = opened(http_url, IPHONE_UA, 320, 640)
+    s = state(pg)
+    if not s["btn"] or s["sw"] > s["vw"] + 1:
+        out.append(f"install: 320 px phone: button {s['btn']}, page width {s['sw']} > {s['vw']}")
+    ctx.close()
+
+    # running from the home screen: nothing left to install
+    ctx, pg = opened(http_url, IPHONE_UA, init=[STANDALONE])
+    s = state(pg)
+    if s["btn"] or s["banner"]:
+        out.append(f"install: the installed app still offers an install ({s['btn']}, {s['banner']})")
+    ctx.close()
+
+    # a computer without an install prompt (Safari, Firefox): the computer steps first
+    ctx, pg = opened(http_url, None, 1280, 900, False)
+    s = state(pg)
+    if not s["btn"]:
+        out.append("install: a computer has no Install app button")
+    else:
+        pg.click("#getapp-btn")
+        pg.wait_for_timeout(80)
+        s = state(pg)
+        if not s["open"] or s["first"] != "computer" or "Add to Dock" not in s["text"]:
+            out.append(f"install: the computer steps did not open first ({s['open']}, {s['first']!r})")
+        pg.mouse.click(4, 450)                 # outside the steps
+        pg.wait_for_timeout(50)
+        if state(pg)["open"]:
+            out.append("install: a click outside the steps did not close them")
+    ctx.close()
+
+    # a downloaded copy cannot be installed
+    ctx, pg = opened(file_url, None, 1280, 900, False)
+    if state(pg)["btn"]:
+        out.append("install: a downloaded copy (file://) offers an install it cannot do")
+    ctx.close()
+    return out + [f"install: script error {e}" for e in errs[:3]]
+
+
 def check_sw_cache(b, http_url):
     """The offline copy keeps one entry per file: checking for newer data (which adds
     ?ts= to the address) must not leave a new 300 KB copy behind every time."""
@@ -813,6 +993,7 @@ def main():
                 ctx.close()
         fails.extend(check_update_status(b, urls[0], urls[1], sample))
         fails.extend(check_sw_cache(b, urls[0]))
+        fails.extend(check_install(b, urls[0], urls[1]))
         # a build note (here: the injury report fell back to Daily Faceoff) shows on
         # Today and Matchups, and Settings names the source actually used
         noted = os.path.join(tmp, "noted")

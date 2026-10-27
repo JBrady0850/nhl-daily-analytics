@@ -11,8 +11,9 @@
   (your IP address and browser); the app asks it not to send the address of the page
   (`no-referrer`) and sends nothing else. **Settings > Team logos > Badges only** turns
   this off, and the app then asks the NHL's server for nothing.
-- The teams you follow, the stats window you picked (Last 10 or Season) and the last
-  tab you opened are saved in your browser's local storage on your device. They never
+- The teams you follow, the stats window you picked (Last 10 or Season), the last
+  tab you opened and, if you tap **Not now** on the install banner, the date it may
+  show again are saved in your browser's local storage on your device. They never
   leave your device. **Settings > Clear my settings** removes them.
 - Links to Daily Faceoff, NHL.com and other sources open those sites in a new tab, and
   player names open the player's NHL.com page in a separate window. The app sends
