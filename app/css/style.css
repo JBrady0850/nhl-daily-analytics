@@ -196,17 +196,18 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
 .lastgame:not([open]) > summary::before { content: "\25B8"; }
 .lg-title { font: 600 1.4rem/1 var(--display); letter-spacing: .02em; }
 .finalbar.team { margin: 2px 0 8px; border-top: 2px solid #26303C; border-radius: 10px; }
-.gs-how { margin: 0 0 6px; }
+.gs-how { margin: 0 0 6px; color: var(--muted); } .gs-how b { color: var(--ink); font-weight: 600; }
 .gs-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0 0 6px; font-size: .86rem; color: var(--muted); }
 .gs-key { display: inline-flex; align-items: center; gap: 6px; cursor: help; }
 .gs-sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
-.gs-head, .gs-row { display: grid; grid-template-columns: minmax(6.5em, 10.5em) 4.6em minmax(0, 1fr); align-items: center; gap: 0 8px; }
+.gs-head, .gs-row { display: grid; grid-template-columns: minmax(6.5rem, 10.5rem) 4.6rem minmax(0, 1fr); align-items: center; gap: 0 8px; }
 .gs-row { padding: 3px 0; border-bottom: 1px solid color-mix(in srgb, var(--line) 55%, transparent); }
 .gs-name { font-size: .88rem; line-height: 1.15; overflow-wrap: anywhere; }
 .gs-val { font: 600 .9rem/1 var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
 .gs-head { padding: 4px 0 5px; border-bottom: 1px solid var(--line); font: 600 .98rem/1.05 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .gs-head > .gs-val { font: inherit; cursor: help; }
-.gs-sides { position: relative; height: 26px; }
+.gs-chart { --gs-lab: 3.4rem; }
+.gs-sides { position: relative; height: 26px; margin-left: calc(var(--gs-lab) + 6px); }
 /* two arrow tags on either side of the zero line, each pointing away from it: red
    "Hurt" to the left, green "Helped" to the right (kept inside the chart when the
    line sits near an edge) */
@@ -219,11 +220,16 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
 .gs-sides > .helped::before { background: color-mix(in srgb, var(--ok) 15%, transparent); clip-path: polygon(0 0, calc(100% - 11px) 0, 100% 50%, calc(100% - 11px) 100%, 0 100%); }
 .gs-sides::before { content: ""; position: absolute; top: -4px; bottom: -6px; left: var(--z); width: 2px; margin-left: -.5px; background: var(--muted); opacity: .8; }
 .gs-grp { font: 600 .98rem/1 var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 10px 0 2px; }
-.gs-bars { position: relative; height: 22px; }
-.gs-bars.gk { height: 14px; }
-.gs-bars::before { content: ""; position: absolute; top: -4px; bottom: -4px; left: var(--z); width: 1px; background: var(--muted); opacity: .8; }
-.gs-trk { position: absolute; left: 0; right: 0; height: 10px; }
-.gs-trk.o { top: 0; } .gs-trk.d { top: 12px; } .gs-trk.g { top: 2px; }
+/* each row: the names of its two bars (1.12.1), then the plot with the zero line */
+.gs-bars { display: flex; gap: 6px; align-items: stretch; }
+.gs-od { flex: none; width: var(--gs-lab); position: relative; height: 25px; font: 600 .8rem/11px var(--display); letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted); text-align: right; white-space: nowrap; }
+.gs-od > span { position: absolute; right: 0; }
+.gs-od > .o { top: 0; } .gs-od > .d { top: 14px; }
+.gs-plot { position: relative; flex: 1; min-width: 0; height: 25px; }
+.gs-plot::before { content: ""; position: absolute; top: -4px; bottom: -4px; left: var(--z); width: 1px; background: var(--muted); opacity: .8; }
+.gs-trk { position: absolute; left: 0; right: 0; height: 11px; }
+.gs-trk.o { top: 0; } .gs-trk.d { top: 14px; }
 .gs-seg { position: absolute; top: 0; bottom: 0; display: block; cursor: help; }
 .gs-seg:not(.neg):not(.endp) { box-shadow: inset -2px 0 0 var(--panel); }
 .gs-seg.neg:not(.endn) { box-shadow: inset 2px 0 0 var(--panel); }
@@ -360,7 +366,11 @@ dialog.sheet::backdrop { background: rgba(5, 14, 26, .58); }
   text-align: center; font-weight: 700; line-height: 1.35; color: var(--ios-blue); }
 .other-dev { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 8px; }
 .other-dev summary { cursor: pointer; font-weight: 600; }
-@media (max-width: 360px) { .getapp-x { display: none; } }
+@media (max-width: 360px) { .getapp-x { display: none; }
+  .gs-chart { --gs-lab: 3.1rem; }
+  .gs-sides > span { font-size: .8rem; letter-spacing: .06em; padding: 4px 5px 2px; }
+  .gs-sides > .hurt { padding-left: 13px; right: min(calc(100% - var(--z) + 5px), calc(100% - 3.6em)); }
+  .gs-sides > .helped { padding-right: 13px; left: min(calc(var(--z) + 5px), calc(100% - 4.5em)); } }
 @media (max-width: 600px) {
   dialog.sheet { margin: auto 0 0; width: 100%; max-width: 100%; max-height: 88%; border-radius: 16px 16px 0 0; }
   .getapp { margin-left: auto; }

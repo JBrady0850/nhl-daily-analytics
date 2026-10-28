@@ -197,7 +197,21 @@ LAST_GAME_JS = """(ab) => {
     ticks: lg.querySelectorAll('.gs-ticks, .gs-axis').length,
     goalieBars: lg.querySelectorAll('.gs-goalies .gs-bars, .gs-chart .gs-row.gk').length,
     goalieText: [...lg.querySelectorAll('.gs-goalies .gs-gk-txt')].map(x => x.textContent.trim()),
-    labels: [...lg.querySelectorAll('.gs-bars')].every(b => (b.getAttribute('aria-label') || '').length > 10)};
+    labels: [...lg.querySelectorAll('.gs-bars')].every(b => (b.getAttribute('aria-label') || '').length > 10),
+    // every player's two bars are named on the row: Offense beside the top bar, Defense
+    // beside the bottom one, left of the chart (John, 2026-10-27: "two bars are not explained")
+    odLabels: (() => { const rs = [...lg.querySelectorAll('.gs-chart .gs-row')]; if (!rs.length) return false;
+      const mid = x => (x.top + x.bottom) / 2;
+      return rs.every(r => { const l = [...r.querySelectorAll('.gs-od > span')], o = r.querySelector('.gs-trk.o'), d = r.querySelector('.gs-trk.d');
+        if (l.length !== 2 || !o || !d || l[0].textContent.trim() !== 'Offense' || l[1].textContent.trim() !== 'Defense') return false;
+        const a = l[0].getBoundingClientRect(), b = l[1].getBoundingClientRect(), to = o.getBoundingClientRect(), td = d.getBoundingClientRect();
+        return a.width > 0 && Math.abs(mid(a) - mid(to)) <= 3 && Math.abs(mid(b) - mid(td)) <= 3 && a.right <= to.left + 1 && b.right <= td.left + 1; }); })(),
+    // the zero line of every row sits under the header's zero line
+    zeroAligned: (() => { const s = lg.querySelector('.gs-head .gs-sides'); if (!s) return false;
+      const r = s.getBoundingClientRect(), zx = r.left + r.width * parseFloat(s.style.getPropertyValue('--z')) / 100;
+      const plots = [...lg.querySelectorAll('.gs-chart .gs-row .gs-plot')];
+      return plots.length > 0 && plots.every(p => { const q = p.getBoundingClientRect(); return Math.abs(q.left + q.width * parseFloat(p.style.getPropertyValue('--z')) / 100 - zx) <= 1.5; }); })(),
+    how: (lg.querySelector('.gs-how') || {textContent: ''}).textContent};
 }"""
 
 
@@ -224,9 +238,11 @@ def check_last_game(pg, sample, ab):
             "scores": [f"{away} {sc[away]}", f"{home} {sc[home]}"], "tableRows": len(t["skaters"]), "heads": True, "credit": True, "labels": True,
             # the number beside each name is labeled and defined (John, 2026-10-26)
             "head": ["Player", "Game Score", True, "Hurt", "Helped"], "sides": True,
-            "ticks": 0, "goalieBars": 0,
+            "ticks": 0, "goalieBars": 0, "odLabels": True, "zeroAligned": True,
             "goalieText": [f"Allowed {g['ga']} goal{'' if g['ga'] == 1 else 's'} on {g['shots']} shots. An average goalie would have allowed {g['xga']:.2f} on those shots, so he {'saved' if g['gsax'] >= 0 else 'allowed'} {abs(g['gsax']):.2f} goals more than expected." for g in t["goalies"]], "valTips": True, "tableScore": True}
     out = [f"my teams {ab} last game {k}: {got.get(k)} (want {v})" for k, v in want.items() if got.get(k) != v]
+    if not got.get("how", "").startswith("Two bars per player"):
+        out.append(f"my teams {ab} last game: the text above the chart does not open by explaining the two bars ({got.get('how', '')[:60]!r})")
     # the arena palette (John, 2026-10-26): scoreboard gold, blue-line blue, goal-light rose,
     # slate, and a navy goalie bar; lighter steps on the dark theme. Validated with the
     # data-viz checks (all pairs, both themes).

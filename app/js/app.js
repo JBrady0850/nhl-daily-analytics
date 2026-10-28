@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.12.0";
+  const APP_VERSION = "1.12.1";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -625,8 +625,9 @@
   function gsRow(p, lo, span) {
     const say = (lab, v) => `${lab} ${GS_PARTS.map(([, n], i) => `${n.toLowerCase()} ${signed(v[i])}`).join(", ")}`;
     return `<div class="gs-row"><span class="gs-name">${pname(p.name, p.id)}</span><b class="gs-val" data-tip="Game Score ${signed(p.gs)}: offense ${signed(p.o.reduce((a, b) => a + b, 0))} plus defense ${signed(p.d.reduce((a, b) => a + b, 0))}. Above 0 he helped his team; below 0 he hurt it.">${signed(p.gs)}</b>
-      <div class="gs-bars" style="--z:${((0 - lo) / span * 100).toFixed(2)}%" role="img" aria-label="${esc(p.name)}: ${signed(p.gs)}. ${esc(say("Offense", p.o))}. ${esc(say("Defense", p.d))}.">
-      <span class="gs-trk o">${gsTrack(p.o, "offense", lo, span)}</span><span class="gs-trk d">${gsTrack(p.d, "defense", lo, span)}</span></div></div>`;
+      <div class="gs-bars" role="img" aria-label="${esc(p.name)}: ${signed(p.gs)}. ${esc(say("Offense", p.o))}. ${esc(say("Defense", p.d))}.">
+      <span class="gs-od" aria-hidden="true"><span class="o">Offense</span><span class="d">Defense</span></span>
+      <div class="gs-plot" style="--z:${((0 - lo) / span * 100).toFixed(2)}%"><span class="gs-trk o">${gsTrack(p.o, "offense", lo, span)}</span><span class="gs-trk d">${gsTrack(p.d, "defense", lo, span)}</span></div></div></div>`;
   }
   // the goalie is measured in goals saved, not Game Score, so he gets a plain sentence
   // instead of a bar on the skaters' scale
@@ -663,7 +664,7 @@
     const note = t.inputs === "full" ? "" : `<p class="small muted">Play driving, special teams and usage were not available for this game (the shift charts or shot values were missing), so only production is scored.</p>`;
     return `<details class="lastgame" open><summary><span class="lg-title">Last game</span> <span class="small muted">${esc(shortDay(t.date))}, ${t.home ? "vs" : "at"} ${esc(t.opp)}</span></summary>
       ${strip}
-      <p class="small muted gs-how">Game Score: what each player added to the game, in goals-like units. The number beside each name is his total: above 0 he helped his team, below 0 he hurt it, and 0 is an ordinary game. In the bars, the top one is offense and the bottom one defense; parts right of the line helped, parts left of it hurt.</p>
+      <p class="small gs-how"><b>Two bars per player: the top bar is his offense</b> (what he created: goals, assists, shots, chances), <b>the bottom bar his defense</b> (what he stopped: blocks, chances against). Parts right of the center line helped his team; parts left of it hurt. The number beside each name is his Game Score, the two bars added together, in goals-like units: above 0 he helped, below 0 he hurt, 0 is an ordinary game.</p>
       <div class="gs-legend">${key}</div>
       <div class="gs-chart"><div class="gs-head"><span class="gs-name">Player</span><span class="gs-val" data-tip="${esc(TIPS.gs["Game Score"])}">Game Score</span>
       <div class="gs-sides" style="--z:${((0 - lo) / span * 100).toFixed(2)}%"><span class="hurt" data-tip="Left of the line: the parts of his game that cost his team.">Hurt</span><span class="helped" data-tip="Right of the line: the parts of his game that helped his team.">Helped</span></div></div>

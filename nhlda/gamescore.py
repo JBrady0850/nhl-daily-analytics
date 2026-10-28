@@ -111,18 +111,67 @@ def shot_values(rows):
     return out
 
 
-def _xg_of(xg, per, t, shooter):
-    for dt_ in (0, -1, 1, -2, 2):
-        v = xg.get((per, t + dt_, shooter))
-        if v is not None:
-            return v
-    return None
+def goalie_values(rows):
+    """MoneyPuck's own expected goals against each goalie, {goalie id: xG}, from its
+    shot rows for one game (shootouts left out). This is the figure MoneyPuck shows."""
+    out = defaultdict(float)
+    for r in rows:
+        try:
+            if (r.get("event") in ("SHOT", "GOAL", "MISS") and int(float(r.get("period") or 0)) <= 4
+                    and int(float(r.get("goalieIdForShot") or 0))):
+                out[int(float(r["goalieIdForShot"]))] += float(r["xGoal"])
+        except (KeyError, TypeError, ValueError):
+            continue
+    return dict(out)
 
 
-def breakdown(pbp, shift_rows, shots, rates, quality):
+def official_counts(box):
+    """The NHL boxscore's own numbers, {player id: {...}}: shots on goal, blocks, goals,
+    assists and time on ice for skaters, shots and goals against for goalies."""
+    out = {}
+    for side in ("homeTeam", "awayTeam"):
+        for grp in ("forwards", "defense", "goalies"):
+            for p in ((box or {}).get("playerByGameStats") or {}).get(side, {}).get(grp, []) or []:
+                try:
+                    out[int(p["playerId"])] = {
+                        "sog": p.get("sog"), "blk": p.get("blockedShots"), "g": p.get("goals"), "a": p.get("assists"),
+                        "toi": _secs(p.get("toi")) if p.get("toi") else None,
+                        "shots": p.get("shotsAgainst"), "ga": p.get("goalsAgainst")}
+                except (KeyError, TypeError, ValueError):
+                    continue
+    return out
+
+
+def match_shots(plays, shots):
+    """{index in plays: MoneyPuck xG} for every unblocked shot, each MoneyPuck shot
+    used once: exact seconds first, then up to 2 seconds apart."""
+    want = []
+    for i, e in enumerate(plays):
+        if e.get("typeDescKey") in ("goal", "shot-on-goal", "missed-shot"):
+            d = e.get("details") or {}
+            want.append((i, e["periodDescriptor"]["number"], _secs(e.get("timeInPeriod")),
+                         d.get("scoringPlayerId") or d.get("shootingPlayerId")))
+    out, used = {}, set()
+    for offsets in ((0,), (-1, 1, -2, 2)):
+        for i, per, t, shooter in want:
+            if i in out:
+                continue
+            for dt_ in offsets:
+                key = (per, t + dt_, shooter)
+                if key in shots and key not in used:
+                    used.add(key)
+                    out[i] = shots[key]
+                    break
+    return out
+
+
+def breakdown(pbp, shift_rows, shots, rates, quality, box=None, goalie_xg=None):
     """Score every player of both teams for one finished game. shift_rows: the NHL
     shift chart rows (empty when not published); shots: {(period, sec, shooter): xG}
-    (empty when not published). Returns {"inputs": "full"|"production", "teams": {...}}."""
+    (empty when not published); box: the NHL boxscore, whose own shots on goal, blocks,
+    time on ice and goalie shots and goals against are used where the play-by-play
+    disagrees (1.12.1); goalie_xg: MoneyPuck's {goalie id: xG}.
+    Returns {"inputs": "full"|"production", "teams": {...}}."""
     home, away = pbp["homeTeam"], pbp["awayTeam"]
     hid, aid = home["id"], away["id"]
     abbr = {hid: home["abbrev"], aid: away["abbrev"]}
@@ -136,6 +185,7 @@ def breakdown(pbp, shift_rows, shots, rates, quality):
     # who is on the ice each second: a player counts at second t of a shift that runs (start, end]
     onice = defaultdict(lambda: defaultdict(set))
     toi = defaultdict(int)
+    seen = defaultdict(set)                   # (player, period) -> seconds already counted
     for s in shift_rows or []:
         if s.get("typeCode") not in (517, None) or not s.get("startTime") or not s.get("endTime"):
             continue
@@ -143,13 +193,19 @@ def breakdown(pbp, shift_rows, shots, rates, quality):
         a, b = _secs(s["startTime"]), _secs(s["endTime"])
         if pid not in roster or roster[pid]["pos"] == "G":
             continue
+        # the NHL's shift chart sometimes lists a shift twice, or two shifts that
+        # overlap; each second on the ice counts once (1.12.1: the TOI shown was the
+        # sum of the rows, up to 50 seconds too high)
         for t in range(a + 1, b + 1):
             onice[per][t].add(pid)
-        toi[pid] += max(0, b - a)
+            if t not in seen[(pid, per)]:
+                seen[(pid, per)].add(t)
+                toi[pid] += 1
 
     plays = [e for e in pbp.get("plays") or [] if (e.get("periodDescriptor") or {}).get("periodType") != "SO"]
     st = defaultdict(lambda: defaultdict(float))
-    for e in plays:
+    xg_at = match_shots(plays, shots or {})
+    for i, e in enumerate(plays):
         k, d = e.get("typeDescKey"), e.get("details") or {}
         per, t = e["periodDescriptor"]["number"], _secs(e.get("timeInPeriod"))
         code = e.get("situationCode") or "1551"
@@ -158,13 +214,16 @@ def breakdown(pbp, shift_rows, shots, rates, quality):
             if k == "blocked-shot":
                 # the NHL credits a blocked shot to the blocking team; the shooter is the other side
                 blocker = d.get("blockingPlayerId")
-                if blocker in roster:
-                    st[blocker]["blk"] += 1
                 shoot_team = roster.get(shooter, {}).get("team") or (aid if d.get("eventOwnerTeamId") == hid else hid)
+                # a shot that hits the shooter's own teammate ("teammate-blocked") is
+                # not a block (1.12.1: those were counted, unlike the NHL's boxscore)
+                if (blocker in roster and d.get("reason") != "teammate-blocked"
+                        and roster[blocker]["team"] != shoot_team):
+                    st[blocker]["blk"] += 1
                 x = 0.0
             else:
                 shoot_team = d.get("eventOwnerTeamId") or roster.get(shooter, {}).get("team")
-                x = _xg_of(shots, per, t, shooter) or 0.0
+                x = xg_at.get(i, 0.0)
             if shooter in roster and k != "blocked-shot":
                 st[shooter]["ixg"] += x
                 if k in ("goal", "shot-on-goal"):
@@ -232,6 +291,17 @@ def breakdown(pbp, shift_rows, shots, rates, quality):
                             else:
                                 st[pid]["op_f"] += f_; st[pid]["op_a"] += a_; st[pid]["op_n"] += 1
 
+    # the boxscore is the NHL's official record: its counts win where they differ
+    off = official_counts(box)
+    for pid, o in off.items():
+        if pid not in roster:
+            continue
+        for k in ("sog", "blk"):
+            if isinstance(o.get(k), int):
+                st[pid][k] = o[k]
+        if roster[pid]["pos"] == "G" and isinstance(o.get("shots"), int) and isinstance(o.get("ga"), int):
+            st[pid]["ga_g"], st[pid]["sv_g"] = o["ga"], o["shots"] - o["ga"]
+
     teams = {}
     for tid, oid in ((hid, aid), (aid, hid)):
         sk, gk = [], []
@@ -242,11 +312,13 @@ def breakdown(pbp, shift_rows, shots, rates, quality):
             if info["pos"] == "G":
                 faced = s.get("ga_g", 0) + s.get("sv_g", 0)
                 if faced:
+                    xga = (goalie_xg or {}).get(pid, s.get("xga_g", 0.0))
                     gk.append({"id": pid, "name": info["name"], "pos": "G", "shots": int(faced),
-                               "ga": int(s.get("ga_g", 0)), "xga": round(s.get("xga_g", 0.0), 2) if full else None,
-                               "gsax": round(s.get("xga_g", 0.0) - s.get("ga_g", 0), 2) if full else None})
+                               "ga": int(s.get("ga_g", 0)), "xga": round(xga, 2) if full else None,
+                               "gsax": round(xga - s.get("ga_g", 0), 2) if full else None})
                 continue
-            if full and not toi.get(pid):
+            otoi = (off.get(pid) or {}).get("toi")
+            if full and not toi.get(pid) and not otoi:
                 continue                      # dressed but did not play
             o_prod = (W["g"] * s.get("g", 0) + W["a1"] * s.get("a1", 0) + W["a2"] * s.get("a2", 0) + W["sog"] * s.get("sog", 0)
                       + W["pd"] * s.get("pd", 0) + W["fow"] * s.get("fow", 0) - W["fol"] * s.get("fol", 0))
@@ -268,7 +340,7 @@ def breakdown(pbp, shift_rows, shots, rates, quality):
             o = [round(v, 2) for v in (o_prod, o_drv, o_st, o_use)]
             dd = [round(v, 2) for v in (d_prod, d_drv, d_st, d_use)]
             sk.append({"id": pid, "name": info["name"], "pos": info["pos"],
-                       "toi": round(toi.get(pid, 0) / 60, 1) if full else None,
+                       "toi": round((otoi if otoi else toi.get(pid, 0)) / 60, 1) if full else None,
                        "gs": round(sum(o) + sum(dd), 2), "o": o, "d": dd,
                        "box": {k: int(s.get(k, 0)) for k in ("g", "a1", "a2", "sog", "blk", "pd", "pt")}})
         sk.sort(key=lambda p: (p["pos"] == "D", -p["gs"], p["name"]))
@@ -330,8 +402,11 @@ def latest_by_team(cache):
 
 
 async def update(f, session, state_dir, target_date, season_year, game_type_ok=(2, 3)):
-    """Score every finished game of the last LOOKBACK_DAYS days not yet scored in full,
-    keep each team's latest game in state/gamescore.json, and return the public block."""
+    """Score every finished game of the last LOOKBACK_DAYS days, keep each team's
+    latest game in state/gamescore.json, and return the public block. Games are scored
+    again on every run inside that window (1.12.1), because the NHL corrects its game
+    sheets (shots, faceoffs, shifts) and MoneyPuck its shot values after the game; a
+    run whose inputs are poorer than the saved score keeps the saved score."""
     cache = _load_cache(state_dir)
     games = cache.setdefault("games", {})
     day = dt.date.fromisoformat(target_date)
@@ -342,7 +417,7 @@ async def update(f, session, state_dir, target_date, season_year, game_type_ok=(
         for g in data.get("games") or []:
             if g.get("gameDate") == d and g.get("gameState") in FINAL_STATES and g.get("gameType") in game_type_ok:
                 finals.append((d, int(g["id"])))
-    todo = [(d, gid) for d, gid in finals if not (games.get(str(gid)) or {}).get("complete")]
+    todo = list(finals)
     if todo:
         shots = await _shot_rows(session, season_year, {gid % 1000000 for _, gid in todo})
         teams_csv, skaters_csv = await asyncio.gather(
@@ -354,8 +429,9 @@ async def update(f, session, state_dir, target_date, season_year, game_type_ok=(
             chunk = todo[i:i + 4]
             got = await asyncio.gather(*[asyncio.gather(
                 f.get(f"{NHL_BASE}gamecenter/{gid}/play-by-play"),
-                f.get(f"{STATS_BASE}shiftcharts", params={"cayenneExp": f"gameId={gid}"})) for _, gid in chunk])
-            for (d, gid), (pbp, sh) in zip(chunk, got):
+                f.get(f"{STATS_BASE}shiftcharts", params={"cayenneExp": f"gameId={gid}"}),
+                f.get(f"{NHL_BASE}gamecenter/{gid}/boxscore")) for _, gid in chunk])
+            for (d, gid), (pbp, sh, box) in zip(chunk, got):
                 if not pbp or pbp.get("gameState") not in FINAL_STATES:
                     continue
                 rows = [r for r in (sh or {}).get("data") or [] if r.get("typeCode") == 517]
@@ -364,8 +440,11 @@ async def update(f, session, state_dir, target_date, season_year, game_type_ok=(
                 late = (day - dt.date.fromisoformat(d)).days >= WAIT_DAYS
                 if not full and not late:
                     continue                       # wait for the shift charts or the shot values
+                if not full and (games.get(str(gid)) or {}).get("inputs") == "full":
+                    continue                       # never trade a full score for a production-only one
                 try:
-                    res = breakdown(pbp, rows if full else [], xg if full else {}, rates, quality)
+                    res = breakdown(pbp, rows if full else [], xg if full else {}, rates, quality, box=box,
+                                    goalie_xg=goalie_values(shots.get(gid % 1000000, [])) if full else None)
                 except Exception as exc:  # noqa: BLE001
                     log.warning("game score %s: %s", gid, exc)
                     continue

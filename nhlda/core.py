@@ -16,6 +16,7 @@ import logging
 import math
 import os
 import re
+import unicodedata
 import datetime as dt
 from collections import defaultdict
 
@@ -175,6 +176,12 @@ async def detect_absences(f: Fetcher, abbrev, roster, mp, last_game_id, hr_injur
 # V32 picked whichever goalie had the most season games played, so
 # starter_confirmed was True on every team on every slate.
 # =============================================================================
+def _fold_name(name):
+    """A name for matching: no accents, single spaces, lower case."""
+    s = unicodedata.normalize("NFKD", name or "")
+    return re.sub(r"\s+", " ", "".join(c for c in s if not unicodedata.combining(c))).strip().lower()
+
+
 def _prev_season(season):
     """'20262027' -> '20252026'."""
     try:
@@ -204,28 +211,32 @@ async def resolve_goalie(f: Fetcher, abbrev, goalies, mp, season, game_type, gam
     active = [c for c in candidates if c["starts"]]
     if not active:
         active = [c for c in candidates if c["stats"].get("games_played", 0) > 0]
-    if not active:
-        return None, [], 99, False, "NONE", None
 
     # V34.2: Daily Faceoff names a specific goalie for this team tonight,
     # sourced from a beat reporter's own report. If that goalie is on our
     # active list, it overrides the rotation guess -- this is exactly the
     # "direct to source" signal the rotation heuristic exists to approximate
     # when better information is not available. Falls through to rotation
-    # inference on any mismatch: a trade, a call-up not yet on our roster
-    # snapshot, or Daily Faceoff simply not having posted for this date.
+    # inference on any mismatch: a call-up not yet on our roster snapshot, or
+    # Daily Faceoff simply not having posted for this date.
+    # Public 1.12.1: the named goalie is looked for among every goalie on the
+    # roster, not only those who have played this season. A goalie traded in, or
+    # back from a holdout or an injury, who starts his first game was missed and
+    # the rotation guess shown instead (Hellebuyck's Devils debut, 2026-10-27).
     dfo_intel = dfo.get(abbrev) if dfo else None
     rotation = None
     source = None
     if dfo_intel and dfo_intel.get("goalie_name"):
-        target = re.sub(r"\s+", " ", dfo_intel["goalie_name"]).strip().lower()
-        for c in active:
-            if re.sub(r"\s+", " ", c["player"]["name"]).strip().lower() == target:
+        target = _fold_name(dfo_intel["goalie_name"])
+        for c in candidates:
+            if _fold_name(c["player"]["name"]) == target:
                 rotation = c
-                source = "DFO_CONFIRMED" if dfo_intel["confirmed"] else "DFO_PROJECTED"
+                source = "DFO_CONFIRMED" if dfo_intel.get("confirmed") else "DFO_PROJECTED"
                 break
 
     if rotation is None:
+        if not active:
+            return None, [], 99, False, "NONE", None
         # Probable starter: most recent start, tie-broken by season workload.
         active.sort(key=lambda c: (c["last_start"] or "0000-00-00",
                                    c["stats"].get("games_played", 0)), reverse=True)
@@ -247,10 +258,13 @@ async def resolve_goalie(f: Fetcher, abbrev, goalies, mp, season, game_type, gam
     # not played yet is not left without a sample (or given the full no-sample
     # penalty) while its opponent is scored on one game. Later in the season, or
     # once the goalie has five starts, nothing changes.
+    # A goalie Daily Faceoff names who has not started this season gets the same
+    # fill at any point of the season: his own last starts are the only sample.
     window = list(rotation["starts"][:5])
     rotation["prior_starts_used"] = 0
     prev = _prev_season(season)
-    if fill_prior and len(window) < 5 and game_type == GAME_TYPE_REGULAR and prev:
+    named_first = source in ("DFO_CONFIRMED", "DFO_PROJECTED") and not rotation["starts"]
+    if (fill_prior or named_first) and len(window) < 5 and game_type == GAME_TYPE_REGULAR and prev:
         pdata = await f.get(f"{NHL_BASE}player/{rotation['player']['player_id']}/game-log/"
                             f"{prev}/{GAME_TYPE_REGULAR}")
         pstarts = [x for x in ((pdata or {}).get("gameLog") or [])
@@ -289,7 +303,8 @@ async def resolve_goalie(f: Fetcher, abbrev, goalies, mp, season, game_type, gam
         confirmed = GOALIE_POLICY != "strict"
     else:
         confirmed = GOALIE_POLICY != "strict"
-    return rotation, hist, days, confirmed, source, dfo_intel
+    # the report goes with the goalie it is about, never with the rotation guess
+    return rotation, hist, days, confirmed, source, (dfo_intel if source in ("DFO_CONFIRMED", "DFO_PROJECTED") else None)
 
 
 # =============================================================================
@@ -353,12 +368,15 @@ def project_skater(player, mp_row, l5_games, win_prob, game_type):
     }
 
 
-def project_goalie(player, mp_row, win_prob, game_type):
+def project_goalie(player, mp_row, win_prob, game_type, prior_row=None):
+    """A goalie with no game this season shows no season numbers (None, shown as a
+    dash), and his projection uses last season's rates when there are any."""
     st = goalie_stats(mp_row) if mp_row else {}
-    gp = max(st.get("games_played", 0), 1)
-    sv_pg = st.get("saves", 0.0) / gp
-    ga_pg = st.get("goals_against", 0.0) / gp
-    so_rate = 0.06 if st.get("save_pct", 0) > 0.915 else 0.03
+    rate = st or (goalie_stats(prior_row) if prior_row else {})
+    gp = max(rate.get("games_played", 0), 1)
+    sv_pg = rate.get("saves", 0.0) / gp
+    ga_pg = rate.get("goals_against", 0.0) / gp
+    so_rate = 0.06 if rate.get("save_pct", 0) > 0.915 else 0.03
     dk = (win_prob * DK_GOALIE["win"] + sv_pg * DK_GOALIE["save"]
           + ga_pg * DK_GOALIE["ga_penalty"] + so_rate * DK_GOALIE["shutout"])
     if game_type == GAME_TYPE_PLAYOFFS:
@@ -367,8 +385,8 @@ def project_goalie(player, mp_row, win_prob, game_type):
         "player_id": player["player_id"], "name": player["name"],
         "team": player.get("team", ""), "position": "G",
         "win_prob": round(win_prob, 4), "sv_per_game": round(sv_pg, 2),
-        "ga_per_game": round(ga_pg, 2), "save_pct": st.get("save_pct", 0.0),
-        "gsax": st.get("gsax", 0.0), "hdsv_pct": st.get("hdsv_pct", 0.0),
+        "ga_per_game": round(ga_pg, 2), "save_pct": st.get("save_pct") if st else None,
+        "gsax": st.get("gsax") if st else None, "hdsv_pct": st.get("hdsv_pct") if st else None,
         "dk_proj": round(dk, 2), "salary_floor": DFS_POSITION_BASELINE["G"],
     }
 
@@ -430,7 +448,8 @@ class GameEngine:
             if s["starter"]:
                 gp_ = s["starter"]["player"]
                 players[tag].append(project_goalie(gp_, self.mp.goalie(gp_["player_id"]),
-                                                   wprob, self.game_type))
+                                                   wprob, self.game_type,
+                                                   prior_row=self.mp.goalie_prior(gp_["player_id"])))
             players[tag].sort(key=lambda x: -x["dk_proj"])
 
         self.payload = {
@@ -511,13 +530,17 @@ class GameEngine:
             season_open=self.season_open, fill_prior=early_w < 1.0)
 
         gmeta = {"source": gsrc, "confirmed": gconf}
+        named = ((self.dfo or {}).get(ab) or {}).get("goalie_name")
+        if named and not dfo_intel and starter and _fold_name(named) != _fold_name(starter["player"]["name"]):
+            gmeta["dfo_named"] = named          # Daily Faceoff named a goalie not on our roster
         if dfo_intel:
             gmeta["intel"] = {"reported_by": dfo_intel.get("source_name"),
                               "source_url": dfo_intel.get("source_url"),
                               "detail": dfo_intel.get("detail"),
                               "reported_at": dfo_intel.get("reported_at")}
         if starter:
-            gs = goalie_stats(self.mp.goalie(starter["player"]["player_id"]))
+            grow = self.mp.goalie(starter["player"]["player_id"])
+            gs = goalie_stats(grow) if grow else {}       # no game this season: no season numbers
             gmeta.update({
                 "name": starter["player"]["name"], "player_id": starter["player"]["player_id"],
                 "last_start": starter["last_start"], "days_rest": gdays,
@@ -552,7 +575,7 @@ class GameEngine:
             "goalie_history": ghist, "starter_confirmed": gconf,
             "days_since_last_start": gdays, "is_recall": False,
             "rest_days": rest, "opp_rest_days": opp_rest,
-            "hdsv_pct": gmeta.get("hdsv_pct", 0.0), "gsax": gmeta.get("gsax", 0.0),
+            "hdsv_pct": gmeta.get("hdsv_pct") or 0.0, "gsax": gmeta.get("gsax") or 0.0,
         }
         form = {"l5_shot_share": round(l5["shot_share"], 4), "l5_record": l5.get("record"),
                 "ssn_shot_share": round(ssn["shot_share"], 4),

@@ -58,7 +58,13 @@ Each game:
 `goalie` holds `name`, `player_id`, `source` (`CONFIRMED`, `PROJECTED` or `ROTATION`),
 `confirmed`, `last_start`, `days_rest`, `window_starts`, `window_toi_min`,
 `season_sv_pct`, `gsax`, `hdsv_pct`, `gaa`, `games_played`, `reported_by` and
-`source_url`.
+`source_url`. The season numbers are `null` for a goalie who has not played this
+season (for example one just traded in); his `window_starts` then come from last
+season. `reported_by` and `source_url` appear only when Daily Faceoff named this
+goalie. `dfo_named` appears only when Daily Faceoff named a starter who is not on the
+NHL roster the update read; the card then shows the rotation guess and `problems`
+says so. In `dfs.goalies`, `save_pct` and `gsax` are `null` for such a goalie, and his
+projection uses last season's rates.
 
 `form` holds shot shares (`l5_shot_share`, `l3_shot_share`, `ssn_shot_share`,
 `venue_shot_share`), records (`l5_record`, `l3_record`), `ssn_goal_diff_pg`,
@@ -164,8 +170,8 @@ runs, so each name is looked up once.
 | `game_id`, `date`, `opp`, `home` | The NHL game id, its date, the opponent, and whether the team was at home. |
 | `for`, `against`, `last_period`, `result` | The final score from the team's side, `REG`, `OT` or `SO`, and `W`, `L` or `OTL`. |
 | `inputs` | `full`, or `production` when the shift charts or the shot values were still missing two days after the game (only the production parts are then scored). |
-| `skaters` | Forwards then defensemen, each best first: `id`, `name`, `pos`, `toi` (minutes), `gs` (the Game Score, the sum of the eight parts), `o` and `d` (offense and defense, each `[production, play driving, special teams, usage]`), and `box` (`g`, `a1`, `a2`, `sog`, `blk`, `pd` penalties drawn, `pt` penalties taken). |
-| `goalies` | `id`, `name`, `shots` faced, `ga`, `xga` (expected goals of the unblocked shots he faced) and `gsax` (`xga` minus `ga`). |
+| `skaters` | Forwards then defensemen, each best first: `id`, `name`, `pos`, `toi` (minutes, the NHL boxscore's), `gs` (the Game Score, the sum of the eight parts), `o` and `d` (offense and defense, each `[production, play driving, special teams, usage]`; the app draws `o` as the top bar and `d` as the bottom bar), and `box` (`g`, `a1`, `a2`, `sog`, `blk`, `pd` penalties drawn, `pt` penalties taken). |
+| `goalies` | `id`, `name`, `shots` faced and `ga` (the NHL boxscore's), `xga` (MoneyPuck's expected goals of the unblocked shots he faced, its own figure for him) and `gsax` (`xga` minus `ga`). |
 
 The model is this app's own, in the units of the public Game Score (Dom Luszczyszyn,
 Hockey Graphs, 2016):
@@ -188,9 +194,15 @@ Hockey Graphs, 2016):
 Who was on the ice comes from the NHL shift charts; the strength (5 on 5, power play,
 penalty kill, empty net) from the play-by-play `situationCode`; expected goals for each
 unblocked shot from MoneyPuck's season shot file, updated nightly, matched on period,
-second (within two) and shooter. League rates come from MoneyPuck's season team file.
-A game is scored the first update after both are published (usually the next morning),
-and `state/gamescore.json` keeps each team's latest scored game.
+second (within two) and shooter, each MoneyPuck shot used once (exact seconds first).
+League rates come from MoneyPuck's season team file. Shots on goal, blocked shots, time
+on ice and each goalie's shots and goals against are the NHL boxscore's official
+numbers; a shot that hits the shooter's own teammate is not a block, and a shift the
+shift chart lists twice counts once. A game is scored the first update after both are
+published (usually the next morning) and again at every update for three days after
+the game, so the NHL's later corrections reach the app; a run that cannot read the
+shot values keeps the earlier full score. `state/gamescore.json` keeps each team's
+latest scored game.
 
 ## `dfs`
 

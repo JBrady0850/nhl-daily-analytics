@@ -372,6 +372,10 @@ class MoneyPuckLoader:
     def goalie(self, pid):
         return self._pick(self.goalies, self.prior_goalies, pid)
 
+    def goalie_prior(self, pid):
+        """Last season's row for a goalie, or {}."""
+        return self.prior_goalies.get(str(pid).upper()) or {}
+
     def team(self, ab):
         return self._pick(self.teams, self.prior_teams, ab)
 

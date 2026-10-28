@@ -94,7 +94,7 @@ def _pillars(p):
 
 def _goalie(g):
     keep = ("name", "player_id", "source", "confirmed", "last_start", "days_rest", "window_starts",
-            "window_toi_min", "season_sv_pct", "gsax", "hdsv_pct", "gaa", "games_played")
+            "window_toi_min", "season_sv_pct", "gsax", "hdsv_pct", "gaa", "games_played", "dfo_named")
     out = {k: g.get(k) for k in keep if k in g}
     intel = g.get("intel") or {}
     if intel:
@@ -281,6 +281,16 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
                 log.warning("final scores: %s", exc)
                 finals = None
             games = settle_started(games, prev, finals)
+            # Daily Faceoff named a starter who is not on the NHL roster this run read
+            # (a trade not yet in the NHL's roster): say so, since the card then shows
+            # the rotation guess
+            for g in games:
+                for side, ab in (("away_side", g.get("away")), ("home_side", g.get("home"))):
+                    gk = (g.get(side) or {}).get("goalie") or {}
+                    if gk.get("dfo_named"):
+                        problems.append(f"Daily Faceoff lists {gk['dfo_named']} as {ab}'s starting goalie, but he is "
+                                        f"not on the NHL roster this update read, so the card shows {gk.get('name')}, "
+                                        "the rotation guess.")
             games.sort(key=lambda g: -(g.get("win_prob") or 0))
             for k, g in enumerate(games, start=1):
                 g["rank"] = k

@@ -556,6 +556,69 @@ def _game_inputs():
     return fx, G.shot_values(fx["shots"]), rates, G.player_quality(_csv_text(fx["mp_skaters"]), rates)
 
 
+class _GoalieFetch:
+    """Game logs for two Devils goalies: Jake Allen has started this season; Connor
+    Hellebuyck (traded in from Winnipeg) has not played yet, but has last season's
+    starts."""
+    LOGS = {
+        ("8474596", "20262027"): [{"gameDate": "2026-10-24", "toi": "60:00", "savePctg": 0.9}],
+        ("8476945", "20262027"): [],
+        ("8476945", "20252026"): [{"gameDate": f"2026-04-{d:02d}", "toi": "60:00", "savePctg": 0.91} for d in (13, 11, 9, 6, 4)],
+    }
+
+    async def get(self, url, **kw):
+        m = re.search(r"player/(\d+)/game-log/(\d+)/", url)
+        return {"gameLog": self.LOGS.get((m.group(1), m.group(2)), [])} if m else None
+
+
+class _GoalieMP:
+    def goalie(self, pid):
+        return {"games_played": "7", "ongoal": "176", "goals": "20", "xGoals": "16.5", "icetime": "25200"} if str(pid) == "8474596" else {}
+
+
+def test_daily_faceoffs_starter_is_used_even_before_his_first_game_this_season():
+    """John, 2026-10-27: Hellebuyck is a New Jersey Devil and was missing from the
+    lineup. Daily Faceoff confirmed him for his Devils debut, but the engine looked
+    for Daily Faceoff's goalie only among goalies who had already played this season,
+    so it showed Jake Allen (the rotation guess) with the reporter's link beside him."""
+    import asyncio
+    goalies = [{"player_id": "8474596", "name": "Jake Allen"}, {"player_id": "8476945", "name": "Connor Hellebuyck"}]
+    dfo = {"NJD": {"goalie_name": "Connor Hellebuyck", "confirmed": True, "source_name": "Peter Baugh"}}
+    starter, hist, days, conf, src, intel = asyncio.run(C.resolve_goalie(
+        _GoalieFetch(), "NJD", goalies, _GoalieMP(), "20262027", 2, "2026-10-27", dfo=dfo, season_open="2026-10-07"))
+    assert starter["player"]["name"] == "Connor Hellebuyck" and src == "DFO_CONFIRMED" and conf
+    assert len(hist) == 5 and starter["prior_starts_used"] == 5     # last season's starts fill his window
+    assert intel["source_name"] == "Peter Baugh"
+    # a goalie Daily Faceoff names who is not on the roster: the rotation guess, and the
+    # report is not attached to a goalie it was not about
+    dfo = {"NJD": {"goalie_name": "Somebody Else", "confirmed": True, "source_name": "A Reporter"}}
+    starter, hist, days, conf, src, intel = asyncio.run(C.resolve_goalie(
+        _GoalieFetch(), "NJD", goalies, _GoalieMP(), "20262027", 2, "2026-10-27", dfo=dfo, season_open="2026-10-07"))
+    assert starter["player"]["name"] == "Jake Allen" and src == "PROBABLE_ROTATION" and intel is None
+    # names match without accents or extra spaces
+    dfo = {"NJD": {"goalie_name": " connor  HELLEBUYCK ", "confirmed": False}}
+    starter = asyncio.run(C.resolve_goalie(_GoalieFetch(), "NJD", goalies, _GoalieMP(), "20262027", 2, "2026-10-27", dfo=dfo))[0]
+    assert starter["player"]["name"] == "Connor Hellebuyck"
+
+
+def test_a_goalie_without_games_this_season_shows_no_season_numbers():
+    g = C.project_goalie({"player_id": "8476945", "name": "Connor Hellebuyck", "team": "NJD"}, {}, 0.55, 2,
+                         prior_row={"games_played": "57", "ongoal": "1600", "goals": "163", "xGoals": "160", "icetime": "205200"})
+    assert g["save_pct"] is None and g["gsax"] is None and g["hdsv_pct"] is None
+    assert g["dk_proj"] > 0.55 * 6           # the projection still uses last season's rates
+
+
+def test_each_moneypuck_shot_value_is_used_once():
+    """A saved shot at 3:42 and a missed shot one second later by the same player:
+    MoneyPuck's 0.51 must not be counted for both (game 2026020186 counted it twice)."""
+    from nhlda.gamescore import match_shots
+    ev = lambda k, t: {"typeDescKey": k, "periodDescriptor": {"number": 1}, "timeInPeriod": t, "details": {"shootingPlayerId": 9}}
+    plays = [ev("missed-shot", "03:41"), ev("shot-on-goal", "03:42"), ev("missed-shot", "03:43")]
+    # the exact second wins first, so the 3:41 miss does not take the 3:42 shot's value
+    assert match_shots(plays, {(1, 222, 9): 0.51}) == {1: 0.51}
+    assert match_shots(plays, {(1, 222, 9): 0.51, (1, 224, 9): 0.02}) == {1: 0.51, 2: 0.02}
+
+
 def test_strength_reads_the_nhl_situation_code():
     from nhlda.gamescore import _strength
     assert _strength("1551", True) == "5v5" and _strength("1551", False) == "5v5"
@@ -591,6 +654,67 @@ def test_game_score_of_a_real_game():
     assert g["name"] == "Akira Schmid" and g["shots"] == 21 and g["ga"] == 2
     assert abs(g["gsax"] - (g["xga"] - g["ga"])) < 0.011 and g["gsax"] > 1
     assert res["teams"]["CHI"]["goalies"][0]["ga"] == 3
+
+
+OFFICIAL_2026020180 = {  # NHL boxscore, read 2026-10-27: goals, assists, blocks, TOI seconds
+    8480801: (0, 1, 1, 888), 8477935: (0, 0, 0, 1156), 8477933: (0, 1, 0, 1206), 8478147: (0, 0, 1, 293),
+    8482113: (0, 0, 0, 963), 8479314: (1, 0, 1, 1107), 8474189: (1, 0, 1, 980), 8477903: (0, 0, 1, 537),
+    8477409: (0, 1, 1, 999), 8480185: (0, 0, 1, 874), 8481655: (0, 0, 0, 267), 8483771: (1, 0, 0, 784),
+    8477495: (0, 1, 1, 1495), 8477932: (0, 1, 3, 1351), 8475462: (0, 0, 0, 750), 8475179: (0, 0, 0, 711),
+    8478055: (0, 0, 2, 1392), 8478859: (0, 0, 2, 1292), 8477987: (0, 0, 1, 756), 8478413: (0, 0, 0, 810),
+    8485391: (0, 0, 4, 1007), 8483450: (1, 0, 0, 880), 8482062: (0, 0, 0, 586), 8478233: (0, 1, 0, 526),
+    8477479: (0, 0, 0, 1342), 8484390: (1, 0, 0, 1272), 8476882: (0, 0, 0, 1137), 8474141: (0, 1, 0, 1221),
+    8483493: (0, 0, 0, 931), 8484144: (0, 1, 2, 1389), 8483506: (0, 0, 0, 907), 8483466: (0, 1, 0, 761),
+    8474013: (0, 0, 0, 925), 8482176: (0, 0, 0, 936), 8484783: (0, 0, 0, 1218), 8481568: (0, 0, 2, 1053),
+}
+
+
+def test_game_score_counts_match_the_nhl_boxscore():
+    """John asked for every player and stat to be checked (2026-10-27). Against the
+    NHL's own boxscore: the same 36 skaters, and the same goals, assists, blocks and
+    time on ice. Two bugs failed this: a shot that hits the shooter's own teammate
+    was counted as a block, and a shift the NHL's chart lists twice was counted twice."""
+    from nhlda.gamescore import breakdown
+    fx, xg, rates, q = _game_inputs()
+    res = breakdown(fx["pbp"], fx["shifts"], xg, rates, q)
+    ours = {p["id"]: p for t in res["teams"].values() for p in t["skaters"]}
+    assert set(ours) == set(OFFICIAL_2026020180)
+    for pid, (g, a, blk, toi) in OFFICIAL_2026020180.items():
+        p = ours[pid]
+        assert (p["box"]["g"], p["box"]["a1"] + p["box"]["a2"], p["box"]["blk"]) == (g, a, blk), p["name"]
+        assert abs(p["toi"] - toi / 60) < 0.051, (p["name"], p["toi"], toi)
+
+def test_the_nhl_boxscore_wins_where_the_play_by_play_disagrees():
+    """After this game the NHL credited Verhaeghe with a fourth shot and Knight with a
+    34th shot against in its boxscore; the play-by-play read the morning after had 3
+    and 33. With the boxscore, every skater's shots, blocks, goals, assists and time on
+    ice, and both goalies' shots and goals against, are the NHL's official numbers."""
+    from nhlda.gamescore import breakdown, official_counts
+    fx, xg, rates, q = _game_inputs()
+    res = breakdown(fx["pbp"], fx["shifts"], xg, rates, q, box=fx["box"])
+    off = official_counts(fx["box"])
+    for t in res["teams"].values():
+        for p in t["skaters"]:
+            o = off[p["id"]]
+            assert (p["box"]["sog"], p["box"]["blk"], p["box"]["g"], p["box"]["a1"] + p["box"]["a2"]) == \
+                (o["sog"], o["blk"], o["g"], o["a"]), p["name"]
+            assert p["toi"] == round(o["toi"] / 60, 1), p["name"]
+        for g in t["goalies"]:
+            assert (g["shots"], g["ga"]) == (off[g["id"]]["shots"], off[g["id"]]["ga"]), g["name"]
+    v = next(p for p in res["teams"]["FLA"]["skaters"] if p["name"] == "Carter Verhaeghe")
+    assert v["box"]["sog"] == 4 and res["teams"]["CHI"]["goalies"][0]["shots"] == 34
+
+
+def test_goalie_expected_goals_are_moneypucks_own():
+    """The goalie's expected goals against are MoneyPuck's own figure for him (3.21
+    for Schmid in this game), not a sum over the shots this app could match."""
+    from nhlda.gamescore import breakdown, goalie_values
+    fx, xg, rates, q = _game_inputs()
+    gx = goalie_values(fx["shots"])
+    assert abs(gx[8481033] - 3.21) < 0.006
+    res = breakdown(fx["pbp"], fx["shifts"], xg, rates, q, box=fx["box"], goalie_xg=gx)
+    g = res["teams"]["FLA"]["goalies"][0]
+    assert g["name"] == "Akira Schmid" and g["xga"] == 3.21 and g["gsax"] == 1.21
 
 
 def test_game_score_without_shift_charts_is_production_only():
@@ -651,6 +775,29 @@ def test_last_game_waits_for_the_shot_values_then_keeps_the_latest_game(tmp_path
     cache = json.load(open(tmp_path / "gamescore.json", encoding="utf-8"))
     assert list(cache["games"]) == ["2026020180"] and cache["games"]["2026020180"]["complete"]
     check_public(out)
+
+
+def test_recent_games_are_scored_again_with_the_nhls_corrections(tmp_path):
+    """The NHL corrects its game sheets after the game (here it later credited
+    Verhaeghe with a fourth shot), so a game inside the look-back window is scored
+    again on every run; a run without the shot values keeps the full score."""
+    import copy
+    fx = json.load(open(GAME, encoding="utf-8"))
+    out = _run_update(tmp_path, fx, "2026-10-26", fx["shots"])
+    v = next(p for p in out["teams"]["FLA"]["skaters"] if p["name"] == "Carter Verhaeghe")
+    assert v["box"]["sog"] == 3
+    fixed = copy.deepcopy(fx)
+    shot = copy.deepcopy(next(e for e in fixed["pbp"]["plays"] if e["typeDescKey"] == "shot-on-goal"
+                              and e["details"].get("shootingPlayerId") != 8477409))
+    shot["details"]["shootingPlayerId"] = 8477409
+    shot["eventId"] = 99999
+    fixed["pbp"]["plays"].append(shot)
+    out = _run_update(tmp_path, fixed, "2026-10-26", fx["shots"])
+    v2 = next(p for p in out["teams"]["FLA"]["skaters"] if p["name"] == "Carter Verhaeghe")
+    assert v2["box"]["sog"] == 4 and abs(v2["o"][0] - v["o"][0] - 0.075) < 0.006
+    # two days on, MoneyPuck's file cannot be read: the full score stays
+    out = _run_update(tmp_path, fixed, "2026-10-27", [])
+    assert out["teams"]["FLA"]["inputs"] == "full"
 
 
 def test_last_game_falls_back_to_production_after_two_days(tmp_path):
