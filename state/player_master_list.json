@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-10-28",
-"count": 803,
+"count": 801,
 "players": [
 {
 "team": "ANA",
@@ -1512,13 +1512,6 @@
 "team": "DAL",
 "name": "Arttu Hyry",
 "player_id": "8484938",
-"position": "R",
-"role": "skater"
-},
-{
-"team": "DAL",
-"name": "Dylan Hryckowian",
-"player_id": "8486130",
 "position": "R",
 "role": "skater"
 },
@@ -3736,13 +3729,6 @@
 },
 {
 "team": "PIT",
-"name": "Chase Pietila",
-"player_id": "8485019",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "PIT",
 "name": "Declan Carlile",
 "player_id": "8483398",
 "position": "D",
@@ -3830,13 +3816,6 @@
 "name": "Nick Robertson",
 "player_id": "8481582",
 "position": "L",
-"role": "skater"
-},
-{
-"team": "PIT",
-"name": "Avery Hayes",
-"player_id": "8482993",
-"position": "R",
 "role": "skater"
 },
 {
@@ -4079,6 +4058,13 @@
 },
 {
 "team": "SJS",
+"name": "Filip Bystedt",
+"player_id": "8483428",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SJS",
 "name": "Macklin Celebrini",
 "player_id": "8484801",
 "position": "C",
@@ -4142,8 +4128,8 @@
 },
 {
 "team": "SJS",
-"name": "Luca Cagnoni",
-"player_id": "8484152",
+"name": "Libor Hajek",
+"player_id": "8479333",
 "position": "D",
 "role": "skater"
 },
@@ -4592,6 +4578,13 @@
 "team": "TOR",
 "name": "Colton Sissons",
 "player_id": "8476925",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Dakota Joshua",
+"player_id": "8478057",
 "position": "C",
 "role": "skater"
 },
@@ -5544,13 +5537,6 @@
 "team": "WSH",
 "name": "Logan Thompson",
 "player_id": "8480313",
-"position": "G",
-"role": "goalie"
-},
-{
-"team": "WSH",
-"name": "Mitchell Gibson",
-"player_id": "8481064",
 "position": "G",
 "role": "goalie"
 },
