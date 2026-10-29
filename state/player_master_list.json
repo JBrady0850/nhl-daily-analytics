@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-10-29",
-"count": 801,
+"count": 799,
 "players": [
 {
 "team": "ANA",
@@ -729,13 +729,6 @@
 "name": "Sean Monahan",
 "player_id": "8477497",
 "position": "C",
-"role": "skater"
-},
-{
-"team": "CBJ",
-"name": "Carson Soucy",
-"player_id": "8477369",
-"position": "D",
 "role": "skater"
 },
 {
@@ -1538,13 +1531,6 @@
 },
 {
 "team": "DET",
-"name": "Dylan Larkin",
-"player_id": "8477946",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "DET",
 "name": "Emmitt Finnie",
 "player_id": "8484471",
 "position": "C",
@@ -1575,6 +1561,13 @@
 "team": "DET",
 "name": "Nate Danielson",
 "player_id": "8484160",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Sheldon Dries",
+"player_id": "8480326",
 "position": "C",
 "role": "skater"
 },
@@ -1645,13 +1638,6 @@
 "team": "DET",
 "name": "John Gibson",
 "player_id": "8476434",
-"position": "G",
-"role": "goalie"
-},
-{
-"team": "DET",
-"name": "Michal Postava",
-"player_id": "8485545",
 "position": "G",
 "role": "goalie"
 },
@@ -2231,15 +2217,15 @@
 },
 {
 "team": "LAK",
-"name": "Jared Wright",
-"player_id": "8483756",
+"name": "Joel Armia",
+"player_id": "8476469",
 "position": "R",
 "role": "skater"
 },
 {
 "team": "LAK",
-"name": "Joel Armia",
-"player_id": "8476469",
+"name": "Martin Chromiak",
+"player_id": "8482160",
 "position": "R",
 "role": "skater"
 },
@@ -2310,6 +2296,20 @@
 "team": "MIN",
 "name": "Brock Faber",
 "player_id": "8482122",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Cameron Crotty",
+"player_id": "8480075",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Carson Lambos",
+"player_id": "8482781",
 "position": "D",
 "role": "skater"
 },
@@ -3358,13 +3358,6 @@
 },
 {
 "team": "OTT",
-"name": "Cameron Crotty",
-"player_id": "8480075",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "OTT",
 "name": "Carter Yakemchuk",
 "player_id": "8484759",
 "position": "D",
@@ -3500,13 +3493,6 @@
 "team": "PHI",
 "name": "Jack Studnicka",
 "player_id": "8480021",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "PHI",
-"name": "Jacob Gaucher",
-"player_id": "8481848",
 "position": "C",
 "role": "skater"
 },
