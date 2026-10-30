@@ -307,14 +307,12 @@ LAST_GAME_JS = """(ab) => {
     goalieBars: lg.querySelectorAll('.gs-goalies .gs-bars, .gs-chart .gs-row.gk').length,
     goalieText: [...lg.querySelectorAll('.gs-goalies .gs-gk-txt')].map(x => x.textContent.trim()),
     labels: [...lg.querySelectorAll('.gs-bars')].every(b => (b.getAttribute('aria-label') || '').length > 10),
-    // every player's two bars are named on the row: Offense beside the top bar, Defense
-    // beside the bottom one, left of the chart (John, 2026-10-27: "two bars are not explained")
-    odLabels: (() => { const rs = [...lg.querySelectorAll('.gs-chart .gs-row')]; if (!rs.length) return false;
-      const mid = x => (x.top + x.bottom) / 2;
-      return rs.every(r => { const l = [...r.querySelectorAll('.gs-od > span')], o = r.querySelector('.gs-trk.o'), d = r.querySelector('.gs-trk.d');
-        if (l.length !== 2 || !o || !d || l[0].textContent.trim() !== 'Offense' || l[1].textContent.trim() !== 'Defense') return false;
-        const a = l[0].getBoundingClientRect(), b = l[1].getBoundingClientRect(), to = o.getBoundingClientRect(), td = d.getBoundingClientRect();
-        return a.width > 0 && Math.abs(mid(a) - mid(to)) <= 3 && Math.abs(mid(b) - mid(td)) <= 3 && a.right <= to.left + 1 && b.right <= td.left + 1; }); })(),
+    // no Offense or Defense label on the rows (John, 2026-10-30: the hover description is
+    // enough); every part of each bar says on hover which bar it is part of
+    odLabels: lg.querySelectorAll('.gs-od').length === 0
+      && [...lg.querySelectorAll('.gs-chart .gs-row')].every(r =>
+        [...r.querySelectorAll('.gs-trk.o .gs-seg')].every(x => /^Offense \\(top bar\\), /.test(x.dataset.tip || ''))
+        && [...r.querySelectorAll('.gs-trk.d .gs-seg')].every(x => /^Defense \\(bottom bar\\), /.test(x.dataset.tip || ''))),
     // the zero line of every row sits under the header's zero line
     zeroAligned: (() => { const s = lg.querySelector('.gs-head .gs-sides'); if (!s) return false;
       const r = s.getBoundingClientRect(), zx = r.left + r.width * parseFloat(s.style.getPropertyValue('--z')) / 100;

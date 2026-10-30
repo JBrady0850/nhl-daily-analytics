@@ -206,8 +206,7 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
 .gs-val { font: 600 .9rem/1 var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
 .gs-head { padding: 4px 0 5px; border-bottom: 1px solid var(--line); font: 600 .98rem/1.05 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .gs-head > .gs-val { font: inherit; cursor: help; }
-.gs-chart { --gs-lab: 3.4rem; }
-.gs-sides { position: relative; height: 26px; margin-left: calc(var(--gs-lab) + 6px); }
+.gs-sides { position: relative; height: 26px; }
 /* two arrow tags on either side of the zero line, each pointing away from it: red
    "Hurt" to the left, green "Helped" to the right (kept inside the chart when the
    line sits near an edge) */
@@ -220,12 +219,9 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
 .gs-sides > .helped::before { background: color-mix(in srgb, var(--ok) 15%, transparent); clip-path: polygon(0 0, calc(100% - 11px) 0, 100% 50%, calc(100% - 11px) 100%, 0 100%); }
 .gs-sides::before { content: ""; position: absolute; top: -4px; bottom: -6px; left: var(--z); width: 2px; margin-left: -.5px; background: var(--muted); opacity: .8; }
 .gs-grp { font: 600 .98rem/1 var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 10px 0 2px; }
-/* each row: the names of its two bars (1.12.1), then the plot with the zero line */
-.gs-bars { display: flex; gap: 6px; align-items: stretch; }
-.gs-od { flex: none; width: var(--gs-lab); position: relative; height: 25px; font: 600 .8rem/11px var(--display); letter-spacing: .08em;
-  text-transform: uppercase; color: var(--muted); text-align: right; white-space: nowrap; }
-.gs-od > span { position: absolute; right: 0; }
-.gs-od > .o { top: 0; } .gs-od > .d { top: 14px; }
+/* each row: the plot with the zero line; the bars are named in the text above the chart
+   and on hover (1.13.2: the row labels of 1.12.1 removed at John's request) */
+.gs-bars { display: flex; align-items: stretch; }
 .gs-plot { position: relative; flex: 1; min-width: 0; height: 25px; }
 .gs-plot::before { content: ""; position: absolute; top: -4px; bottom: -4px; left: var(--z); width: 1px; background: var(--muted); opacity: .8; }
 .gs-trk { position: absolute; left: 0; right: 0; height: 11px; }
@@ -386,7 +382,6 @@ dialog.sheet::backdrop { background: rgba(5, 14, 26, .58); }
 .other-dev { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 8px; }
 .other-dev summary { cursor: pointer; font-weight: 600; }
 @media (max-width: 360px) { .getapp-x { display: none; }
-  .gs-chart { --gs-lab: 3.1rem; }
   .gs-sides > span { font-size: .8rem; letter-spacing: .06em; padding: 4px 5px 2px; }
   .gs-sides > .hurt { padding-left: 13px; right: min(calc(100% - var(--z) + 5px), calc(100% - 3.6em)); }
   .gs-sides > .helped { padding-right: 13px; left: min(calc(var(--z) + 5px), calc(100% - 4.5em)); } }

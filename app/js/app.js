@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.13.1";
+  const APP_VERSION = "1.13.2";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -618,7 +618,7 @@
       const left = s.v > 0 ? (0 - lo + pos) / span * 100 : (0 - lo - neg - Math.abs(s.v)) / span * 100;
       if (s.v > 0) pos += s.v; else neg += -s.v;
       const end = s === (s.v > 0 ? ends.p : ends.n) ? (s.v > 0 ? " endp" : " endn") : "";
-      out += `<i class="gs-seg gs-${GS_PARTS[s.i][0]}${s.v < 0 ? " neg" : ""}${end}" style="left:${left.toFixed(2)}%;width:${w.toFixed(2)}%" data-tip="${esc(GS_PARTS[s.i][1])}, ${side}: ${signed(s.v)}"></i>`;
+      out += `<i class="gs-seg gs-${GS_PARTS[s.i][0]}${s.v < 0 ? " neg" : ""}${end}" style="left:${left.toFixed(2)}%;width:${w.toFixed(2)}%" data-tip="${side === "offense" ? "Offense (top bar)" : "Defense (bottom bar)"}, ${esc(GS_PARTS[s.i][1].toLowerCase())}: ${signed(s.v)}"></i>`;
     });
     return out;
   }
@@ -626,7 +626,6 @@
     const say = (lab, v) => `${lab} ${GS_PARTS.map(([, n], i) => `${n.toLowerCase()} ${signed(v[i])}`).join(", ")}`;
     return `<div class="gs-row"><span class="gs-name">${pname(p.name, p.id)}</span><b class="gs-val" data-tip="Game Score ${signed(p.gs)}: offense ${signed(p.o.reduce((a, b) => a + b, 0))} plus defense ${signed(p.d.reduce((a, b) => a + b, 0))}. Above 0 he helped his team; below 0 he hurt it.">${signed(p.gs)}</b>
       <div class="gs-bars" role="img" aria-label="${esc(p.name)}: ${signed(p.gs)}. ${esc(say("Offense", p.o))}. ${esc(say("Defense", p.d))}.">
-      <span class="gs-od" aria-hidden="true"><span class="o">Offense</span><span class="d">Defense</span></span>
       <div class="gs-plot" style="--z:${((0 - lo) / span * 100).toFixed(2)}%"><span class="gs-trk o">${gsTrack(p.o, "offense", lo, span)}</span><span class="gs-trk d">${gsTrack(p.d, "defense", lo, span)}</span></div></div></div>`;
   }
   // the goalie is measured in goals saved, not Game Score, so he gets a plain sentence
