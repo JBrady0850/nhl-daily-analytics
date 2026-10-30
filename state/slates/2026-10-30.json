@@ -1,0 +1,86 @@
+{
+ "date": "2026-10-30",
+ "games": [
+  {
+   "matchup": "WPG @ FLA",
+   "home_win_prob": 0.6573,
+   "tier": "HIGH",
+   "gate_cleared": true,
+   "market": {
+    "home_prob": 0.6669,
+    "away_prob": 0.3331,
+    "books": 6
+   },
+   "home_pillars": {
+    "p1_form": 7.921,
+    "p2_absence": -0.794,
+    "p3_motivation": 0.0,
+    "p4_gvi": -0.76,
+    "p5_friction": 3.396,
+    "adj_raa": 59.764
+   },
+   "away_pillars": {
+    "p1_form": -6.061,
+    "p2_absence": -2.699,
+    "p3_motivation": 0.0,
+    "p4_gvi": -1.961,
+    "p5_friction": -3.396,
+    "adj_raa": 35.883
+   }
+  },
+  {
+   "matchup": "NJD @ VGK",
+   "home_win_prob": 0.526,
+   "tier": "LOW",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.5097,
+    "away_prob": 0.4903,
+    "books": 6
+   },
+   "home_pillars": {
+    "p1_form": 9.351,
+    "p2_absence": 1.157,
+    "p3_motivation": 0.0,
+    "p4_gvi": -0.505,
+    "p5_friction": 0.555,
+    "adj_raa": 60.558
+   },
+   "away_pillars": {
+    "p1_form": 9.897,
+    "p2_absence": 1.631,
+    "p3_motivation": 0.0,
+    "p4_gvi": -3.333,
+    "p5_friction": -0.555,
+    "adj_raa": 57.64
+   }
+  },
+  {
+   "matchup": "SEA @ CGY",
+   "home_win_prob": 0.5145,
+   "tier": "LOW",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.487,
+    "away_prob": 0.513,
+    "books": 6
+   },
+   "home_pillars": {
+    "p1_form": -10.095,
+    "p2_absence": -1.106,
+    "p3_motivation": 0.0,
+    "p4_gvi": -6.56,
+    "p5_friction": 0.0,
+    "adj_raa": 32.239
+   },
+   "away_pillars": {
+    "p1_form": -12.32,
+    "p2_absence": -2.955,
+    "p3_motivation": 0.0,
+    "p4_gvi": -3.645,
+    "p5_friction": 0.0,
+    "adj_raa": 31.08
+   }
+  }
+ ]
+}

@@ -1,7 +1,7 @@
 {
 "season": "20262027",
-"generated": "2026-10-29",
-"count": 799,
+"generated": "2026-10-30",
+"count": 801,
 "players": [
 {
 "team": "ANA",
@@ -21,6 +21,13 @@
 "team": "ANA",
 "name": "Nikita Nesterenko",
 "player_id": "8481754",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Roger McQueen",
+"player_id": "8485400",
 "position": "C",
 "role": "skater"
 },
@@ -77,6 +84,13 @@
 "team": "ANA",
 "name": "Pavel Mintyukov",
 "player_id": "8483490",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Travis Mitchell",
+"player_id": "8484262",
 "position": "D",
 "role": "skater"
 },
@@ -168,6 +182,13 @@
 "team": "ANA",
 "name": "Sam Colangelo",
 "player_id": "8482118",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Troy Terry",
+"player_id": "8478873",
 "position": "R",
 "role": "skater"
 },
@@ -4214,13 +4235,6 @@
 "team": "STL",
 "name": "Mason McTavish",
 "player_id": "8482745",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "STL",
-"name": "Otto Stenberg",
-"player_id": "8484230",
 "position": "C",
 "role": "skater"
 },
