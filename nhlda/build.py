@@ -371,7 +371,7 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
                       "candidate": learning.get("candidate"),
                       "learning": {k: learning.get(k) for k in ("games", "next_at", "cycles", "accepted_cycles",
                                                                 "forward", "min_forward", "forward_t", "last",
-                                                                "candidate_from", "scores")},
+                                                                "candidate_from", "scores", "forward_max")},
                       "calibration": std.get("calibration")},
             "dfs": {"skaters": top_sk, "goalies": top_g},
             "injuries": injuries,

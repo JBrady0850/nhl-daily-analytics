@@ -634,6 +634,9 @@ def test_learning_block_names_the_candidate(tmp_path):
     (tmp_path / "learning.json").write_text(json.dumps(st), encoding="utf-8")
     out = C.run_learning(str(tmp_path))
     assert out["candidate"] == cand and out["candidate_from"] == 165 and out["scores"] == scores
+    # the forward record keeps the latest LEARN_FORWARD_MAX games; the app uses it to say
+    # what it would take for the candidate to go into use
+    assert out["forward_max"] == 300
 
 
 def test_sample_model_block_carries_the_candidate():
@@ -642,6 +645,7 @@ def test_sample_model_block_carries_the_candidate():
     assert isinstance(c["k"], float) and isinstance(c["h"], float) and len(c["w"]) == 5
     L = m["learning"]
     assert L["candidate_from"] <= L["games"] and set(L["scores"]) == {"in_use", "candidate", "baseline"}
+    assert L["forward_max"] == 300
 
 
 def test_strength_reads_the_nhl_situation_code():

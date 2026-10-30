@@ -342,6 +342,23 @@ tr.lead td { background: color-mix(in srgb, var(--high) 9%, var(--panel)); }
 .install[hidden] { display: none; }
 /* Model tab: a candidate value that differs from the setting in use (1.13.0) */
 td.chg { font-weight: 700; color: var(--accent); }
+/* Model tab: why the candidate is or is not in use (1.13.1) */
+.why { margin: 10px 0 14px; padding: 12px 14px; border: 1px solid var(--line); border-left: 4px solid var(--warn); border-radius: 10px;
+  background: color-mix(in srgb, var(--warn) 6%, var(--panel)); }
+.why[data-state="behind"] { border-left-color: var(--bad); background: color-mix(in srgb, var(--bad) 6%, var(--panel)); }
+.why[data-state="passed"] { border-left-color: var(--ok); background: color-mix(in srgb, var(--ok) 6%, var(--panel)); }
+.why h3 { margin: 0 0 4px; font: 600 1.35rem/1.1 var(--display); letter-spacing: .03em; }
+.why p { margin: 6px 0; }
+.why-tests { list-style: none; margin: 8px 0 6px; padding: 0; }
+.why-tests li { margin: 4px 0; display: flex; gap: 8px; align-items: baseline; }
+.why-tests li > .why-mark { flex: none; margin-right: 0; }
+.why-mark { display: inline-block; min-width: 4.6em; margin-right: 6px; padding: 1px 6px 0; border-radius: 6px; text-align: center;
+  font: 600 .92rem/1.5 var(--display); letter-spacing: .06em; text-transform: uppercase; }
+.why-tests .ok .why-mark { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok); }
+.why-tests .no .why-mark { background: color-mix(in srgb, var(--bad) 15%, transparent); color: var(--bad); }
+.why-meter { position: relative; height: 10px; margin: 2px 0 8px; border-radius: 5px; background: var(--line); overflow: hidden; max-width: 420px; }
+.why-meter > i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; background: var(--warn); }
+.why[data-state="passed"] .why-meter > i { background: var(--ok); }
 /* Install app (1.12.0): a gold button on the board beside the name, and the steps in a
    sheet (a bottom sheet on phones) with the device's own buttons drawn in the text */
 .getapp { margin-left: 6px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 999px; cursor: pointer;

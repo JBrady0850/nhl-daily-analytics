@@ -887,6 +887,7 @@ def run_learning(state_dir):
             "scores": (last or {}).get("scores"),
             "forward": R.forward_test(st.get("forward") or []),
             "min_forward": R.LEARN_MIN_FORWARD, "forward_t": R.LEARN_FORWARD_T,
+            "forward_max": R.LEARN_FORWARD_MAX,      # games the forward record keeps (public 1.13.1)
             "last": ({k: last.get(k) for k in ("cycle", "utc", "games", "accepted", "reason")}
                      if last else None),
             "ran_now": ran}

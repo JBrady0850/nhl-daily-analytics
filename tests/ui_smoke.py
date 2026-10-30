@@ -173,6 +173,72 @@ MODEL_JS = """() => { const t = [...document.querySelectorAll('main table')].fin
     note: (document.querySelector('main .cand-note') || {textContent: ''}).textContent}; }"""
 
 
+WHY_JS = """() => { const w = document.querySelector('main .why'); if (!w) return null;
+  const m = w.querySelector('.why-meter > i');
+  return {state: w.dataset.state, title: (w.querySelector('h3') || {textContent: ''}).textContent.trim(),
+    verdict: (w.querySelector('.why-verdict b') || {textContent: ''}).textContent.trim(),
+    tests: [...w.querySelectorAll('.why-tests li')].map(li => [li.className, li.textContent.replace(/\\s+/g, ' ').trim()]),
+    meter: m ? parseFloat(m.style.width) : null, text: w.textContent.replace(/\\s+/g, ' ').trim()}; }"""
+
+
+def _why_numbers(L):
+    """What the panel must say, worked out here the long way."""
+    import math
+    fw = L["forward"]
+    n, gain, lead, req = fw["games"], fw["mean_gain"], -fw["t"], -L["forward_t"]
+    luck = lambda z: 1 - 0.5 * (1 + math.erf(z / math.sqrt(2)))
+    out = {"n": n, "lead": lead, "req": req, "in_n": round(1 / luck(lead)) if lead > 0 else None,
+           "req_n": round(1 / luck(req)), "total": gain * n}
+    if lead > 0:
+        need = n * (req / lead) ** 2
+        out["need"] = round(need, -1) if need < 1000 else round(need, -2)
+        cap = L["forward_max"]
+        out["factor"] = req / (lead * math.sqrt(cap / n)) if n < cap else req / lead
+    return out
+
+
+def check_model_why(pg, L, want_state):
+    """Model tab (John, 2026-10-30: "It needs to include a better summary of why the
+    Candidate is not being used"): a panel that says, in plain words, which of the two
+    tests the candidate fails (enough unseen games; a clear lead), how far it is from
+    each, how often luck alone gives a lead its size, and what it would take."""
+    pg.click('#tabs button[data-tab="model"]')
+    pg.wait_for_timeout(40)
+    got = pg.evaluate(WHY_JS)
+    if not got:
+        return ["model: no panel explaining why the candidate is not in use"]
+    out = []
+    w = _why_numbers(L)
+    heads = {"small": ("Why the candidate is not in use", "Its lead is too small to trust yet."),
+             "behind": ("Why the candidate is not in use", "It predicts worse than the settings in use."),
+             "testing": ("Why the candidate is not in use", "It is still being tested."),
+             "passed": ("The candidate has passed", "It goes into use at the next learning cycle.")}
+    if got["state"] != want_state or (got["title"], got["verdict"]) != heads[want_state]:
+        out.append(f"model why: state {got['state']!r}, title {got['title']!r}, verdict {got['verdict']!r} (want {want_state}: {heads[want_state]})")
+    games_ok = w["n"] >= L["min_forward"]
+    lead_ok = w["lead"] >= w["req"]
+    t1 = ["ok" if games_ok else "no", f"{'Met' if games_ok else 'Not yet'} Enough unseen games: {w['n']} of {L['min_forward']} required."]
+    t2 = ["ok" if lead_ok else "no", f"{'Met' if lead_ok else 'Not yet'} A clear lead: " +
+          (f"{w['lead']:.1f} of {w['req']:.1f} standard errors required." if w["lead"] > 0
+           else f"behind by {-w['lead']:.1f} standard errors; {w['req']:.1f} ahead required.")]
+    if got["tests"] != [t1, t2]:
+        out.append(f"model why tests {got['tests']} (want {[t1, t2]})")
+    meter = max(0, min(100, w["lead"] / w["req"] * 100))
+    if got["meter"] is None or abs(got["meter"] - meter) > 0.6:
+        out.append(f"model why meter {got['meter']} (want {meter:.1f})")
+    must = [f"about 1 time in {w['req_n']}"]
+    if want_state in ("small", "testing") and w["lead"] > 0:
+        must += [f"about 1 time in {w['in_n']}", f"about {w['need']:,.0f} unseen games", f"{w['total']:.3f}"]
+        if w["n"] < L["forward_max"] and w["need"] > L["forward_max"]:
+            must.append(f"about {w['factor']:.1f} times")
+    if want_state == "behind":
+        must.append("worse")
+    for m in must:
+        if m not in got["text"]:
+            out.append(f"model why: missing {m!r} in {got['text'][:400]!r}")
+    return out
+
+
 def check_model_tab(pg, sample):
     """Model tab (John, 2026-10-30: "A column needs to be added for the Candidate"): the
     settings table shows the candidate beside the settings in use and the baseline,
@@ -972,6 +1038,7 @@ def main():
                 fails.extend(f"{name}: {m}" for m in check_final_results(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_injuries_tab(pg, sample, mob))
                 fails.extend(f"{name}: {m}" for m in check_model_tab(pg, sample))
+                fails.extend(f"{name}: {m}" for m in check_model_why(pg, sample["model"]["learning"], "small"))
                 pg.click('#tabs button[data-tab="today"]')
                 tile = pg.locator(".tile").nth(2)
                 if mob:
@@ -1074,6 +1141,18 @@ def main():
             note = pg.locator("main .note.warn")
             if note.count() != 1 or "Daily Faceoff" not in note.inner_text():
                 fails.append(f"build note missing on {t}")
+        for st_name, fw in (("behind", {"games": 120, "mean_gain": -0.0011, "t": 1.3, "passed": False}),
+                            ("testing", {"games": 25, "mean_gain": 0.00093, "t": -0.8, "passed": False}),
+                            ("passed", {"games": 260, "mean_gain": 0.004, "t": -2.4, "passed": True})):
+            var = json.loads(json.dumps(alt))
+            var["model"]["learning"]["forward"] = fw
+            with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
+                fh.write("window.NDA_DATA=" + json.dumps(var) + ";\n")
+            pg.reload()
+            fails.extend(f"model {st_name}: {m}" for m in check_model_why(pg, var["model"]["learning"], st_name))
+        with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
+            fh.write("window.NDA_DATA=" + json.dumps(alt) + ";\n")
+        pg.reload()
         pg.click('#tabs button[data-tab="settings"]')
         if "11 players from Daily Faceoff's injured lists" not in pg.inner_text("main"):
             fails.append("Settings does not name the injury source")

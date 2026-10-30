@@ -133,7 +133,7 @@ Trophy, `e` eliminated, or `null`).
 | Key | Meaning |
 | --- | --- |
 | `settings_in_use`, `baseline`, `candidate` | `h` (home ice in rating points), `k` (logistic slope) and `w` (the five pillar weights). `candidate` is the setting under test, proposed at the last learning cycle; `null` before the first cycle. |
-| `learning` | `games`, `next_at`, `cycles`, `accepted_cycles`, `forward` (the candidate's score on unseen games: `games`, `mean_gain`, `t`, `passed`), `min_forward`, `forward_t`, `last`, `candidate_from` (settled games when the candidate was proposed) and `scores` (`in_use`, `candidate`, `baseline`, each `log_loss`, `brier` and `accuracy` on this season's settled games at the last cycle; the candidate was fit on those games). |
+| `learning` | `games`, `next_at`, `cycles`, `accepted_cycles`, `forward` (the candidate's score on unseen games: `games`, `mean_gain`, `t`, `passed`), `min_forward`, `forward_t` (the lead required, in standard errors, negative), `forward_max` (the latest games the record keeps), `last`, `candidate_from` (settled games when the candidate was proposed) and `scores` (`in_use`, `candidate`, `baseline`, each `log_loss`, `brier` and `accuracy` on this season's settled games at the last cycle; the candidate was fit on those games). |
 | `calibration` | Probability bands: `lo`, `hi`, `games`, `correct`, `hit_rate`, `mean_prob`. |
 
 ## `injuries`

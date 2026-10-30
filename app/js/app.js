@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.13.0";
+  const APP_VERSION = "1.13.1";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -832,6 +832,49 @@
   }
 
   // ---------- model ----------
+  // 1.13.1 (John: "It needs to include a better summary of why the Candidate is not being
+  // used"): the two tests the candidate must pass, how far it is from each, how often luck
+  // alone gives a lead its size, and what it would take
+  const normTail = z => {            // P(Z > z), standard normal (Abramowitz and Stegun 7.1.26)
+    const x = Math.abs(z) / Math.SQRT2, t = 1 / (1 + 0.3275911 * x);
+    const erf = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+    return z >= 0 ? (1 - erf) / 2 : (1 + erf) / 2;
+  };
+  const roughly = v => (v < 1000 ? Math.round(v / 10) * 10 : Math.round(v / 100) * 100).toLocaleString("en-US");
+  function whyPanel(M, L) {
+    const fw = L.forward || {}, n = fw.games || 0;
+    if (!M.candidate && !n) return "";
+    const minN = L.min_forward || 40, req = Math.abs(L.forward_t || 2), cap = L.forward_max || 300;
+    const lead = typeof fw.t === "number" ? -fw.t : 0, gain = fw.mean_gain || 0;
+    const state = fw.passed ? "passed" : n < minN ? "testing" : lead <= 0 ? "behind" : "small";
+    const gamesOk = n >= minN, leadOk = lead >= req;
+    const verdict = { passed: "It goes into use at the next learning cycle.", testing: "It is still being tested.",
+      behind: "It predicts worse than the settings in use.", small: "Its lead is too small to trust yet." }[state];
+    const oneIn = z => Math.round(1 / normTail(z)).toLocaleString("en-US");
+    const test = (ok, lab, body) => `<li class="${ok ? "ok" : "no"}"><span class="why-mark">${ok ? "Met" : "Not yet"}</span> <span>${lab}: ${body}</span></li>`;
+    const meter = Math.max(0, Math.min(100, lead / req * 100));
+    let body = "";
+    if (state === "behind") {
+      body = `<p>On ${esc(n)} games it was not fit on, its win probabilities were worse than the settings in use, by ${num(Math.abs(gain), 5)} log loss per game (${num(Math.abs(gain) * n, 3)} over the ${esc(n)} games). A candidate goes into use only with a clear lead, one that luck alone would give only about 1 time in ${oneIn(req)} (two standard errors), so this one is kept out. A new candidate is proposed every cycle, so a later one can still pass.</p>`;
+    } else if (state === "passed") {
+      body = `<p>On ${esc(n)} games it was not fit on, it beat the settings in use by ${num(gain, 5)} log loss per game, ${num(lead, 1)} standard errors (${num(req, 1)} required). Luck alone gives a lead that size only about 1 time in ${oneIn(lead)}; the rule asks for about 1 time in ${oneIn(req)}.</p>`;
+    } else {
+      const sofar = state === "testing" ? `So far, on ${esc(n)} of the ${esc(minN)} games it must be scored on, ` : `On ${esc(n)} games it was not fit on, `;
+      body = lead > 0
+        ? `<p>${sofar}its win probabilities were slightly better than the settings in use: ${num(gain, 5)} log loss per game, ${num(gain * n, 3)} over the ${esc(n)} games. Hockey results swing so much from game to game that a lead this small shows up by luck alone about 1 time in ${oneIn(lead)}. The rule waits for a lead that luck would give only about 1 time in ${oneIn(req)} (two standard errors).</p>`
+        : `<p>${sofar}its win probabilities were no better than the settings in use (${num(gain, 5)} log loss per game). The rule waits for a lead that luck would give only about 1 time in ${oneIn(req)} (two standard errors).</p>`;
+      if (lead > 0 && lead < req) {
+        const need = n * Math.pow(req / lead, 2), atCap = n < cap ? lead * Math.sqrt(cap / n) : lead;
+        body += `<p>At today's edge per game it would reach ${num(req, 1)} standard errors after about ${roughly(need)} unseen games${need > 1312 ? `, about ${num(need / 1312, 1)} seasons of 1,312 games` : ""}.${need > cap ? ` The record keeps only the latest ${esc(cap)} games, so it can go into use only if its edge per game grows to about ${num(req / atCap, 1)} times today's.` : ""}</p>`;
+      }
+    }
+    return `<div class="why" data-state="${state}"><h3>${state === "passed" ? "The candidate has passed" : "Why the candidate is not in use"}</h3>
+      <p class="why-verdict"><b>${verdict}</b> It must pass two tests on games it was not fit on before it replaces the settings in use.</p>
+      <ul class="why-tests">${test(gamesOk, "Enough unseen games", `<b>${esc(n)}</b> of ${esc(minN)} required.`)}${test(leadOk, "A clear lead", lead > 0 ? `<b>${num(lead, 1)}</b> of ${num(req, 1)} standard errors required.` : `behind by <b>${num(-lead, 1)}</b> standard errors; ${num(req, 1)} ahead required.`)}</ul>
+      <div class="why-meter" role="img" aria-label="Lead: ${num(Math.max(lead, 0), 1)} of ${num(req, 1)} standard errors"><i style="width:${meter.toFixed(1)}%"></i></div>
+      ${body}
+      <p class="small muted">A standard error measures the lead against game-to-game luck. The bar is set at two because, in simulated NHL seasons, adopting smaller leads moved the model on noise and predicted the next games worse.</p></div>`;
+  }
   function vModel() {
     const M = D.model || {}, L = M.learning || {}, cur = M.settings_in_use || {}, base = M.baseline || {}, cand = M.candidate || {};
     const names = ["P1 Form", "P2 Absence", "P3 Motivation", "P4 Goalie", "P5 Friction"];
@@ -852,7 +895,7 @@
       `Candidate under test: scored on ${esc(fw.games)} unseen games (${esc(L.min_forward)} required), ${(fw.mean_gain || 0) > 0 ? "ahead of" : "behind"} the settings in use by ${num(Math.abs(fw.mean_gain || 0), 5)} log loss per game, ${num(Math.abs(fw.t || 0), 1)} standard errors (${num(Math.abs(L.forward_t || 2), 1)} required to go into use).`;
     const cal = (M.calibration || []).map(b => `<tr>${td(`${Math.round(b.lo * 100)}-${Math.round(Math.min(b.hi, 1) * 100)}%`)}${td(b.games, "n")}${td(b.mean_prob != null ? pct(b.mean_prob) : "-", "n")}${td(b.hit_rate != null ? pct(b.hit_rate) : "-", "n")}<td><div class="bar"><i style="width:${b.hit_rate != null ? (b.hit_rate * 100).toFixed(0) : 0}%"></i></div></td></tr>`).join("");
     return `${head("model", "Model")}${stamp()}
-      <section class="card"><h2 style="margin-top:0">Learning</h2><p>${esc(L.games || 0)} settled games this season; next learning cycle at ${esc(L.next_at || "-")}. ${esc(L.cycles || 0)} cycles so far, ${esc(L.accepted_cycles || 0)} adopted.</p><p>${status}</p>
+      <section class="card"><h2 style="margin-top:0">Learning</h2><p>${esc(L.games || 0)} settled games this season; next learning cycle at ${esc(L.next_at || "-")}. ${esc(L.cycles || 0)} cycles so far, ${esc(L.accepted_cycles || 0)} adopted.</p>${whyPanel(M, L) || `<p>${status}</p>`}
       ${L.last ? `<p class="small muted">Last cycle ${esc(L.last.cycle)}: ${esc(L.last.reason || "")}</p>` : ""}
       ${tbl(th("Setting") + th("In use", "n") + th("Candidate", "n") + th("Baseline", "n"), set)}${candNote}<p class="tiny muted">Baseline: the 2025-26 calibration on 1,312 games. A change is adopted only after it beats the settings in use on at least 40 games it was not fit on, by two standard errors of log loss.</p></section>
       <section class="card"><h2 style="margin-top:0">Calibration this season</h2><p class="small muted">How often the projected winner won in each probability band. A calibrated model's 60 percent picks win about 60 percent of the time; small bands swing a lot.</p>${cal ? tbl(th("Band") + th("Games", "n") + th("Average", "n") + th("Won", "n") + th(""), cal) : '<p class="muted">No games yet.</p>'}</section>`;
