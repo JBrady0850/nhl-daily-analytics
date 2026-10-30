@@ -55,10 +55,17 @@ What the app can and cannot do. Read this before you rely on a number.
 
 - Line combinations come from Daily Faceoff when its team page answers. GitHub's
   servers are shared, and the site may not always answer them.
-- When it does not, the lines are rebuilt from the team's last game: the players who
-  shared the most ice time are grouped into four lines and three pairs. That shows how
-  the team played last game, not a projection of tonight. The note under each table
-  says which source was used.
+- When it does not answer, the app keeps its last answer: a team's lines for up to three
+  days, starting goalies for the same date only. On 2026-10-30 it answered the 9:00 AM
+  update and refused the 4:45 PM one (HTTP 403); the evening data now keeps the morning's
+  lines and goalies instead of falling back. A Data note and the note under each table
+  say so.
+- With no earlier answer to keep, the lines are rebuilt from the team's last game: the
+  players who shared the most ice time are grouped into four lines and three pairs, and
+  the forward lines are numbered by their points per game this season (ice time is no
+  guide: a top line whose wingers take penalties plays less). That shows how the team
+  played last game, not a projection of tonight, and the numbering may differ from the
+  coach's. The note under each table says so.
 - Player stats count the current regular season only. Preseason never counts. Early in
   the season "Last 10" covers fewer than 10 games.
 

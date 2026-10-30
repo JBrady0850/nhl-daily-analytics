@@ -338,6 +338,8 @@ tr.lead td { background: color-mix(in srgb, var(--high) 9%, var(--panel)); }
 .install[hidden] { display: none; }
 /* Model tab: a candidate value that differs from the setting in use (1.13.0) */
 td.chg { font-weight: 700; color: var(--accent); }
+/* Lines: where the lines came from when Daily Faceoff did not answer (1.13.3) */
+.lines-src.warn { color: var(--warn); border-left: 3px solid var(--warn); padding: 2px 0 2px 8px; margin-top: 8px; }
 /* Model tab: why the candidate is or is not in use (1.13.1) */
 .why { margin: 10px 0 14px; padding: 12px 14px; border: 1px solid var(--line); border-left: 4px solid var(--warn); border-radius: 10px;
   background: color-mix(in srgb, var(--warn) 6%, var(--panel)); }

@@ -24,7 +24,7 @@ from . import raa_core as R
 from .data import (Fetcher, SlateDetector, TeamGameLog, MoneyPuckLoader, StandingsResolver,
                    PlayoffSeriesResolver, GAME_TYPE_PLAYOFFS, season_string, next_slate,
                    fetch_market_odds, fetch_finals)
-from .lines import all_team_lines
+from .lines import all_team_lines, dfo_goalies_with_cache, dfo_note
 from . import gamescore as GS
 
 FORMAT = "nhl-daily-analytics/1"
@@ -195,7 +195,8 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
             dfo = hr = None
             if use_dfo:
                 try:
-                    dfo = await I.DailyFaceoffGoalies().resolve(f, target_date)
+                    # 1.13.3: when Daily Faceoff refuses, its earlier answer for the same date
+                    dfo = await dfo_goalies_with_cache(f, target_date, state_dir)
                 except Exception as exc:  # noqa: BLE001
                     problems.append(f"goalies: {exc}")
             # Injuries: ESPN's public feed first (it answers GitHub's servers), the
@@ -238,7 +239,9 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
             intel_status = {
                 "starting_goalies": {"loaded": bool(dfo and dfo.loaded),
                                      "teams": len(dfo.by_team) if dfo else 0,
-                                     "confirmed": sum(1 for v in dfo.by_team.values() if v.get("confirmed")) if dfo else 0},
+                                     "confirmed": sum(1 for v in dfo.by_team.values() if v.get("confirmed")) if dfo else 0,
+                                     "refused": bool(dfo and dfo.refused),
+                                     "cached_utc": dfo.cached_utc if dfo else None},
                 "injuries": inj_status,
                 "market_games": len(market), "moneypuck_season": mp.loaded_season,
             }
@@ -340,6 +343,14 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
         except Exception as exc:  # noqa: BLE001
             problems.append(f"lines: {exc}")
             lines, lines_status = {}, {"error": str(exc)[:160]}
+        # 1.13.3: say so when Daily Faceoff refused this update, and what was used instead
+        sg = (intel_status or {}).get("starting_goalies") or {}
+        note = dfo_note(bool(sg.get("refused")), bool(lines_status.get("refused")),
+                        {t: d["cached_utc"] for t, d in lines.items() if d.get("cached_utc")},
+                        lines_status.get("shift_chart", 0) if lines_status.get("refused") else 0,
+                        goalies_cached=sg.get("cached_utc"))
+        if note:
+            problems.append(note)
 
         # My Teams: every team's latest finished game, broken down by player
         try:

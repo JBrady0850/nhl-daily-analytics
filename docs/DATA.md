@@ -29,7 +29,7 @@ no wager, account or chat wording.
 | `injuries` | object | Every injured player the injury reports name, league-wide. See below. |
 | `gamescore` | object | Each team's last finished game, scored player by player. See below. |
 | `dfs` | object | DraftKings projections: `skaters` (top 30 by projection) and `goalies` (every probable starter, highest team win probability first, ties by projection). |
-| `sources` | object | What loaded: goalie and injury counts, `injuries.sources` (the reports read: `espn`, `hockey_reference`, `daily_faceoff`) and `injuries.source` (the same joined with `+`, or `none`), market games, lines by source, request counts, build seconds. |
+| `sources` | object | What loaded: goalie and injury counts, `injuries.sources` (the reports read: `espn`, `hockey_reference`, `daily_faceoff`) and `injuries.source` (the same joined with `+`, or `none`), market games, lines by source, request counts, build seconds. `starting_goalies.refused` and `lines.refused` (teams) say Daily Faceoff did not answer this update; `starting_goalies.cached_utc`, `lines.cached` and `lines.cached_utc` say its earlier answer was used instead. |
 | `problems` | list | Plain-text notes about anything that failed or fell back. Empty on a clean run. |
 
 ## `slate`
@@ -86,7 +86,8 @@ One object per team abbreviation:
 
 | Key | Meaning |
 | --- | --- |
-| `source` | `daily_faceoff`, `shift_chart` (rebuilt from the last game) or `none`. |
+| `source` | `daily_faceoff`, `shift_chart` (rebuilt from the last game; forward lines numbered by season points per game) or `none`. |
+| `cached_utc` | Present only when Daily Faceoff did not answer this update and these are its earlier answer (kept up to three days in `state/dfo_cache.json`): when that answer was read. |
 | `url`, `source_name`, `source_url`, `updated_at` | Where the combinations came from and when that source last changed them. |
 | `error` | Why lines are missing, or `null`. |
 | `lines` | Four forward lines: `line`, `players`, `totals`, `leaders`. |

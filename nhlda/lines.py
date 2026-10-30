@@ -9,6 +9,7 @@ from the NHL's own per-game logs (this season, no preseason).
 """
 import asyncio
 import datetime as dt
+import json
 import logging
 import os
 from collections import defaultdict
@@ -20,6 +21,136 @@ log = logging.getLogger("nhlda.lines")
 
 SHIFT_TYPE = 517             # shift rows in the NHL shift chart (other codes are goal events)
 POS_FORWARD = {"C": "C", "L": "LW", "R": "RW"}
+
+# Public 1.13.3. On 2026-10-30 Daily Faceoff answered GitHub's server at the 9:00 AM
+# update and refused it (HTTP 403) at 4:45 PM: every team's lines fell back to the
+# shift-chart rebuild and every starting goalie to the rotation guess. Its last good
+# answer is now kept in state/dfo_cache.json and used when it refuses: lines for up
+# to LINES_CACHE_DAYS days, starting goalies only for the same date.
+DFO_CACHE = "dfo_cache.json"
+LINES_CACHE_DAYS = 3
+
+
+def _utc_now():
+    return dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _age_days(then, now):
+    try:
+        a = dt.datetime.fromisoformat(then.replace("Z", "+00:00"))
+        b = dt.datetime.fromisoformat(now.replace("Z", "+00:00"))
+        return (b - a).total_seconds() / 86400
+    except (AttributeError, ValueError):
+        return 99
+
+
+def _load_cache(state_dir):
+    try:
+        c = json.load(open(os.path.join(state_dir, DFO_CACHE), encoding="utf-8"))
+        return c if isinstance(c, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def _save_cache(state_dir, cache):
+    path = os.path.join(state_dir, DFO_CACHE)
+    with open(path + ".tmp", "w", encoding="utf-8") as fh:
+        json.dump(cache, fh, separators=(",", ":"), sort_keys=True)
+    os.replace(path + ".tmp", path)
+
+
+async def dfo_lines_with_cache(f, teams, state_dir, now_utc=None):
+    """Daily Faceoff's lines for each team, four teams at a time. A team it refuses
+    gets its last good answer when that is under LINES_CACHE_DAYS days old.
+    Returns ({team: DailyFaceoffLines}, {"refused": [...], "cached": {team: read_utc}})."""
+    now = now_utc or _utc_now()
+    cache = _load_cache(state_dir)
+    saved = cache.setdefault("lines", {})
+    got, refused, used = {}, [], {}
+    for i in range(0, len(teams), 4):                     # gentle on the source
+        chunk = teams[i:i + 4]
+        res = await asyncio.gather(*[I.DailyFaceoffLines(t).resolve(f) for t in chunk])
+        got.update({t: dl for t, dl in zip(chunk, res)})
+    for t in teams:
+        dl = got[t]
+        if not dl.error and dl.combinations:
+            saved[t] = {"read_utc": now, "url": dl.url, "combinations": dl.combinations}
+            continue
+        if dl.error == "fetch_failed":
+            refused.append(t)
+        old = saved.get(t)
+        if old and _age_days(old.get("read_utc"), now) <= LINES_CACHE_DAYS:
+            again = I.DailyFaceoffLines(t)
+            again.url = old.get("url")
+            again.from_combinations(old.get("combinations") or {})
+            if not again.error:
+                again.cached_utc = old.get("read_utc")
+                got[t] = again
+                used[t] = again.cached_utc
+    _save_cache(state_dir, cache)
+    return got, {"refused": refused, "cached": used}
+
+
+async def dfo_goalies_with_cache(f, date, state_dir, now_utc=None):
+    """Daily Faceoff's starting goalies for the date; when it refuses, its earlier
+    answer for the same date (never another day's)."""
+    now = now_utc or _utc_now()
+    g = await I.DailyFaceoffGoalies().resolve(f, date)
+    cache = _load_cache(state_dir)
+    if g.loaded:
+        cache["goalies"] = {"date": date, "read_utc": now, "by_team": g.by_team}
+        _save_cache(state_dir, cache)
+        return g
+    g.refused = g.error == "fetch_failed"
+    old = cache.get("goalies") or {}
+    if old.get("date") == date and old.get("by_team"):
+        g.by_team = dict(old["by_team"])
+        g.loaded = True
+        g.cached_utc = old.get("read_utc")
+    return g
+
+
+def dfo_note(goalies_refused, lines_refused, lines_cached, rebuilt, goalies_cached=None):
+    """The Data note for a run Daily Faceoff did not answer, saying what was used
+    instead; None when it answered."""
+    if not goalies_refused and not lines_refused:
+        return None
+    stamp = lambda u: (u or "")[:16].replace("T", " ") + " UTC"
+    used = []
+    if goalies_refused:
+        used.append(f"starting goalies come from its answer at {stamp(goalies_cached)}" if goalies_cached
+                    else "starting goalies are the rotation guess")
+    if lines_refused:
+        if lines_cached:
+            when = sorted(set(lines_cached.values()))
+            used.append(f"line combinations come from its answer at {stamp(when[-1])}"
+                        + (f" ({len(lines_cached)} teams)" if len(lines_cached) < 32 else ""))
+        if rebuilt:
+            used.append(f"line combinations for {rebuilt} team{'s' if rebuilt != 1 else ''} are rebuilt from "
+                        "each team's last game")
+    return "Daily Faceoff did not answer this update, so " + "; ".join(used) + "."
+
+
+def center_middle(rows):
+    """Left wing, center, right wing: the center between his wingers even when the
+    NHL lists both wingers on one side."""
+    order = {"LW": 0, "C": 1, "RW": 2}
+    rows = sorted(rows, key=lambda r: order.get(r.get("pos"), 9))
+    centers = [r for r in rows if r.get("pos") == "C"]
+    if len(rows) != 3 or len(centers) != 1:
+        return rows
+    wings = [r for r in rows if r is not centers[0]]
+    return [wings[0], centers[0], wings[1]]
+
+
+def order_rebuilt_lines(lines):
+    """Number rebuilt forward lines by the line's points per game this season (the
+    shift chart cannot know the coach's numbering; ice time is no guide, since a
+    top line that takes penalties plays less)."""
+    out = sorted(lines, key=lambda ln: -((ln.get("totals") or {}).get("season") or {}).get("p_pg", 0))
+    for n, ln in enumerate(out, start=1):
+        ln["line"] = n
+    return out
 
 
 def _abs_seconds(period, mmss):
@@ -123,7 +254,7 @@ async def lines_from_shifts(f, team, before_date):
         return r
 
     for n, grp in enumerate(group_by_shared_ice(fwd, shifts, 3, 4), start=1):
-        rows = sorted((row(p) for p in grp), key=lambda r: order.get(r["pos"], 9))
+        rows = center_middle([row(p) for p in grp])
         dl.lines.append({"line": n, "players": rows, "totals": {w: dl._totals(rows, w) for w in dl.WINDOWS}})
     for n, grp in enumerate(group_by_shared_ice(dmen, shifts, 2, 3), start=1):
         rows = [row(p) for p in grp]
@@ -141,12 +272,9 @@ async def lines_from_shifts(f, team, before_date):
 async def all_team_lines(f, teams, target_date, season, state_dir, use_dfo=True):
     """Lines for every team: Daily Faceoff first, shift charts as the fallback,
     then NHL game-log stats for every player. Returns ({team: dict}, status)."""
-    got = {}
+    got, info = {}, {"refused": [], "cached": {}}
     if use_dfo:
-        for i in range(0, len(teams), 4):                     # gentle on the source
-            chunk = teams[i:i + 4]
-            res = await asyncio.gather(*[I.DailyFaceoffLines(t).resolve(f) for t in chunk])
-            got.update({t: dl for t, dl in zip(chunk, res)})
+        got, info = await dfo_lines_with_cache(f, teams, state_dir)
     fallback = [t for t in teams if t not in got or got[t].error]
     if fallback:
         res = await asyncio.gather(*[lines_from_shifts(f, t, target_date) for t in fallback])
@@ -168,6 +296,10 @@ async def all_team_lines(f, teams, target_date, season, state_dir, use_dfo=True)
     stats = await win.apply(f, [dl for dl in got.values() if not dl.error], pairs=True)
     out = {}
     drop = ("dfo_last10", "dfo_season", "last10_playoff_games")
+    for t in fallback:                                        # rebuilt lines: numbered by points
+        if not got[t].error:
+            got[t].lines = order_rebuilt_lines(got[t].lines)
+            got[t]._mark_leaders()
     for t in teams:
         dl = got[t]
         for grp in (dl.lines, dl.pairs):
@@ -178,11 +310,15 @@ async def all_team_lines(f, teams, target_date, season, state_dir, use_dfo=True)
         d = dl.as_dict()
         d["source"] = ("daily_faceoff" if (dl.url and not dl.error and not (dl.source_name or "").endswith("shift chart"))
                        else ("shift_chart" if not dl.error else "none"))
+        if getattr(dl, "cached_utc", None):
+            d["cached_utc"] = dl.cached_utc          # Daily Faceoff's earlier answer, read then
         out[t] = d
     status = {"teams": len(teams),
               "daily_faceoff": sum(1 for d in out.values() if d["source"] == "daily_faceoff"),
               "shift_chart": sum(1 for d in out.values() if d["source"] == "shift_chart"),
               "missing": [t for t, d in out.items() if d["source"] == "none"],
               "players": stats.get("players"), "nhl_stats": stats.get("nhl"),
-              "unresolved": len(stats.get("unresolved") or [])}
+              "unresolved": len(stats.get("unresolved") or []),
+              "refused": len(info["refused"]), "cached": len(info["cached"]),
+              "cached_utc": max(info["cached"].values()) if info["cached"] else None}
     return out, status

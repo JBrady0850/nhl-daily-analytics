@@ -199,10 +199,12 @@ All free and public. No keys, accounts or paid services.
 The workflow keeps the number of requests small (one page per team for lines, one
 page for goalies, one for injuries), runs only a few at a time, follows each site's
 robots.txt, and links back to the source next to the data it shows. If Daily
-Faceoff does not answer, goalies fall back to the model's own guess from recent
-workload, and lines are rebuilt from the team's last game: the NHL shift chart shows
-who was on the ice together, and the players who shared the most ice time are grouped
-into lines and pairs.
+Faceoff does not answer an update, the app keeps its last answer (lines for up to
+three days, starting goalies for the same date) and says so in a Data note. With no
+earlier answer, goalies fall back to the model's own guess from recent workload, and
+lines are rebuilt from the team's last game: the NHL shift chart shows who was on the
+ice together, the players who shared the most ice time are grouped into lines and
+pairs, and the forward lines are numbered by their points per game.
 
 Missing players come from each team's last lineup plus the injury reports: ESPN's
 feed first, then the injured lists on Daily Faceoff's team pages for anyone ESPN does

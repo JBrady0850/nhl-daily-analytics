@@ -274,6 +274,32 @@ def check_model_tab(pg, sample):
     return out
 
 
+LINES_SRC_JS = """(ab) => { const c = [...document.querySelectorAll('main section.card')].find(s => (s.querySelector('h2 .tm') || {textContent: ''}).textContent.trim() === ab);
+  if (!c) return null; const w = c.querySelector('.lines-src');
+  return {warn: !!(w && w.classList.contains('warn')), text: w ? w.textContent.replace(/\\s+/g, ' ').trim() : '',
+    note: !!document.querySelector('main .note.warn')}; }"""
+
+
+def check_lines_source(pg, ab, kind):
+    """Where a team's lines came from, said where the lines are (John, 2026-10-30: the
+    Panthers lines were wrong after Daily Faceoff refused the 4:45 PM update and the app
+    quietly showed a shift-chart rebuild). kind: daily_faceoff, cached or shift_chart."""
+    pg.click('#tabs button[data-tab="lines"]')
+    pg.wait_for_timeout(40)
+    got = pg.evaluate(LINES_SRC_JS, ab)
+    if not got:
+        return [f"lines source: no card for {ab}"]
+    want = {"daily_faceoff": (False, "Combinations from Daily Faceoff"),
+            "cached": (True, "Daily Faceoff did not answer the latest update"),
+            "shift_chart": (True, "Daily Faceoff could not be reached")}[kind]
+    out = []
+    if got["warn"] != want[0] or want[1] not in got["text"]:
+        out.append(f"lines source {kind}: warn {got['warn']}, text {got['text'][:160]!r}")
+    if kind == "shift_chart" and "numbered by their points" not in got["text"]:
+        out.append(f"lines source {kind}: does not say how rebuilt lines are numbered ({got['text'][:160]!r})")
+    return out
+
+
 LAST_GAME_JS = """(ab) => {
   const c = [...document.querySelectorAll('main section.teamcard')].find(s => s.querySelector('.tc-head .tm').textContent.trim() === ab);
   if (!c) return {card: false};
@@ -1031,6 +1057,7 @@ def main():
                 fails.extend(f"{name}: {m}" for m in check_team_places(pg, sample, "FLA", mob))
                 fails.extend(f"{name}: {m}" for m in check_last_game(pg, sample, "FLA"))
                 fails.extend(f"{name}: {m}" for m in check_lines_tab(pg, sample))
+                fails.extend(f"{name}: {m}" for m in check_lines_source(pg, sample["slate"]["games"][0]["projected"], "daily_faceoff"))
                 fails.extend(f"{name}: {m}" for m in check_dfs_goalies(pg, len(sample["dfs"]["goalies"])))
                 fails.extend(f"{name}: {m}" for m in check_my_pick(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_final_results(pg, sample))
@@ -1139,6 +1166,18 @@ def main():
             note = pg.locator("main .note.warn")
             if note.count() != 1 or "Daily Faceoff" not in note.inner_text():
                 fails.append(f"build note missing on {t}")
+        top = alt["slate"]["games"][0]["projected"]
+        for kind in ("cached", "shift_chart"):
+            var = json.loads(json.dumps(alt))
+            L = var["lines"][top]
+            if kind == "cached":
+                L["cached_utc"] = "2026-10-24T14:53:00Z"
+            else:
+                L.update(source="shift_chart", url=None, source_name="Last game (2026-10-22), NHL shift chart")
+            with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
+                fh.write("window.NDA_DATA=" + json.dumps(var) + ";\n")
+            pg.reload()
+            fails.extend(f"lines {kind}: {m}" for m in check_lines_source(pg, top, kind))
         for st_name, fw in (("behind", {"games": 120, "mean_gain": -0.0011, "t": 1.3, "passed": False}),
                             ("testing", {"games": 25, "mean_gain": 0.00093, "t": -0.8, "passed": False}),
                             ("passed", {"games": 260, "mean_gain": 0.004, "t": -2.4, "passed": True})):

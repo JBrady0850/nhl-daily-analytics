@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.13.2";
+  const APP_VERSION = "1.13.3";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -566,9 +566,14 @@
       const t = (x.totals || {})[w] || {};
       return body + `<tr class="tot"><td></td><td class="hm"></td><td>${esc(unit)} total: ${num(t.p_pg, 2)} P/GP, ${num(t.sog_pg, 1)} SOG/GP ${tags}</td><td class="hm"></td>${td("", "n")}${td(esc(t.g ?? ""), "n")}${td(esc(t.a ?? ""), "n")}${td(esc(t.p ?? ""), "n")}${td(esc(t.sog ?? ""), "n")}${td(esc(t.ppp ?? ""), "n hm")}<td class="hm"></td>${td(esc(t.pim ?? ""), "n")}</tr>`;
     }).join("");
-    const src = L.source === "daily_faceoff" ? `Combinations from <a href="${esc(L.url)}" target="_blank" rel="noopener">Daily Faceoff</a> (${esc(L.source_name || "projected")}${L.updated_at ? ", updated " + esc(localStamp(L.updated_at)) : ""})`
-      : `Combinations rebuilt from the team's last game (${esc(L.source_name || "NHL shift chart")}): players who shared the most ice time`;
-    return tbl(head, rows) + `<p class="tiny muted">${src}. Stats from the NHL's game logs, ${w === "season" ? "this season" : "each player's last 10 games this season"}; preseason never counts.</p>`;
+    // 1.13.3: say where the lines came from, plainly, when Daily Faceoff did not answer
+    const dfo = `Combinations from <a href="${esc(L.url)}" target="_blank" rel="noopener">Daily Faceoff</a> (${esc(L.source_name || "projected")}${L.updated_at ? ", updated " + esc(localStamp(L.updated_at)) : ""})`;
+    const stats = `Stats from the NHL's game logs, ${w === "season" ? "this season" : "each player's last 10 games this season"}; preseason never counts.`;
+    const src = L.source !== "daily_faceoff"
+      ? `<p class="small lines-src warn"><b>Daily Faceoff could not be reached</b>, so these lines are rebuilt from the team's last game (${esc(L.source_name || "NHL shift chart")}): players who shared the most ice are grouped, and the lines are numbered by their points per game this season. Tonight's lines and numbering may differ. ${stats}</p>`
+      : L.cached_utc ? `<p class="small lines-src warn">${dfo}, as it answered at ${esc(localStamp(L.cached_utc))}. <b>Daily Faceoff did not answer the latest update</b>, so changes since then are not shown. ${stats}</p>`
+      : `<p class="tiny muted lines-src">${dfo}. ${stats}</p>`;
+    return tbl(head, rows) + src;
   }
   const winToggle = () => `<div class="seg" role="group" aria-label="Stats window"><button data-act="win" data-arg="last10" aria-pressed="${st.win === "last10"}">Last 10</button><button data-act="win" data-arg="season" aria-pressed="${st.win === "season"}">Season</button></div>`;
   function chooser() {
@@ -687,7 +692,7 @@
   function vLines() {
     const gs = games().filter(g => g.projected);
     if (!gs.length) return `${head("lines", "Projected winners' lines")}${stamp()}${emptyCard(`No games today. Every team's lines are in <button class="linkish" data-tab="myteams">My Teams</button>.`)}`;
-    return `${head("lines", "Projected winners' lines")}${stamp()}<p class="small muted">The four forward lines and three defense pairs of each game's projected winner, in rank order, with every player's stats. The shaded line leads its team's forwards in points per game.</p><div class="row noprint" style="margin-bottom:10px">${winToggle()}</div>` +
+    return `${head("lines", "Projected winners' lines")}${stamp()}${dataNotes()}<p class="small muted">The four forward lines and three defense pairs of each game's projected winner, in rank order, with every player's stats. The shaded line leads its team's forwards in points per game.</p><div class="row noprint" style="margin-bottom:10px">${winToggle()}</div>` +
       gs.map(g => `<section class="card"><h2 class="teamline" style="margin-top:0">#${esc(g.rank)} ${badge(g.projected, "", true)} ${esc(teamName(g.projected))} <span class="small muted">${esc(g.away)} @ ${esc(g.home)}, ${esc(localTime(g.start_utc))}, ${pct(g.win_prob)}</span> ${tierPill(g.tier)}</h2>${linesTable((D.lines || {})[g.projected])}</section>`).join("");
   }
 

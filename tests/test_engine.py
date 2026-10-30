@@ -34,6 +34,109 @@ def test_shift_grouping_finds_lines_and_orders_by_ice_time():
     assert all(len({p.split("-")[0] for p in g}) == 1 for g in groups)
 
 
+# ---- Daily Faceoff refused the 4:45 PM update (2026-10-30): keep its earlier answer ----
+def _dfo_lines_page(groups):
+    """A Daily Faceoff line-combinations page with only what the parser reads."""
+    players = []
+    for gid, names in groups.items():
+        pos = {"f": ["lw", "c", "rw"], "d": ["ld", "rd"], "p": ["lw", "c", "rw", "ld", "rd"]}[gid[0]]
+        for n, (name, pid) in enumerate(names):
+            players.append({"name": name, "playerId": pid, "groupIdentifier": gid, "positionIdentifier": pos[n],
+                            "injuryStatus": None, "gameTimeDecision": False,
+                            "season": {"gamesPlayed": 12, "goals": 1}, "last10": {"gamesPlayed": 10}})
+    data = {"props": {"pageProps": {"combinations": {"sourceName": "David Dwork", "source": "https://x.com/example/1",
+                                                     "updatedAt": "2026-10-30T13:38:43Z", "players": players}}}}
+    return '<html><script id="__NEXT_DATA__" type="application/json">' + json.dumps(data) + "</script></html>"
+
+
+FLA_DFO = {"f1": [("Brady Tkachuk", 1), ("Sam Bennett", 2), ("Matthew Tkachuk", 3)],
+           "f2": [("Carter Verhaeghe", 4), ("Sam Reinhart", 5), ("Sandis Vilmanis", 6)],
+           "f3": [("Eetu Luostarinen", 7), ("Anton Lundell", 8), ("Lars Eller", 9)],
+           "f4": [("Bokondji Imama", 10), ("Cole Schwindt", 11), ("Garnet Hathaway", 12)],
+           "d1": [("Gustav Forsling", 13), ("Aaron Ekblad", 14)], "d2": [("Niko Mikkola", 15), ("Seth Jones", 16)],
+           "d3": [("Dmitry Kulikov", 17), ("Radko Gudas", 18)],
+           "pp1": [("Brady Tkachuk", 1), ("Sam Reinhart", 5), ("Matthew Tkachuk", 3), ("Carter Verhaeghe", 4), ("Seth Jones", 16)]}
+
+
+class _DfoFetch:
+    """Answers Daily Faceoff only when ok; otherwise as a 403 does (None)."""
+    def __init__(self, ok, goalie_page=None):
+        self.ok, self.goalie_page = ok, goalie_page
+
+    async def get(self, url, as_text=False, **kw):
+        if not self.ok or "dailyfaceoff.com" not in url:
+            return None
+        if "line-combinations" in url:
+            return _dfo_lines_page(FLA_DFO)
+        return self.goalie_page
+
+
+def test_daily_faceoff_lines_are_kept_when_a_later_update_is_refused(tmp_path):
+    """John, 2026-10-30: the Panthers lines were wrong. Daily Faceoff answered GitHub at
+    9:53 AM and refused it (HTTP 403) at 4:45 PM, so every team's lines fell back to a
+    shift-chart rebuild numbered by ice time (Florida's top line showed as F3). Its
+    last answer is now kept for up to three days and used when it refuses."""
+    import asyncio
+    from nhlda.lines import dfo_lines_with_cache
+    got, info = asyncio.run(dfo_lines_with_cache(_DfoFetch(True), ["FLA"], str(tmp_path), now_utc="2026-10-30T14:53:00Z"))
+    names = lambda dl: [[r["name"] for r in ln["players"]] for ln in dl.lines]
+    first = names(got["FLA"])
+    assert first[0] == ["Brady Tkachuk", "Sam Bennett", "Matthew Tkachuk"] and not info["refused"]
+    got, info = asyncio.run(dfo_lines_with_cache(_DfoFetch(False), ["FLA"], str(tmp_path), now_utc="2026-10-30T21:45:00Z"))
+    dl = got["FLA"]
+    assert not dl.error and names(dl) == first and dl.cached_utc == "2026-10-30T14:53:00Z"
+    assert [[r["name"] for r in p["players"]] for p in dl.pairs][0] == ["Gustav Forsling", "Aaron Ekblad"]
+    assert next(r for r in dl.lines[0]["players"] if r["name"] == "Brady Tkachuk")["pp"] == "PP1"
+    assert info["refused"] == ["FLA"] and info["cached"] == {"FLA": "2026-10-30T14:53:00Z"}
+    # four days on, the saved answer is too old: the shift-chart rebuild takes over
+    got, info = asyncio.run(dfo_lines_with_cache(_DfoFetch(False), ["FLA"], str(tmp_path), now_utc="2026-11-03T21:45:00Z"))
+    assert got["FLA"].error and not info["cached"]
+
+
+def test_daily_faceoff_goalies_are_kept_for_the_same_day(tmp_path):
+    import asyncio
+    from nhlda.lines import dfo_goalies_with_cache
+    page = ('<script id="__NEXT_DATA__" type="application/json">' + json.dumps({"props": {"pageProps": {"data": [
+        {"homeTeamName": "Florida Panthers", "awayTeamName": "Winnipeg Jets", "homeGoalieName": "Akira Schmid",
+         "awayGoalieName": "Nico Daws", "homeNewsStrengthName": "Confirmed", "awayNewsStrengthName": "Likely"}]}}}) + "</script>")
+    g = asyncio.run(dfo_goalies_with_cache(_DfoFetch(True, page), "2026-10-30", str(tmp_path), now_utc="2026-10-30T14:53:00Z"))
+    assert g.loaded and g.get("WPG")["goalie_name"] == "Nico Daws" and not g.cached_utc
+    g = asyncio.run(dfo_goalies_with_cache(_DfoFetch(False), "2026-10-30", str(tmp_path), now_utc="2026-10-30T21:45:00Z"))
+    assert g.loaded and g.refused and g.cached_utc == "2026-10-30T14:53:00Z" and g.get("WPG")["goalie_name"] == "Nico Daws"
+    assert g.get("FLA")["confirmed"] is True
+    # another day's answer is never used
+    g = asyncio.run(dfo_goalies_with_cache(_DfoFetch(False), "2026-10-31", str(tmp_path), now_utc="2026-10-31T14:00:00Z"))
+    assert not g.loaded and g.refused and not g.cached_utc
+
+
+def test_daily_faceoff_note_says_what_the_app_used_instead():
+    from nhlda.lines import dfo_note
+    assert dfo_note(False, False, {}, 0) is None
+    t = dfo_note(True, True, {"FLA": "2026-10-30T14:53:00Z"}, 0, goalies_cached="2026-10-30T14:53:00Z")
+    assert "Daily Faceoff did not answer this update" in t and "2026-10-30 14:53 UTC" in t and "rotation" not in t
+    t = dfo_note(True, True, {}, 32, goalies_cached=None)
+    assert "rotation guess" in t and "rebuilt from each team's last game" in t
+
+
+def test_rebuilt_lines_are_numbered_by_points_with_the_center_in_the_middle():
+    """The shift chart cannot know the coach's line numbers; ice time put Florida's top
+    line third (its wingers took penalties). Rebuilt lines are numbered by the line's
+    points per game this season, and the center sits between his wingers."""
+    from nhlda.lines import order_rebuilt_lines, center_middle
+    tot = lambda p: {"last10": {"p_pg": p}, "season": {"p_pg": p}}
+    ln = [{"line": 1, "players": [{"name": "Vilmanis"}], "totals": tot(1.78)},
+          {"line": 2, "players": [{"name": "Luostarinen"}], "totals": tot(0.85)},
+          {"line": 3, "players": [{"name": "Tkachuk"}], "totals": tot(3.15)},
+          {"line": 4, "players": [{"name": "Imama"}], "totals": tot(0.0)}]
+    out = order_rebuilt_lines(ln)
+    assert [x["players"][0]["name"] for x in out] == ["Tkachuk", "Vilmanis", "Luostarinen", "Imama"]
+    assert [x["line"] for x in out] == [1, 2, 3, 4]
+    rows = [{"name": "M. Tkachuk", "pos": "LW"}, {"name": "B. Tkachuk", "pos": "LW"}, {"name": "Bennett", "pos": "C"}]
+    assert [r["name"] for r in center_middle(rows)] == ["M. Tkachuk", "Bennett", "B. Tkachuk"]
+    rows = [{"name": "a", "pos": "RW"}, {"name": "b", "pos": "LW"}, {"name": "c", "pos": "C"}]
+    assert [r["name"] for r in center_middle(rows)] == ["b", "c", "a"]
+
+
 def test_check_public_rejects_stakes_mail_and_chat():
     check_public({"lines": {"FLA": {"leaders": {"points": True}}}, "teams": {"FLA": {"pts": 10}}})
     for bad in ({"allocation": {}}, {"x": {"base_net": 1}}, {"x": [{"funded": True}]},

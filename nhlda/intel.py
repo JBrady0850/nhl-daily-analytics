@@ -112,6 +112,8 @@ class DailyFaceoffGoalies:
         self.by_team = {}   # abbrev -> entry dict
         self.loaded = False
         self.error = None
+        self.refused = False    # public 1.13.3: Daily Faceoff did not answer this run
+        self.cached_utc = None  # when the answer used instead was read (same date only)
 
     async def resolve(self, f, date: str):
         url = f"{DFO_BASE}{date}"
@@ -211,6 +213,8 @@ class DailyFaceoffLines:
         self.source_name = None
         self.source_url = None
         self.updated_at = None
+        self.combinations = None   # compact copy of what was parsed, for the cache (1.13.3)
+        self.cached_utc = None     # set when the lines come from an earlier answer
 
     async def resolve(self, f):
         slug = team_slug(self.abbrev)
@@ -232,11 +236,26 @@ class DailyFaceoffLines:
             return self
         try:
             c = json.loads(m.group(1))["props"]["pageProps"]["combinations"]
-            players = c.get("players") or []
-        except (json.JSONDecodeError, KeyError, TypeError) as exc:
+            c.get("players")
+        except (json.JSONDecodeError, KeyError, TypeError, AttributeError) as exc:
             self.error = f"parse_error: {exc}"
             log.warning("Daily Faceoff lines: could not parse %s: %s", self.abbrev, exc)
             return self
+        return self.from_combinations(c)
+
+    # what the cache keeps of each player (state/dfo_cache.json, committed every run, so
+    # small): no stats, which come from the NHL's game logs anyway
+    KEEP = ("name", "playerId", "groupIdentifier", "positionIdentifier", "injuryStatus", "gameTimeDecision")
+
+    def from_combinations(self, c):
+        """Build the lines from Daily Faceoff's combinations object (from the page, or
+        the compact copy kept in state/dfo_cache.json)."""
+        players = c.get("players") or []
+        self.combinations = {"sourceName": c.get("sourceName"), "source": c.get("source"),
+                             "updatedAt": c.get("updatedAt"),
+                             "players": [{k: p.get(k) for k in self.KEEP if k in p} for p in players
+                                         if p.get("groupIdentifier") in self.FORWARD_GROUPS + self.DEFENSE_GROUPS
+                                         or p.get("groupIdentifier") in self.PP_GROUPS]}
         self.source_name = c.get("sourceName")
         self.source_url = c.get("source")
         self.updated_at = c.get("updatedAt")
