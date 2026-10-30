@@ -881,6 +881,10 @@ def run_learning(state_dir):
     return {"games": n, "skipped": skipped, "next_at": st["next_at"],
             "cycles": len(hist), "accepted_cycles": sum(1 for h in hist if h.get("accepted")),
             "current": st["current"], "baseline": st["baseline"], "candidate": st.get("candidate"),
+            # the settled-game count the candidate was proposed at, and the last cycle's
+            # scores for the settings in use, the candidate and the baseline (public 1.13.0)
+            "candidate_from": st.get("candidate_from"),
+            "scores": (last or {}).get("scores"),
             "forward": R.forward_test(st.get("forward") or []),
             "min_forward": R.LEARN_MIN_FORWARD, "forward_t": R.LEARN_FORWARD_T,
             "last": ({k: last.get(k) for k in ("cycle", "utc", "games", "accepted", "reason")}

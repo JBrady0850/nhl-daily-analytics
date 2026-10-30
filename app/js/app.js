@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.12.1";
+  const APP_VERSION = "1.13.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -833,10 +833,20 @@
 
   // ---------- model ----------
   function vModel() {
-    const M = D.model || {}, L = M.learning || {}, cur = M.settings_in_use || {}, base = M.baseline || {};
+    const M = D.model || {}, L = M.learning || {}, cur = M.settings_in_use || {}, base = M.baseline || {}, cand = M.candidate || {};
     const names = ["P1 Form", "P2 Absence", "P3 Motivation", "P4 Goalie", "P5 Friction"];
-    const row = (lab, a, b, d) => `<tr>${td(esc(lab))}${td(num(a, d), "n")}${td(num(b, d), "n")}</tr>`;
-    const set = row("Home ice (rating points)", cur.h, base.h, 3) + row("Slope K", cur.k, base.k, 4) + names.map((n, i) => row(n + " weight", (cur.w || [])[i], (base.w || [])[i], 2)).join("");
+    // 1.13.0 (John: "A column needs to be added for the Candidate"): the candidate beside
+    // the settings in use and the baseline, at a precision that shows the difference;
+    // a candidate value that differs from the one in use is marked
+    const differs = (a, c, d) => typeof a === "number" && typeof c === "number" && num(a, d) !== num(c, d);   // as shown
+    const row = (lab, a, c, b, d) => `<tr>${td(esc(lab))}${td(num(a, d), "n")}${td(num(c, d), differs(a, c, d) ? "n chg" : "n")}${td(num(b, d), "n")}</tr>`;
+    const sc = L.scores || {}, part = k => sc[k] || {};
+    const scoreRow = (lab, f) => `<tr>${td(esc(lab))}${["in_use", "candidate", "baseline"].map(k => td(f(part(k)), "n")).join("")}</tr>`;
+    const set = row("Home ice (rating points)", cur.h, cand.h, base.h, 3) + row("Slope K", cur.k, cand.k, base.k, 5)
+      + names.map((n, i) => row(n + " weight", (cur.w || [])[i], (cand.w || [])[i], (base.w || [])[i], 3)).join("")
+      + (L.scores ? scoreRow("Log loss, this season (lower is better)", x => num(x.log_loss, 4)) + scoreRow("Picks right, this season", x => pct(x.accuracy)) : "");
+    const candNote = M.candidate ? `<p class="small muted cand-note">Candidate: proposed at cycle ${esc((L.last || {}).cycle || L.cycles || "-")}, after ${esc(L.candidate_from ?? "-")} settled games, from every settled game this season, stepped from the settings in use by no more than each cycle allows. Marked values differ from the settings in use. It is refit at every cycle, so the unseen-games record above counts each game with the candidate in place when that game settled. The two score rows are on this season's games, which the candidate was fit on, so they favor it; the unseen-games test is the one that decides.</p>`
+      : `<p class="small muted cand-note">No candidate yet: the first is proposed at the first learning cycle.</p>`;
     const fw = L.forward || {};
     const status = !fw.games ? "A candidate setting is proposed every 10 settled games and scored on the games that follow." :
       `Candidate under test: scored on ${esc(fw.games)} unseen games (${esc(L.min_forward)} required), ${(fw.mean_gain || 0) > 0 ? "ahead of" : "behind"} the settings in use by ${num(Math.abs(fw.mean_gain || 0), 5)} log loss per game, ${num(Math.abs(fw.t || 0), 1)} standard errors (${num(Math.abs(L.forward_t || 2), 1)} required to go into use).`;
@@ -844,7 +854,7 @@
     return `${head("model", "Model")}${stamp()}
       <section class="card"><h2 style="margin-top:0">Learning</h2><p>${esc(L.games || 0)} settled games this season; next learning cycle at ${esc(L.next_at || "-")}. ${esc(L.cycles || 0)} cycles so far, ${esc(L.accepted_cycles || 0)} adopted.</p><p>${status}</p>
       ${L.last ? `<p class="small muted">Last cycle ${esc(L.last.cycle)}: ${esc(L.last.reason || "")}</p>` : ""}
-      ${tbl(th("Setting") + th("In use", "n") + th("Baseline", "n"), set)}<p class="tiny muted">Baseline: the 2025-26 calibration on 1,312 games. A change is adopted only after it beats the settings in use on at least 40 games it was not fit on, by two standard errors of log loss.</p></section>
+      ${tbl(th("Setting") + th("In use", "n") + th("Candidate", "n") + th("Baseline", "n"), set)}${candNote}<p class="tiny muted">Baseline: the 2025-26 calibration on 1,312 games. A change is adopted only after it beats the settings in use on at least 40 games it was not fit on, by two standard errors of log loss.</p></section>
       <section class="card"><h2 style="margin-top:0">Calibration this season</h2><p class="small muted">How often the projected winner won in each probability band. A calibrated model's 60 percent picks win about 60 percent of the time; small bands swing a lot.</p>${cal ? tbl(th("Band") + th("Games", "n") + th("Average", "n") + th("Won", "n") + th(""), cal) : '<p class="muted">No games yet.</p>'}</section>`;
   }
 

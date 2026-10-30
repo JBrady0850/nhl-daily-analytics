@@ -112,7 +112,7 @@ always has the latest data.
 | **Matchups** | Each game's five-factor scores side by side, recent shot share and form, and the key missing players. |
 | **Standings** | The league standings four ways: Wild Card (the top three in each division, then the wild-card race with the playoff line drawn under the second wild card), Division, Conference and League. Each row has games played, wins, losses, overtime losses, points, points percentage, regulation and regulation-plus-overtime wins, goals for and against, goal differential, the last 10 games and the current streak. Your teams are shaded, and the app remembers the view you picked. |
 | **Results** | Last night's picks against the finals, the season pick rate, results by confidence tier, and a comparison with the betting market. |
-| **Model** | The model's current settings, its learning progress, and a calibration table: how often picks in each probability band actually won. |
+| **Model** | The model's settings in use beside the candidate under test and the 2025-26 baseline (with each one's score this season), its learning progress, and a calibration table: how often picks in each probability band actually won. |
 | **DFS** | Projected DraftKings fantasy points for the top 30 skaters, and for every probable starting goalie tonight sorted by his team's win probability, highest first. |
 | **Settings** | Install steps with a QR code, the data date, the update schedule in your time, privacy notes and a button that clears your saved teams. |
 | **Help** | Plain-language definitions for every term and column. |

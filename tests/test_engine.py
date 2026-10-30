@@ -619,6 +619,31 @@ def test_each_moneypuck_shot_value_is_used_once():
     assert match_shots(plays, {(1, 222, 9): 0.51, (1, 224, 9): 0.02}) == {1: 0.51, 2: 0.02}
 
 
+def test_learning_block_names_the_candidate(tmp_path):
+    """John, 2026-10-30: the Model tab needs a column for the candidate. The learning
+    block carries the candidate's settings, the game count it was proposed at and the
+    last cycle's scores for the settings in use, the candidate and the baseline."""
+    cand = {"k": 0.026182, "h": 1.571, "w": [1.0014, 0.9519, 0.9969, 1.0102, 1.0396]}
+    scores = {"in_use": {"log_loss": 0.6631, "brier": 0.2358, "accuracy": 0.5636},
+              "candidate": {"log_loss": 0.6618, "brier": 0.2352, "accuracy": 0.5576},
+              "baseline": {"log_loss": 0.6631, "brier": 0.2358, "accuracy": 0.5636}}
+    base = {"k": 0.0261, "h": 1.071, "w": [1.0] * 5}
+    st = {"baseline": base, "current": base, "candidate": cand, "candidate_from": 165, "forward": [0.001, -0.002],
+          "next_at": 170, "history": [{"cycle": 14, "utc": "2026-10-23 14:00", "games": 165, "accepted": False,
+                                        "reason": "kept", "candidate": cand, "scores": scores}]}
+    (tmp_path / "learning.json").write_text(json.dumps(st), encoding="utf-8")
+    out = C.run_learning(str(tmp_path))
+    assert out["candidate"] == cand and out["candidate_from"] == 165 and out["scores"] == scores
+
+
+def test_sample_model_block_carries_the_candidate():
+    m = json.load(open(SAMPLE, encoding="utf-8"))["model"]
+    c = m["candidate"]
+    assert isinstance(c["k"], float) and isinstance(c["h"], float) and len(c["w"]) == 5
+    L = m["learning"]
+    assert L["candidate_from"] <= L["games"] and set(L["scores"]) == {"in_use", "candidate", "baseline"}
+
+
 def test_strength_reads_the_nhl_situation_code():
     from nhlda.gamescore import _strength
     assert _strength("1551", True) == "5v5" and _strength("1551", False) == "5v5"

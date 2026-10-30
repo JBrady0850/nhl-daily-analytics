@@ -340,6 +340,8 @@ tr.lead td { background: color-mix(in srgb, var(--high) 9%, var(--panel)); }
 #toast.show { opacity: .95; }
 .install { margin: 12px max(16px, calc((100% - 1048px) / 2)) 0; padding: 12px 14px; background: var(--panel); border: 1px solid var(--gold); border-radius: var(--radius); box-shadow: var(--shadow); display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; }
 .install[hidden] { display: none; }
+/* Model tab: a candidate value that differs from the setting in use (1.13.0) */
+td.chg { font-weight: 700; color: var(--accent); }
 /* Install app (1.12.0): a gold button on the board beside the name, and the steps in a
    sheet (a bottom sheet on phones) with the device's own buttons drawn in the text */
 .getapp { margin-left: 6px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 999px; cursor: pointer;

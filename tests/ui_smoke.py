@@ -165,6 +165,49 @@ def check_team_places(pg, sample, ab, mob):
     return out
 
 
+MODEL_JS = """() => { const t = [...document.querySelectorAll('main table')].find(x => [...x.querySelectorAll('th')].some(h => h.textContent.trim() === 'Setting'));
+  if (!t) return null;
+  return {heads: [...t.querySelectorAll('thead th')].map(h => [h.textContent.trim(), !!(h.dataset.tip || h.classList.contains('has-tip'))]),
+    rows: [...t.querySelectorAll('tbody tr')].map(r => [...r.children].map(c => c.textContent.trim())),
+    chg: [...t.querySelectorAll('tbody td.chg')].length,
+    note: (document.querySelector('main .cand-note') || {textContent: ''}).textContent}; }"""
+
+
+def check_model_tab(pg, sample):
+    """Model tab (John, 2026-10-30: "A column needs to be added for the Candidate"): the
+    settings table shows the candidate beside the settings in use and the baseline,
+    every value at a precision that shows the difference, the changed values marked,
+    the last cycle's scores for all three, and when the candidate was proposed."""
+    m = sample["model"]
+    pg.click('#tabs button[data-tab="model"]')
+    pg.wait_for_timeout(40)
+    got = pg.evaluate(MODEL_JS)
+    if not got:
+        return ["model: no settings table"]
+    out = []
+    if got["heads"] != [["Setting", True], ["In use", True], ["Candidate", True], ["Baseline", True]]:
+        out.append(f"model: settings table headings {got['heads']}")
+    u, c, b = m["settings_in_use"], m["candidate"], m["baseline"]
+    want = [["Home ice (rating points)", f"{u['h']:.3f}", f"{c['h']:.3f}", f"{b['h']:.3f}"],
+            ["Slope K", f"{u['k']:.5f}", f"{c['k']:.5f}", f"{b['k']:.5f}"]]
+    names = ["P1 Form", "P2 Absence", "P3 Motivation", "P4 Goalie", "P5 Friction"]
+    want += [[f"{n} weight", f"{u['w'][i]:.3f}", f"{c['w'][i]:.3f}", f"{b['w'][i]:.3f}"] for i, n in enumerate(names)]
+    sc = m["learning"]["scores"]
+    want += [["Log loss, this season (lower is better)"] + [f"{sc[k]['log_loss']:.4f}" for k in ("in_use", "candidate", "baseline")],
+             ["Picks right, this season"] + [f"{sc[k]['accuracy'] * 100:.1f}%" for k in ("in_use", "candidate", "baseline")]]
+    if got["rows"] != want:
+        out.append(f"model: settings rows {got['rows']} (want {want})")
+    # marked only where the value shown differs (P3 at 1.0003 shows as 1.000, unmarked)
+    nchg = sum(1 for a, z, d in [(u["h"], c["h"], 3), (u["k"], c["k"], 5)] + [(x, y, 3) for x, y in zip(u["w"], c["w"])]
+               if f"{a:.{d}f}" != f"{z:.{d}f}")
+    if got["chg"] != nchg:
+        out.append(f"model: {got['chg']} candidate values marked as changed, want {nchg}")
+    L = m["learning"]
+    if f"cycle {L['last']['cycle']}" not in got["note"] or f"{L['candidate_from']} settled games" not in got["note"]:
+        out.append(f"model: the candidate note does not say when it was proposed ({got['note'][:120]!r})")
+    return out
+
+
 LAST_GAME_JS = """(ab) => {
   const c = [...document.querySelectorAll('main section.teamcard')].find(s => s.querySelector('.tc-head .tm').textContent.trim() === ab);
   if (!c) return {card: false};
@@ -928,6 +971,7 @@ def main():
                 fails.extend(f"{name}: {m}" for m in check_my_pick(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_final_results(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_injuries_tab(pg, sample, mob))
+                fails.extend(f"{name}: {m}" for m in check_model_tab(pg, sample))
                 pg.click('#tabs button[data-tab="today"]')
                 tile = pg.locator(".tile").nth(2)
                 if mob:
