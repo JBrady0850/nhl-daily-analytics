@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "WPG @ FLA",
-   "home_win_prob": 0.6573,
+   "home_win_prob": 0.6814,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.6669,
-    "away_prob": 0.3331,
+    "home_prob": 0.6654,
+    "away_prob": 0.3346,
     "books": 6
    },
    "home_pillars": {
@@ -23,19 +23,19 @@
     "p1_form": -6.061,
     "p2_absence": -2.699,
     "p3_motivation": 0.0,
-    "p4_gvi": -1.961,
+    "p4_gvi": -6.138,
     "p5_friction": -3.396,
-    "adj_raa": 35.883
+    "adj_raa": 31.706
    }
   },
   {
    "matchup": "NJD @ VGK",
-   "home_win_prob": 0.526,
+   "home_win_prob": 0.5188,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5097,
-    "away_prob": 0.4903,
+    "home_prob": 0.5059,
+    "away_prob": 0.4941,
     "books": 6
    },
    "home_pillars": {
@@ -50,36 +50,36 @@
     "p1_form": 9.897,
     "p2_absence": 1.631,
     "p3_motivation": 0.0,
-    "p4_gvi": -3.333,
+    "p4_gvi": -2.219,
     "p5_friction": -0.555,
-    "adj_raa": 57.64
+    "adj_raa": 58.754
    }
   },
   {
    "matchup": "SEA @ CGY",
-   "home_win_prob": 0.5145,
+   "home_win_prob": 0.5019,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.487,
-    "away_prob": 0.513,
+    "home_prob": 0.4907,
+    "away_prob": 0.5093,
     "books": 6
    },
    "home_pillars": {
     "p1_form": -10.095,
-    "p2_absence": -1.106,
+    "p2_absence": -1.476,
     "p3_motivation": 0.0,
     "p4_gvi": -6.56,
     "p5_friction": 0.0,
-    "adj_raa": 32.239
+    "adj_raa": 31.869
    },
    "away_pillars": {
     "p1_form": -12.32,
     "p2_absence": -2.955,
     "p3_motivation": 0.0,
-    "p4_gvi": -3.645,
+    "p4_gvi": -2.072,
     "p5_friction": 0.0,
-    "adj_raa": 31.08
+    "adj_raa": 32.653
    }
   }
  ]

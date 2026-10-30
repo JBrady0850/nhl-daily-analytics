@@ -971,6 +971,13 @@
 },
 {
 "team": "CGY",
+"name": "Arsenii Sergeev",
+"player_id": "8482949",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "CGY",
 "name": "Devin Cooley",
 "player_id": "8482445",
 "position": "G",
@@ -1015,6 +1022,13 @@
 "team": "CGY",
 "name": "Samuel Honzek",
 "player_id": "8484180",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "William Stromgren",
+"player_id": "8482766",
 "position": "L",
 "role": "skater"
 },
@@ -1531,13 +1545,6 @@
 },
 {
 "team": "DAL",
-"name": "Matthew Seminoff",
-"player_id": "8483514",
-"position": "R",
-"role": "skater"
-},
-{
-"team": "DAL",
 "name": "Mikko Rantanen",
 "player_id": "8478420",
 "position": "R",
@@ -1610,13 +1617,6 @@
 "team": "DET",
 "name": "Anton Johansson",
 "player_id": "8483679",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "DET",
-"name": "Axel Sandin-Pellikka",
-"player_id": "8484223",
 "position": "D",
 "role": "skater"
 },
@@ -2280,13 +2280,6 @@
 },
 {
 "team": "MIN",
-"name": "Mason Shaw",
-"player_id": "8479972",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "MIN",
 "name": "Michael McCarron",
 "player_id": "8477446",
 "position": "C",
@@ -2324,13 +2317,6 @@
 "team": "MIN",
 "name": "Cameron Crotty",
 "player_id": "8480075",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "MIN",
-"name": "Carson Lambos",
-"player_id": "8482781",
 "position": "D",
 "role": "skater"
 },
@@ -4310,6 +4296,13 @@
 },
 {
 "team": "STL",
+"name": "Theo Lindstein",
+"player_id": "8484188",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "STL",
 "name": "Tyler Tucker",
 "player_id": "8481006",
 "position": "D",
@@ -4940,6 +4933,13 @@
 },
 {
 "team": "VAN",
+"name": "Jacob Quillan",
+"player_id": "8484901",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "VAN",
 "name": "Linus Karlsson",
 "player_id": "8481024",
 "position": "C",
@@ -5206,13 +5206,6 @@
 },
 {
 "team": "VGK",
-"name": "Cameron Whitehead",
-"player_id": "8483523",
-"position": "G",
-"role": "goalie"
-},
-{
-"team": "VGK",
 "name": "Carter Hart",
 "player_id": "8479394",
 "position": "G",
@@ -5243,6 +5236,13 @@
 "team": "VGK",
 "name": "Braeden Bowman",
 "player_id": "8483890",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Jonas Rondbjerg",
+"player_id": "8480007",
 "position": "R",
 "role": "skater"
 },
