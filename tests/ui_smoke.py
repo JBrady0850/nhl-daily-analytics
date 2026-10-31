@@ -9,6 +9,7 @@ chosen view. With a fake clock it also checks the "next update" line: the countd
 the due and late states, the automatic checks while an update is due, and the saved
 copy note, and the install button, banner and steps on Android, iPhone, a computer,
 the installed app and a downloaded copy."""
+import datetime as dt
 import functools
 import http.server
 import json
@@ -18,6 +19,7 @@ import shutil
 import sys
 import tempfile
 import threading
+from zoneinfo import ZoneInfo
 
 from playwright.sync_api import sync_playwright
 
@@ -340,6 +342,63 @@ def check_points_leaders(pg, sample, ab):
                 if tab < 0:
                     out.append(f"my teams {ab} {win}: {n}'s badge cannot be reached by keyboard")
     pg.click('main button[data-act="win"][data-arg="last10"]')
+    return out
+
+
+TODAY_CARD_JS = """(ab) => { const c = [...document.querySelectorAll('main section.teamcard')].find(s => s.querySelector('.tc-head .tm').textContent.trim() === ab);
+  if (!c) return null;
+  const line = c.querySelector('.today-line'), due = c.querySelector('.due-final'), lg = c.querySelector('details.lastgame > summary');
+  return {line: line ? line.textContent.replace(/\\s+/g, ' ').trim() : '', due: due ? due.textContent.trim() : '',
+          pills: line ? [...line.querySelectorAll('.pill')].map(p => [p.textContent.trim(), p.dataset.tip || '']) : [],
+          last: lg ? lg.textContent.replace(/\\s+/g, ' ').trim() : '', pending: !!c.querySelector('.gs-pending'),
+          tonight: /Tonight:/.test(c.textContent)}; }"""
+GAME_CARDS_JS = """() => [...document.querySelectorAll('main article.game')].map(a => [a.querySelector('.match').textContent.replace(/\\s+/g, ' ').trim(),
+  (a.querySelector('.due-final') || {}).textContent || '', !!a.querySelector('.finalbar')])"""
+
+
+def check_game_final(pg, data, g, ab, last_label):
+    """1.15.0 (John, 2026-10-31: "Today and my teams was not updated to reflect that the
+    Tampa Bay Lightning had been completed and with the results"): a final game shows
+    its score and the pick's result on My Teams, and is the team's Last game at once,
+    scored on production with a note while MoneyPuck's shot values are on their way."""
+    out, r = [], g["result"]
+    pg.click('#tabs button[data-tab="myteams"]')
+    c = pg.evaluate(TODAY_CARD_JS, ab)
+    if not c:
+        return [f"my teams {ab}: card missing"]
+    want = f"final: {g['away']} {r['away_score']}, {g['home']} {r['home_score']}"
+    if want not in c["line"] or f"Projected winner {g['projected']}" not in c["line"] or c["tonight"] or c["due"]:
+        out.append(f"my teams {ab}: today's line is not the final ({c['line']!r}, due {c['due']!r})")
+    res = "Win" if r["pick"] == "win" else "Loss"
+    if not any(t.lower() == res.lower() and "my pick" in tip.lower() for t, tip in c["pills"]):
+        out.append(f"my teams {ab}: no {res} tag with its definition on today's line ({c['pills']})")
+    if last_label not in c["last"] or not c["pending"]:
+        out.append(f"my teams {ab}: last game is not today's game with the pending note ({c['last']!r}, {c['pending']})")
+    pg.click('#tabs button[data-tab="today"]')
+    cards = pg.evaluate(GAME_CARDS_JS)
+    card = next((x for x in cards if g["away"] in x[0] and g["home"] in x[0]), None)
+    if not card or not card[2] or card[1]:
+        out.append(f"today: {g['away']} @ {g['home']} final strip missing or a pending note shown ({card})")
+    return out
+
+
+def check_final_due(pg, since, live, ab):
+    """A game that started after the data was built, or was under way when it was built,
+    says on Today and My Teams that its final score comes with a later update."""
+    out = []
+    pg.click('#tabs button[data-tab="today"]')
+    cards = pg.evaluate(GAME_CARDS_JS)
+    for g, phrase in ((since, "after this data was built"), (live, "Under way when this data was built")):
+        card = next((x for x in cards if g["away"] in x[0] and g["home"] in x[0]), None)
+        if not card or phrase not in card[1] or "final score" not in card[1]:
+            out.append(f"today: {g['away']} @ {g['home']} does not say when its final score comes ({card})")
+    quiet = [x[0] for x in cards if x[1] and not any(g["away"] in x[0] and g["home"] in x[0] for g in (since, live))]
+    if quiet:
+        out.append(f"today: games that started before the build carry the note: {quiet}")
+    pg.click('#tabs button[data-tab="myteams"]')
+    c = pg.evaluate(TODAY_CARD_JS, ab) or {}
+    if "Started at" not in c.get("due", "") or "Today:" not in c.get("line", ""):
+        out.append(f"my teams {ab}: today's line does not say when the final score comes ({c})")
     return out
 
 
@@ -698,10 +757,10 @@ def check_update_status(b, http_url, file_url, sample):
     txt = pg.inner_text("main")
     if "Twice a day, about 9:00 AM CDT and 4:45 PM CDT your time." not in txt:
         fails.append("Settings does not show the schedule in local time")
-    for dt in ("Schedule", "Next update"):
-        el = pg.locator("main dl.kv dt", has_text=dt)
+    for term in ("Schedule", "Next update"):
+        el = pg.locator("main dl.kv dt", has_text=term)
         if el.count() != 1 or not el.first.get_attribute("data-tip"):
-            fails.append(f"Settings row {dt!r} missing or without its definition")
+            fails.append(f"Settings row {term!r} missing or without its definition")
     ctx.close()
 
     # 2. 20 minutes after the 14:00 UTC (9:00 AM CDT) run was due, with no newer file yet
@@ -1100,6 +1159,9 @@ def main():
                 fails.extend(f"{name}: {m}" for m in check_team_places(pg, sample, "FLA", mob))
                 fails.extend(f"{name}: {m}" for m in check_last_game(pg, sample, "FLA"))
                 fails.extend(f"{name}: {m}" for m in check_points_leaders(pg, sample, "FLA"))
+                pg.click('#tabs button[data-tab="today"]')
+                if pg.locator("main .due-final").count():
+                    fails.append(f"{name}: a final-score note on an old data file")
                 fails.extend(f"{name}: {m}" for m in check_lines_tab(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_lines_source(pg, sample["slate"]["games"][0]["projected"], "daily_faceoff"))
                 fails.extend(f"{name}: {m}" for m in check_dfs_goalies(pg, len(sample["dfs"]["goalies"])))
@@ -1127,7 +1189,10 @@ def main():
                         fails.append(f"{name}: definition stayed open after tapping elsewhere")
                 pill = pg.locator("article.game .pill").first
                 (pill.tap() if mob else pill.hover())
-                pg.wait_for_timeout(60)
+                try:   # wait for it rather than a fixed 60 ms (a busy machine missed it once, 2026-10-31)
+                    pg.wait_for_function("!document.getElementById('tipbox').hidden", timeout=1500)
+                except Exception:  # noqa: BLE001 - reported below
+                    pass
                 if pg.evaluate("document.getElementById('tipbox').hidden"):
                     fails.append(f"{name}: tag definition did not show")
                 if not mob:
@@ -1226,6 +1291,42 @@ def main():
         fails.extend(f"tied leaders: {m}" for m in check_points_leaders(pg, tie, "FLA"))
         if added:  # leave My Teams as the later checks expect it
             pg.click('button.chip[data-arg="FLA"]')
+        # a finished game on My Teams and Today (John, 2026-10-31)
+        fin = json.loads(json.dumps(alt))
+        g = next(x for x in fin["slate"]["games"] if x["away"] == "LAK" and x["home"] == "NJD")
+        r = g["result"]
+        lg = fin["gamescore"]["teams"]["NJD"]
+        lg.update(date=fin["date"], opp="LAK", home=True, **{"for": r["home_score"], "against": r["away_score"]},
+                  result="W" if r["winner"] == "NJD" else ("OTL" if r["last_period"] != "REG" else "L"),
+                  last_period=r["last_period"], inputs="production", pending=True)
+        with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
+            fh.write("window.NDA_DATA=" + json.dumps(fin) + ";\n")
+        pg.reload()
+        pg.click('#tabs button[data-tab="myteams"]')
+        added = not pg.locator('button.chip[data-arg="NJD"][aria-pressed="true"]').count()
+        if added:
+            pg.click('button.chip[data-arg="NJD"]')
+        fails.extend(f"final game: {m}" for m in check_game_final(pg, fin, g, "NJD", "vs LAK"))
+        # games that started after the build, or were under way at it, on today's date
+        due = json.loads(json.dumps(alt))
+        now = dt.datetime.now(dt.timezone.utc)
+        due["date"] = now.astimezone(ZoneInfo("America/Chicago")).date().isoformat()
+        due["generated_utc"] = (now - dt.timedelta(hours=3)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        since = next(x for x in due["slate"]["games"] if x["home"] == "NJD")
+        since.update(state="FUT", result=None, start_utc=(now - dt.timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%SZ"))
+        since.pop("result")
+        live = next(x for x in due["slate"]["games"] if x["away"] == "CAR")
+        live.update(state="LIVE", start_utc=(now - dt.timedelta(hours=3, minutes=30)).strftime("%Y-%m-%dT%H:%M:%SZ"))
+        with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
+            fh.write("window.NDA_DATA=" + json.dumps(due) + ";\n")
+        pg.reload()
+        fails.extend(f"final due: {m}" for m in check_final_due(pg, since, live, "NJD"))
+        if added:  # leave My Teams as the later checks expect it
+            pg.click('#tabs button[data-tab="myteams"]')
+            pg.click('button.chip[data-arg="NJD"]')
+        with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
+            fh.write("window.NDA_DATA=" + json.dumps(alt) + ";\n")
+        pg.reload()
         top = alt["slate"]["games"][0]["projected"]
         for kind in ("cached", "shift_chart"):
             var = json.loads(json.dumps(alt))

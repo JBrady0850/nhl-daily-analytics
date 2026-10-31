@@ -25,7 +25,13 @@ What the app can and cannot do. Read this before you rely on a number.
 - A game card shows the final score and WIN or LOSS only for a game that was over at
   an update, which in practice means early afternoon games at the 4:45 PM update. A game
   still in its third period then, and every evening game, shows its result in the
-  Results tab the next morning.
+  Results tab the next morning. Until then its card on Today and My Teams says that it
+  started after the data was built (or was under way when it was built) and which update
+  brings the final score.
+- On My Teams, a game that is over at an update becomes the team's Last game at once,
+  with its final score. MoneyPuck posts its shot values overnight, so that day's Game
+  Score counts production only (a note says so); play driving, special teams and usage
+  are added at the first update after MoneyPuck posts the game, usually the next morning.
 - GitHub starts scheduled runs on a best-effort basis. A run can start late when
   GitHub is busy (one evening run started two and a half hours late), and GitHub can
   skip a run (the 14:05 run of 2026-10-24 never started). A timer outside GitHub starts

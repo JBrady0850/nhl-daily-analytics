@@ -170,7 +170,7 @@ runs, so each name is looked up once.
 | --- | --- |
 | `game_id`, `date`, `opp`, `home` | The NHL game id, its date, the opponent, and whether the team was at home. |
 | `for`, `against`, `last_period`, `result` | The final score from the team's side, `REG`, `OT` or `SO`, and `W`, `L` or `OTL`. |
-| `inputs` | `full`, or `production` when the shift charts or the shot values were still missing two days after the game (only the production parts are then scored). |
+| `inputs`, `pending` | `inputs` is `full`, or `production` when the shift charts or MoneyPuck's shot values were missing (only the production parts are then scored). `pending` is true while they are still expected: a game appears as soon as it is final, scored on production until MoneyPuck posts its shot values overnight, and a later update replaces it with the full score. Two days after the game a production score is final (`pending` false). |
 | `skaters` | Forwards then defensemen, each best first: `id`, `name`, `pos`, `toi` (minutes, the NHL boxscore's), `gs` (the Game Score, the sum of the eight parts), `o` and `d` (offense and defense, each `[production, play driving, special teams, usage]`; the app draws `o` as the top bar and `d` as the bottom bar), and `box` (`g`, `a1`, `a2`, `sog`, `blk`, `pd` penalties drawn, `pt` penalties taken). |
 | `goalies` | `id`, `name`, `shots` faced and `ga` (the NHL boxscore's), `xga` (MoneyPuck's expected goals of the unblocked shots he faced, its own figure for him) and `gsax` (`xga` minus `ga`). |
 

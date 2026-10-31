@@ -892,17 +892,24 @@ def _run_update(tmp_path, fx, day, shots):
         G._shot_rows = orig
 
 
-def test_last_game_waits_for_the_shot_values_then_keeps_the_latest_game(tmp_path):
+def test_last_game_shows_at_once_then_takes_the_full_score(tmp_path):
+    """1.15.0 (John, 2026-10-31: My Teams did not show Tampa Bay's finished afternoon
+    game and its result at the evening update): a final game appears on the same day,
+    scored on production and marked pending until MoneyPuck's shot values arrive."""
     fx = json.load(open(GAME, encoding="utf-8"))
-    # the morning after: no shot values yet, so the game waits
-    out = _run_update(tmp_path, fx, "2026-10-26", [])
-    assert out["teams"] == {}
+    # the evening of the game: final, but no shot values yet
+    out = _run_update(tmp_path, fx, "2026-10-25", [])
+    t = out["teams"]["FLA"]
+    assert (t["game_id"], t["date"], t["opp"], t["for"], t["against"], t["result"], t["inputs"], t["pending"]) == \
+        (2026020180, "2026-10-25", "CHI", 3, 2, "W", "production", True)
+    assert out["teams"]["CHI"]["result"] == "L" and out["teams"]["CHI"]["pending"]
+    assert all(p["o"][1:] == [0, 0, 0] for p in t["skaters"])     # production only
     # the shot values arrive: both teams get the game, scored in full, and it is cached
     out = _run_update(tmp_path, fx, "2026-10-26", fx["shots"])
     assert set(out["teams"]) == {"FLA", "CHI"} and "MoneyPuck.com" in out["credit"]
     t = out["teams"]["FLA"]
-    assert (t["game_id"], t["date"], t["opp"], t["for"], t["against"], t["result"], t["inputs"]) == \
-        (2026020180, "2026-10-25", "CHI", 3, 2, "W", "full")
+    assert (t["game_id"], t["date"], t["opp"], t["for"], t["against"], t["result"], t["inputs"], t["pending"]) == \
+        (2026020180, "2026-10-25", "CHI", 3, 2, "W", "full", False)
     assert out["teams"]["CHI"]["result"] == "L"
     cache = json.load(open(tmp_path / "gamescore.json", encoding="utf-8"))
     assert list(cache["games"]) == ["2026020180"] and cache["games"]["2026020180"]["complete"]
@@ -932,11 +939,12 @@ def test_recent_games_are_scored_again_with_the_nhls_corrections(tmp_path):
     assert out["teams"]["FLA"]["inputs"] == "full"
 
 
-def test_last_game_falls_back_to_production_after_two_days(tmp_path):
+def test_last_game_production_score_is_final_after_two_days(tmp_path):
     fx = json.load(open(GAME, encoding="utf-8"))
-    assert _run_update(tmp_path, fx, "2026-10-26", [])["teams"] == {}
-    out = _run_update(tmp_path, fx, "2026-10-27", [])
-    assert out["teams"]["FLA"]["inputs"] == "production"
+    t = _run_update(tmp_path, fx, "2026-10-26", [])["teams"]["FLA"]
+    assert t["inputs"] == "production" and t["pending"]
+    t = _run_update(tmp_path, fx, "2026-10-27", [])["teams"]["FLA"]
+    assert t["inputs"] == "production" and not t["pending"]
 
 
 def test_sample_carries_a_last_game_for_every_team():

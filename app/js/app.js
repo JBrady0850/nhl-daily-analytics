@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.14.1";
+  const APP_VERSION = "1.15.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -430,6 +430,23 @@
     if (s.kind === "due") return `New data is due: the ${runAt(s.last)} update has not posted yet. GitHub often runs late; this page checks every ${CHECK_MIN.due} minutes.`;
     return `The ${runAt(s.last)} update is ${dur(s.now - s.last)} late; GitHub may have skipped it. This page keeps checking; the next scheduled update is about ${runAt(s.next)}.`;
   }
+  // 1.15.0 (John, 2026-10-31: Today and My Teams did not show Tampa Bay's finished
+  // game and its result): a game that started after this data was built, or was under
+  // way when it was built, says when its final score arrives
+  const centralDay = ms => { const [y, mo, d] = centralParts(ms); return `${y}-${String(mo + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`; };
+  function finalDue(g) {
+    if (!g || g.result) return "";
+    const now = Date.now(), start = Date.parse(g.start_utc || ""), built = Date.parse((D && D.generated_utc) || "");
+    const live = g.state === "LIVE" || g.state === "CRIT";
+    const since = isFinite(start) && start <= now && !(isFinite(built) && built >= start) && D.date === centralDay(now);
+    if (!live && !since) return "";
+    const s = updState(now);
+    const when = s.kind === "copy" ? "the live app has the final score"
+      : s.kind === "fresh" ? `the final score comes with the next update, about ${runAt(s.next)}`
+      : `the final score comes with the ${runAt(s.last)} update, which has not posted yet`;
+    return `${live ? "Under way when this data was built" : `Started at ${localTime(g.start_utc)}, after this data was built`}; ${when}.`;
+  }
+  const dueLine = g => { const t = finalDue(g); return t ? `<p class="small muted due-final">${esc(t)}</p>` : ""; };
   const updSpan = () => { const s = updState(); return `<span class="upd ${s.kind}" data-upd>${esc(updText(s))}</span>`; };
   const updated = () => `Updated ${esc(localStamp(D.generated_utc))}. <span class="upd-line">${updSpan()} <button class="linkish noprint" data-act="refresh">Check for newer data</button></span>`;
   const stamp = () => `<p class="sub">${esc(longDate(D.date))}. ${updated()}</p>`;
@@ -480,7 +497,7 @@
       <p class="match">${badge(g.away, "big", true)} <span class="at">@</span> ${badge(g.home, "big", true)}</p>
       <p class="small muted" style="margin:0">${esc(teamName(g.away))} at ${esc(teamName(g.home))}, ${esc(localTime(g.start_utc))}${g.venue ? ", " + esc(g.venue) : ""}</p>
       ${winbar(g)}
-      ${fav ? pickBanner(fav, g.win_prob) + finalStrip(g) + `
+      ${fav ? pickBanner(fav, g.win_prob) + finalStrip(g) + dueLine(g) + `
       <p style="margin:4px 0" class="row">${tierPill(g.tier)} ${g.gate_cleared ? '<span class="pill lead">Gate cleared</span>' : ""} ${yours ? '<span class="pill gold">Your team</span>' : ""}</p>` : ""}
       <dl class="kv"><dt>Market</dt><dd>${typeof mk === "number" ? pct(mk) + ` for ${esc(fav)}` + (g.market.books ? ` <span class="muted">(${esc(g.market.books)} books)</span>` : "") : '<span class="muted">no line yet</span>'}</dd>
       <dt class="gk-dt">Goalies</dt><dd class="gk-dd">${goalieLine(g)}</dd>
@@ -675,7 +692,7 @@
     const hd = thT("Player", "The player. His name in the chart above opens his NHL.com page.") + thT("Pos", TIPS.heads.Pos) + thT("TOI", "Time on ice in the game, minutes.", "n hm") + thT("Game Score", TIPS.gs["Game Score"], "n") +
       ["Production", "Play driving", "Special teams", "Usage"].map(n => thT("O " + n.split(" ")[0], `Offense, ${n.toLowerCase()}: ${TIPS.gs[n]}`, "n")).join("") +
       ["Production", "Play driving", "Special teams", "Usage"].map(n => thT("D " + n.split(" ")[0], `Defense, ${n.toLowerCase()}: ${TIPS.gs[n]}`, "n")).join("");
-    const note = t.inputs === "full" ? "" : `<p class="small muted">Play driving, special teams and usage were not available for this game (the shift charts or shot values were missing), so only production is scored.</p>`;
+    const note = t.inputs === "full" ? "" : t.pending ? `<p class="small muted gs-pending">This game finished after MoneyPuck's last nightly update, so only production is scored for now; play driving, special teams and usage are added at the first update after MoneyPuck posts the game's shot values (usually the next morning).</p>` : `<p class="small muted">Play driving, special teams and usage were not available for this game (the shift charts or shot values were missing), so only production is scored.</p>`;
     return `<details class="lastgame" open><summary><span class="lg-title">Last game</span> <span class="small muted">${esc(shortDay(t.date))}, ${t.home ? "vs" : "at"} ${esc(t.opp)}</span></summary>
       ${strip}
       <p class="small gs-how"><b>Two bars per player: the top bar is his offense</b> (what he created: goals, assists, shots, chances), <b>the bottom bar his defense</b> (what he stopped: blocks, chances against). Parts right of the center line helped his team; parts left of it hurt. The number beside each name is his Game Score, the two bars added together, in goals-like units: above 0 he helped, below 0 he hurt, 0 is an ordinary game.</p>
@@ -691,7 +708,13 @@
   function teamCard(ab) {
     const t = (D.teams || {})[ab] || {};
     const g = games().find(x => x.home === ab || x.away === ab);
-    const tonight = g ? `<p class="row small">Tonight: ${esc(g.away)} @ ${esc(g.home)}, ${esc(localTime(g.start_utc))}. ${g.projected ? `Projected winner ${esc(g.projected)} ${pct(g.win_prob)} ${tierPill(g.tier)}` : ""}</p>` : `<p class="small muted">No game today.</p>`;
+    // 1.15.0: once the game is final, the line gives the final score and whether the pick
+    // won; before that, when the score arrives (finalDue)
+    const r = g && g.result, proj = g && g.projected ? [`Projected winner ${esc(g.projected)} ${pct(g.win_prob)}`, tierPill(g.tier)].filter(Boolean).join(" ") : "";
+    const per = r && r.last_period === "OT" ? " in overtime" : r && r.last_period === "SO" ? " in a shootout" : "";
+    const tonight = !g ? `<p class="small muted">No game today.</p>`
+      : r ? `<div class="today-line"><p class="small">Today: ${esc(g.away)} @ ${esc(g.home)}, final: ${esc(g.away)} ${esc(r.away_score)}, ${esc(g.home)} ${esc(r.home_score)}${per}.</p>${proj ? `<p class="row small">${proj} <span class="pill ${r.pick === "win" ? "win" : "loss"}">${r.pick === "win" ? "Win" : "Loss"}</span></p>` : ""}</div>`
+      : `<p class="row small today-line">Today: ${esc(g.away)} @ ${esc(g.home)}, ${esc(localTime(g.start_utc))}. ${proj}</p>${dueLine(g)}`;
     return `<section class="card edge teamcard" style="${teamVars(ab)}"><div class="tc-head">${badge(ab, "xl", true)}<div><h2>${esc(t.name || ab)}</h2><span class="small muted">${t.record ? esc(t.record) + ", " + esc(t.pts) + " pts" : ""}${t.division ? ", " + esc(t.division) : ""}</span></div></div>${standPlaces(ab)}${tonight}${lastGame(ab)}${linesTable((D.lines || {})[ab])}</section>`;
   }
   function vMyTeams() {

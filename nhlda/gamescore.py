@@ -45,7 +45,7 @@ log = logging.getLogger("nhlda.gamescore")
 MP_SHOTS_URL = "https://peter-tanner.com/moneypuck/downloads/shots_{year}.zip"
 CACHE_NAME = "gamescore.json"
 LOOKBACK_DAYS = 3        # finished games of today and the three days before
-WAIT_DAYS = 2            # then score on production only if inputs are still missing
+WAIT_DAYS = 2            # inputs still missing this long after the game: the production score is final
 DEFAULT_RATES = {"xg": 2.5, "g": 2.4, "pp": 6.5}   # per 60, used only when MoneyPuck is unreachable
 FINAL_STATES = {"FINAL", "OFF"}
 W = {"g": 0.75, "a1": 0.70, "a2": 0.55, "sog": 0.075, "pd": 0.15, "fow": 0.01, "fol": 0.01,
@@ -397,7 +397,8 @@ def latest_by_team(cache):
         for ab, entry in (g.get("teams") or {}).items():
             key = (g.get("date") or "", int(gid))
             if ab not in best or key > best[ab][0]:
-                best[ab] = (key, dict(entry, game_id=int(gid), date=g.get("date"), inputs=g.get("inputs")))
+                best[ab] = (key, dict(entry, game_id=int(gid), date=g.get("date"), inputs=g.get("inputs"),
+                                      pending=bool(g.get("pending"))))
     return {ab: v[1] for ab, v in sorted(best.items())}
 
 
@@ -406,7 +407,12 @@ async def update(f, session, state_dir, target_date, season_year, game_type_ok=(
     latest game in state/gamescore.json, and return the public block. Games are scored
     again on every run inside that window (1.12.1), because the NHL corrects its game
     sheets (shots, faceoffs, shifts) and MoneyPuck its shot values after the game; a
-    run whose inputs are poorer than the saved score keeps the saved score."""
+    run whose inputs are poorer than the saved score keeps the saved score.
+    1.15.0 (John, 2026-10-31: My Teams did not show Tampa Bay's finished afternoon game
+    and its result at the evening update): a game is shown as soon as it is final.
+    MoneyPuck posts its shot values overnight, so until they (and the shift charts)
+    arrive the game is scored on production only and marked pending; a later run
+    replaces it with the full score. After WAIT_DAYS the production score is final."""
     cache = _load_cache(state_dir)
     games = cache.setdefault("games", {})
     day = dt.date.fromisoformat(target_date)
@@ -438,8 +444,6 @@ async def update(f, session, state_dir, target_date, season_year, game_type_ok=(
                 xg = shot_values(shots.get(gid % 1000000, []))
                 full = bool(rows) and len(xg) >= 10
                 late = (day - dt.date.fromisoformat(d)).days >= WAIT_DAYS
-                if not full and not late:
-                    continue                       # wait for the shift charts or the shot values
                 if not full and (games.get(str(gid)) or {}).get("inputs") == "full":
                     continue                       # never trade a full score for a production-only one
                 try:
@@ -451,6 +455,7 @@ async def update(f, session, state_dir, target_date, season_year, game_type_ok=(
                 for ab, entry in res["teams"].items():
                     entry.update(_team_result(pbp, ab))
                 games[str(gid)] = {"date": d, "inputs": res["inputs"], "complete": True, "teams": res["teams"],
+                                   "pending": not full and not late,   # full inputs still expected
                                    "rates": {k: round(v, 3) for k, v in rates.items()}}
     # keep only each team's latest game
     latest = latest_by_team(cache)
