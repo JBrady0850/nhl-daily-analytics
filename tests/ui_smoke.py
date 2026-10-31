@@ -304,14 +304,16 @@ LEADER_JS = """(ab) => { const c = [...document.querySelectorAll('main section.t
   if (!c) return null;
   const rows = [...c.querySelectorAll('table tbody tr')].filter(r => !r.classList.contains('tot') && r.querySelector('a.plink'));
   return rows.map(r => { const a = r.querySelector('a.plink');
-    return [a.childNodes[0].textContent.trim(), [...r.querySelectorAll('.pill')].filter(p => /points leader/i.test(p.textContent)).map(p => [p.textContent.trim(), p.dataset.tip || ''])]; }); }"""
+    return [a.childNodes[0].textContent.trim(), [...r.querySelectorAll('.pill')].filter(p => /points leader/i.test(p.textContent)).map(p => [p.textContent.trim(), p.dataset.tip || '', p.tabIndex])]; }); }"""
 
 
 def check_points_leaders(pg, sample, ab):
     """My Teams (John, 2026-10-31: "add a badge for the top points leader for both
-    Offense and Defense"): the forward with the most points carries F POINTS LEADER and
-    the defenseman with the most points D POINTS LEADER, in the window shown (Last 10 or
-    Season), tied players share it, each with its definition."""
+    Offense and Defense"): the forward with the most points and the defenseman with the
+    most points each carry a Points leader badge, in the window shown (Last 10 or Season);
+    tied players share it. 1.14.1 (John: "remove the F and D from Point Leader. The hover
+    explanation is sufficient"): the badge reads Points leader with no F or D, and its
+    definition (hover, tap or keyboard) says forward or defenseman."""
     L = sample["lines"][ab]
     out = []
     pg.click('#tabs button[data-tab="myteams"]')
@@ -320,18 +322,23 @@ def check_points_leaders(pg, sample, ab):
         pg.wait_for_timeout(40)
         got = dict((n, tags) for n, tags in pg.evaluate(LEADER_JS, ab) or [])
         want = {}
-        for grp, label in (("lines", "F points leader"), ("pairs", "D points leader")):
+        for grp, label in (("lines", "forward"), ("pairs", "defenseman")):
             ps = [p for x in L[grp] for p in x["players"]]
             top = max((p[win]["p"] for p in ps), default=0)
             lead = [p["name"] for p in ps if top > 0 and p[win]["p"] == top]
             for n in lead:
-                want[n] = label + (" (tied)" if len(lead) > 1 else "")
+                want[n] = ("Points leader" + (" (tied)" if len(lead) > 1 else ""), label, len(lead) > 1)
         seen = {n: tags[0][0] for n, tags in got.items() if tags}
-        if seen != want:
-            out.append(f"my teams {ab} {win}: points leaders {seen} (want {want})")
-        bad_tip = [n for n, tags in got.items() for t in tags if "most points" not in t[1].lower()]
-        if bad_tip:
-            out.append(f"my teams {ab} {win}: points leader badge without its definition for {bad_tip}")
+        if seen != {n: w[0] for n, w in want.items()}:
+            out.append(f"my teams {ab} {win}: points leaders {seen} (want {[(n, w[0]) for n, w in want.items()]})")
+        for n, tags in got.items():
+            for text, tip, tab in tags:
+                grp, tied = want.get(n, ("", "?", False))[1:]
+                low = tip.lower()
+                if "most points" not in low or f"the {grp} with" not in low or (tied and "tied" not in low):
+                    out.append(f"my teams {ab} {win}: {n}'s badge definition does not name the {grp}: {tip!r}")
+                if tab < 0:
+                    out.append(f"my teams {ab} {win}: {n}'s badge cannot be reached by keyboard")
     pg.click('main button[data-act="win"][data-arg="last10"]')
     return out
 

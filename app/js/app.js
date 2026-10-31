@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.14.0";
+  const APP_VERSION = "1.14.1";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -244,7 +244,7 @@
       });
     });
     root.querySelectorAll(".pill").forEach(p => {
-      if (p.dataset.tip) return;
+      if (p.dataset.tip) return setTip(p, p.dataset.tip, true); // a tag that brings its own definition
       const up = p.textContent.trim().toUpperCase(), tied = /\s*\(TIED\)$/.test(up), base = up.replace(/\s*\(TIED\)$/, "");
       let d = TIPS.pills[base] || (p.classList.contains("bad") ? TIPS.pills._injury : TIPS.pills._other);
       if (tied && TIPS.pills._tied) d += " " + TIPS.pills._tied;
@@ -566,7 +566,10 @@
         const status = [p.gtd ? '<span class="pill projected">GTD</span>' : "", p.injury ? `<span class="pill bad">${esc(p.injury)}</span>` : ""].join(" ");
         const pimTag = topPim > 0 && s.pim === topPim ? ` <span class="pill bad">Most PIM${nTop > 1 ? " (tied)" : ""}</span>` : "";
         const fwd = unit[0] === "F", pl = fwd ? fLead : dLead;
-        const ptsTag = pl.top > 0 && s.p === pl.top ? ` <span class="pill gold">${fwd ? "F" : "D"} points leader${pl.n > 1 ? " (tied)" : ""}</span>` : "";
+        // 1.14.1 (John: "remove the F and D from Point Leader. The hover explanation is sufficient"):
+        // the badge reads Points leader; its definition says forward or defenseman
+        const ptsTip = (TIPS.leader || {})[fwd ? "F" : "D"] || TIPS.pills["POINTS LEADER"] || "";
+        const ptsTag = pl.top > 0 && s.p === pl.top ? ` <span class="pill gold" data-tip="${esc(ptsTip + (pl.n > 1 && TIPS.pills._tied ? " " + TIPS.pills._tied : ""))}">Points leader${pl.n > 1 ? " (tied)" : ""}</span>` : "";
         return `<tr class="${lead.points ? "lead" : ""}">${td(i === 0 ? `<span class="unit">${esc(unit)}</span>` : "")}${td(esc(p.pos), "hm")}${td(pname(p.name, p.nhl_id) + " " + status + ptsTag + pimTag)}${td(esc(p.pp || ""), "hm")}
           ${td(esc(s.gp ?? "-"), "n")}${td(esc(s.g ?? "-"), "n")}${td(esc(s.a ?? "-"), "n")}${td(`<b>${esc(s.p ?? "-")}</b>`, "n")}${td(esc(s.sog ?? "-"), "n")}${td(esc(s.ppp ?? "-"), "n hm")}${td(mmss(s.toi_sec_pg), "n hm")}${td(esc(s.pim ?? "-"), "n")}</tr>`;
       }).join("");
