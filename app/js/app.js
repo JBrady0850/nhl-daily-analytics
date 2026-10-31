@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.13.3";
+  const APP_VERSION = "1.14.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -552,6 +552,11 @@
     const pims = all.map(p => (p[w] || {}).pim).filter(v => typeof v === "number");
     const topPim = pims.length ? Math.max(...pims) : 0;
     const nTop = all.filter(p => (p[w] || {}).pim === topPim).length;
+    // 1.14.0 (John: "add a badge for the top points leader for both Offense and Defense"):
+    // the forward and the defenseman with the most points in the window shown
+    const ptsTop = ps => { const v = ps.map(p => (p[w] || {}).p).filter(x => typeof x === "number"); const top = v.length ? Math.max(...v) : 0;
+      return { top, n: ps.filter(p => (p[w] || {}).p === top).length }; };
+    const fLead = ptsTop((L.lines || []).flatMap(x => x.players)), dLead = ptsTop((L.pairs || []).flatMap(x => x.players));
     const head = th("Unit") + th("Pos", "hm") + th("Player") + th("PP", "hm") + th("GP", "n") + th("G", "n") + th("A", "n") + th("P", "n") + th("SOG", "n") + th("PPP", "n hm") + th("TOI/GP", "n hm") + th("PIM", "n");
     const rows = groups.map(([unit, x]) => {
       const lead = (x.leaders || {})[w] || {};
@@ -560,7 +565,9 @@
         const s = p[w] || {};
         const status = [p.gtd ? '<span class="pill projected">GTD</span>' : "", p.injury ? `<span class="pill bad">${esc(p.injury)}</span>` : ""].join(" ");
         const pimTag = topPim > 0 && s.pim === topPim ? ` <span class="pill bad">Most PIM${nTop > 1 ? " (tied)" : ""}</span>` : "";
-        return `<tr class="${lead.points ? "lead" : ""}">${td(i === 0 ? `<span class="unit">${esc(unit)}</span>` : "")}${td(esc(p.pos), "hm")}${td(pname(p.name, p.nhl_id) + " " + status + pimTag)}${td(esc(p.pp || ""), "hm")}
+        const fwd = unit[0] === "F", pl = fwd ? fLead : dLead;
+        const ptsTag = pl.top > 0 && s.p === pl.top ? ` <span class="pill gold">${fwd ? "F" : "D"} points leader${pl.n > 1 ? " (tied)" : ""}</span>` : "";
+        return `<tr class="${lead.points ? "lead" : ""}">${td(i === 0 ? `<span class="unit">${esc(unit)}</span>` : "")}${td(esc(p.pos), "hm")}${td(pname(p.name, p.nhl_id) + " " + status + ptsTag + pimTag)}${td(esc(p.pp || ""), "hm")}
           ${td(esc(s.gp ?? "-"), "n")}${td(esc(s.g ?? "-"), "n")}${td(esc(s.a ?? "-"), "n")}${td(`<b>${esc(s.p ?? "-")}</b>`, "n")}${td(esc(s.sog ?? "-"), "n")}${td(esc(s.ppp ?? "-"), "n hm")}${td(mmss(s.toi_sec_pg), "n hm")}${td(esc(s.pim ?? "-"), "n")}</tr>`;
       }).join("");
       const t = (x.totals || {})[w] || {};

@@ -300,6 +300,42 @@ def check_lines_source(pg, ab, kind):
     return out
 
 
+LEADER_JS = """(ab) => { const c = [...document.querySelectorAll('main section.teamcard')].find(s => s.querySelector('.tc-head .tm').textContent.trim() === ab);
+  if (!c) return null;
+  const rows = [...c.querySelectorAll('table tbody tr')].filter(r => !r.classList.contains('tot') && r.querySelector('a.plink'));
+  return rows.map(r => { const a = r.querySelector('a.plink');
+    return [a.childNodes[0].textContent.trim(), [...r.querySelectorAll('.pill')].filter(p => /points leader/i.test(p.textContent)).map(p => [p.textContent.trim(), p.dataset.tip || ''])]; }); }"""
+
+
+def check_points_leaders(pg, sample, ab):
+    """My Teams (John, 2026-10-31: "add a badge for the top points leader for both
+    Offense and Defense"): the forward with the most points carries F POINTS LEADER and
+    the defenseman with the most points D POINTS LEADER, in the window shown (Last 10 or
+    Season), tied players share it, each with its definition."""
+    L = sample["lines"][ab]
+    out = []
+    pg.click('#tabs button[data-tab="myteams"]')
+    for win in ("last10", "season"):
+        pg.click(f'main button[data-act="win"][data-arg="{win}"]')
+        pg.wait_for_timeout(40)
+        got = dict((n, tags) for n, tags in pg.evaluate(LEADER_JS, ab) or [])
+        want = {}
+        for grp, label in (("lines", "F points leader"), ("pairs", "D points leader")):
+            ps = [p for x in L[grp] for p in x["players"]]
+            top = max((p[win]["p"] for p in ps), default=0)
+            lead = [p["name"] for p in ps if top > 0 and p[win]["p"] == top]
+            for n in lead:
+                want[n] = label + (" (tied)" if len(lead) > 1 else "")
+        seen = {n: tags[0][0] for n, tags in got.items() if tags}
+        if seen != want:
+            out.append(f"my teams {ab} {win}: points leaders {seen} (want {want})")
+        bad_tip = [n for n, tags in got.items() for t in tags if "most points" not in t[1].lower()]
+        if bad_tip:
+            out.append(f"my teams {ab} {win}: points leader badge without its definition for {bad_tip}")
+    pg.click('main button[data-act="win"][data-arg="last10"]')
+    return out
+
+
 LAST_GAME_JS = """(ab) => {
   const c = [...document.querySelectorAll('main section.teamcard')].find(s => s.querySelector('.tc-head .tm').textContent.trim() === ab);
   if (!c) return {card: false};
@@ -1056,6 +1092,7 @@ def main():
                 fails.extend(f"{name}: {m}" for m in check_win_marker(pg))
                 fails.extend(f"{name}: {m}" for m in check_team_places(pg, sample, "FLA", mob))
                 fails.extend(f"{name}: {m}" for m in check_last_game(pg, sample, "FLA"))
+                fails.extend(f"{name}: {m}" for m in check_points_leaders(pg, sample, "FLA"))
                 fails.extend(f"{name}: {m}" for m in check_lines_tab(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_lines_source(pg, sample["slate"]["games"][0]["projected"], "daily_faceoff"))
                 fails.extend(f"{name}: {m}" for m in check_dfs_goalies(pg, len(sample["dfs"]["goalies"])))
@@ -1166,6 +1203,22 @@ def main():
             note = pg.locator("main .note.warn")
             if note.count() != 1 or "Daily Faceoff" not in note.inner_text():
                 fails.append(f"build note missing on {t}")
+        # two forwards level on points share the badge, marked tied
+        tie = json.loads(json.dumps(alt))
+        fwds = [p for x in tie["lines"]["FLA"]["lines"] for p in x["players"]]
+        best = max(fwds, key=lambda p: p["last10"]["p"])
+        other = next(p for p in fwds if p is not best)
+        other["last10"]["p"] = best["last10"]["p"]
+        with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
+            fh.write("window.NDA_DATA=" + json.dumps(tie) + ";\n")
+        pg.reload()
+        pg.click('#tabs button[data-tab="myteams"]')
+        added = not pg.locator('button.chip[data-arg="FLA"][aria-pressed="true"]').count()
+        if added:
+            pg.click('button.chip[data-arg="FLA"]')
+        fails.extend(f"tied leaders: {m}" for m in check_points_leaders(pg, tie, "FLA"))
+        if added:  # leave My Teams as the later checks expect it
+            pg.click('button.chip[data-arg="FLA"]')
         top = alt["slate"]["games"][0]["projected"]
         for kind in ("cached", "shift_chart"):
             var = json.loads(json.dumps(alt))
