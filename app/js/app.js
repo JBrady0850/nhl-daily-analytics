@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.15.0";
+  const APP_VERSION = "1.15.1";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -662,9 +662,9 @@
   }
   // the goalie is measured in goals saved, not Game Score, so he gets a plain sentence
   // instead of a bar on the skaters' scale
-  function gsGoalie(g) {
+  function gsGoalie(g, waiting) {
     const has = typeof g.gsax === "number";
-    const say = !has ? `Faced ${esc(g.shots)} shots and allowed ${esc(g.ga)} goals; expected goals were not available for this game.`
+    const say = !has ? `Faced ${esc(g.shots)} shots and allowed ${esc(g.ga)} goals; ${waiting ? "goals saved above expected comes with MoneyPuck's shot values for this game" : "expected goals were not available for this game"}.`
       : `Allowed ${esc(g.ga)} goal${g.ga === 1 ? "" : "s"} on ${esc(g.shots)} shots. An average goalie would have allowed ${num(g.xga, 2)} on those shots, so he ${g.gsax >= 0 ? "saved" : "allowed"} ${num(Math.abs(g.gsax), 2)} goals more than expected.`;
     return `<div class="gs-row gk"><span class="gs-name">${pname(g.name, g.id)}</span><b class="gs-val" data-tip="Goals saved above expected: the goals an average goalie would have allowed on his shots minus the goals he allowed. Above 0 he stopped more than expected.">${has ? signed(g.gsax) : "-"}</b><span class="gs-gk-txt small">${say}</span></div>`;
   }
@@ -692,7 +692,15 @@
     const hd = thT("Player", "The player. His name in the chart above opens his NHL.com page.") + thT("Pos", TIPS.heads.Pos) + thT("TOI", "Time on ice in the game, minutes.", "n hm") + thT("Game Score", TIPS.gs["Game Score"], "n") +
       ["Production", "Play driving", "Special teams", "Usage"].map(n => thT("O " + n.split(" ")[0], `Offense, ${n.toLowerCase()}: ${TIPS.gs[n]}`, "n")).join("") +
       ["Production", "Play driving", "Special teams", "Usage"].map(n => thT("D " + n.split(" ")[0], `Defense, ${n.toLowerCase()}: ${TIPS.gs[n]}`, "n")).join("");
-    const note = t.inputs === "full" ? "" : t.pending ? `<p class="small muted gs-pending">This game finished after MoneyPuck's last nightly update, so only production is scored for now; play driving, special teams and usage are added at the first update after MoneyPuck posts the game's shot values (usually the next morning).</p>` : `<p class="small muted">Play driving, special teams and usage were not available for this game (the shift charts or shot values were missing), so only production is scored.</p>`;
+    // 1.15.1 (John: "The helped hurt graph for the Tampa Bay Lightning was not updated
+    // correctly"): before MoneyPuck posts a game, every part is scored on stand-in shot
+    // values ("estimated"); production alone only when the NHL's shift charts are missing too
+    const note = t.inputs === "full" ? ""
+      : t.inputs === "estimated" ? (t.pending
+        ? `<p class="small muted gs-pending">MoneyPuck has not posted this game's shot values yet, so each shot is valued at MoneyPuck's season average for shots of that type from that distance. The exact values replace these at the first update after MoneyPuck posts the game (usually the next morning), and the bars may shift a little.</p>`
+        : `<p class="small muted">MoneyPuck did not post this game's shot values, so each shot is valued at MoneyPuck's season average for shots of that type from that distance.</p>`)
+      : t.pending ? `<p class="small muted gs-pending">The NHL has not published this game's shift charts yet, so only production is scored for now; play driving, special teams and usage are added at the first update after they appear.</p>`
+      : `<p class="small muted">Play driving, special teams and usage were not available for this game (the shift charts were missing), so only production is scored.</p>`;
     return `<details class="lastgame" open><summary><span class="lg-title">Last game</span> <span class="small muted">${esc(shortDay(t.date))}, ${t.home ? "vs" : "at"} ${esc(t.opp)}</span></summary>
       ${strip}
       <p class="small gs-how"><b>Two bars per player: the top bar is his offense</b> (what he created: goals, assists, shots, chances), <b>the bottom bar his defense</b> (what he stopped: blocks, chances against). Parts right of the center line helped his team; parts left of it hurt. The number beside each name is his Game Score, the two bars added together, in goals-like units: above 0 he helped, below 0 he hurt, 0 is an ordinary game.</p>
@@ -700,7 +708,7 @@
       <div class="gs-chart"><div class="gs-head"><span class="gs-name">Player</span><span class="gs-val" data-tip="${esc(TIPS.gs["Game Score"])}">Game Score</span>
       <div class="gs-sides" style="--z:${((0 - lo) / span * 100).toFixed(2)}%"><span class="hurt" data-tip="Left of the line: the parts of his game that cost his team.">Hurt</span><span class="helped" data-tip="Right of the line: the parts of his game that helped his team.">Helped</span></div></div>
       ${group("Forwards", fw.map(p => gsRow(p, lo, span)).join(""))}${group("Defense", dm.map(p => gsRow(p, lo, span)).join(""))}</div>
-      ${gk.length ? `<div class="gs-goalies"><div class="gs-head"><span class="gs-name">Goalie</span><span class="gs-val" data-tip="${esc(TIPS.gs.Goalie)}">Goals saved</span><span></span></div>${gk.map(gsGoalie).join("")}</div>` : ""}
+      ${gk.length ? `<div class="gs-goalies"><div class="gs-head"><span class="gs-name">Goalie</span><span class="gs-val" data-tip="${esc(TIPS.gs.Goalie)}">Goals saved</span><span></span></div>${gk.map(g => gsGoalie(g, t.pending)).join("")}</div>` : ""}
       ${note}
       <details class="more"><summary>Numbers</summary>${tbl(hd, rows, "gs-table")}</details>
       <p class="tiny muted">This app's own Game Score, built on the public Game Score formula (Dom Luszczyszyn, Hockey Graphs, 2016). Data: NHL play-by-play and shift charts; expected goals and season rates from <a href="https://moneypuck.com" target="_blank" rel="noopener">MoneyPuck.com</a>.</p></details>`;

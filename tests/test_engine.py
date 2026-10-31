@@ -882,7 +882,9 @@ def _run_update(tmp_path, fx, day, shots):
     import asyncio
     from nhlda import gamescore as G
 
-    async def fake_rows(session, year, want):
+    async def fake_rows(session, year, want, table=None):
+        if table is not None and shots:
+            table.update(G.shot_table(shots))
         return {20180: shots} if shots and 20180 in want else {}
     orig = G._shot_rows
     G._shot_rows = fake_rows
@@ -895,15 +897,21 @@ def _run_update(tmp_path, fx, day, shots):
 def test_last_game_shows_at_once_then_takes_the_full_score(tmp_path):
     """1.15.0 (John, 2026-10-31: My Teams did not show Tampa Bay's finished afternoon
     game and its result at the evening update): a final game appears on the same day,
-    scored on production and marked pending until MoneyPuck's shot values arrive."""
+    marked pending until MoneyPuck's shot values arrive. 1.15.1 (John: "The helped hurt
+    graph for the Tampa Bay Lightning was not updated correctly"): with the shift charts
+    published, every part is scored on stand-in shot values, not production alone."""
     fx = json.load(open(GAME, encoding="utf-8"))
-    # the evening of the game: final, but no shot values yet
+    # the evening of the game: final, shift charts out, no shot values yet
     out = _run_update(tmp_path, fx, "2026-10-25", [])
     t = out["teams"]["FLA"]
     assert (t["game_id"], t["date"], t["opp"], t["for"], t["against"], t["result"], t["inputs"], t["pending"]) == \
-        (2026020180, "2026-10-25", "CHI", 3, 2, "W", "production", True)
+        (2026020180, "2026-10-25", "CHI", 3, 2, "W", "estimated", True)
     assert out["teams"]["CHI"]["result"] == "L" and out["teams"]["CHI"]["pending"]
-    assert all(p["o"][1:] == [0, 0, 0] for p in t["skaters"])     # production only
+    sk = t["skaters"] + out["teams"]["CHI"]["skaters"]
+    assert all(isinstance(p["toi"], float) and p["toi"] > 0 for p in sk)                # time on ice
+    assert sum(1 for p in sk if p["d"][1] < 0) >= 5                                      # on the ice for goals and chances against
+    assert any(p["o"][2] or p["d"][2] for p in sk) and any(p["o"][3] or p["d"][3] for p in sk)
+    assert all(g["gsax"] is None and g["xga"] is None for g in t["goalies"])             # MoneyPuck's own values only
     # the shot values arrive: both teams get the game, scored in full, and it is cached
     out = _run_update(tmp_path, fx, "2026-10-26", fx["shots"])
     assert set(out["teams"]) == {"FLA", "CHI"} and "MoneyPuck.com" in out["credit"]
@@ -939,12 +947,87 @@ def test_recent_games_are_scored_again_with_the_nhls_corrections(tmp_path):
     assert out["teams"]["FLA"]["inputs"] == "full"
 
 
-def test_last_game_production_score_is_final_after_two_days(tmp_path):
+def test_last_game_without_shift_charts_is_production_and_final_after_two_days(tmp_path):
     fx = json.load(open(GAME, encoding="utf-8"))
-    t = _run_update(tmp_path, fx, "2026-10-26", [])["teams"]["FLA"]
+    bare = dict(fx, shifts=[])
+    t = _run_update(tmp_path, bare, "2026-10-26", [])["teams"]["FLA"]
     assert t["inputs"] == "production" and t["pending"]
-    t = _run_update(tmp_path, fx, "2026-10-27", [])["teams"]["FLA"]
-    assert t["inputs"] == "production" and not t["pending"]
+    assert all(p["o"][1:] == [0, 0, 0] for p in t["skaters"])
+    # the shift charts arrive: estimated replaces production
+    t = _run_update(tmp_path, fx, "2026-10-26", [])["teams"]["FLA"]
+    assert t["inputs"] == "estimated" and t["pending"]
+    # a later run without them keeps the estimated score, and two days on it is final
+    t = _run_update(tmp_path, bare, "2026-10-27", [])["teams"]["FLA"]
+    assert t["inputs"] == "estimated" and not t["pending"]
+
+
+def test_stand_in_shot_values_follow_distance_and_shot_type():
+    from nhlda import gamescore as G
+    fx, xg, rates, q = _game_inputs()
+    plays = [e for e in fx["pbp"]["plays"] if e.get("typeDescKey") in ("goal", "shot-on-goal", "missed-shot")
+             and (e.get("periodDescriptor") or {}).get("periodType") != "SO"]
+    flat = G.estimate_shots(fx["pbp"], {}, 0.064)
+    assert len(flat) == len({(e["periodDescriptor"]["number"], G._secs(e["timeInPeriod"]),
+                              (e["details"].get("scoringPlayerId") or e["details"].get("shootingPlayerId"))) for e in plays})
+    assert set(flat.values()) == {0.064}
+    # MoneyPuck-style rows: close shots are worth more, tips more than slap shots up close
+    rows = []
+    for dist, base in ((5, 0.30), (12, 0.15), (22, 0.08), (33, 0.04), (55, 0.015)):
+        for typ, mult in (("WRIST", 1.0), ("TIP", 1.3), ("SLAP", 0.8)):
+            rows += [{"event": "SHOT", "shotDistance": str(dist), "shotType": typ, "xGoal": str(base * mult)}] * 40
+    rows += [{"event": "BLOCK", "shotDistance": "5", "shotType": "WRIST", "xGoal": "0.9"}] * 40   # not unblocked: left out
+    table = G.shot_table(rows)
+    assert abs(table[(G._dist_bin(5), "WRIST")][0] - 0.30) < 1e-9 and table[(G._dist_bin(5), "")][1] == 120
+    assert table[(G._dist_bin(5), "")][0] > table[(G._dist_bin(55), "")][0]
+    # NHL play-by-play: rink coordinates in feet, nets at x = +89 and -89
+    def play(kind, x, y, zone, typ, sec, per=1, ptype="REG"):
+        return {"typeDescKey": kind, "timeInPeriod": f"00:{sec:02d}",
+                "periodDescriptor": {"number": per, "periodType": ptype},
+                "details": {"xCoord": x, "yCoord": y, "zoneCode": zone, "shotType": typ, "shootingPlayerId": 7}}
+    pbp = {"plays": [play("shot-on-goal", 84, 0, "O", "tip-in", 1),        # 5 ft, a tip
+                     play("shot-on-goal", -84, 0, "O", "slap", 2),          # 5 ft at the other net, a slap shot
+                     play("missed-shot", 34, 0, "O", "wrist", 3),           # 55 ft
+                     play("shot-on-goal", -30, 0, "D", "wrist", 4),         # from his own zone: 119 ft
+                     play("shot-on-goal", 77, 0, "O", "bat", 5),            # 12 ft, a type MoneyPuck does not list
+                     play("blocked-shot", 80, 0, "O", "wrist", 6),          # blocked: not valued
+                     play("shot-on-goal", 84, 0, "O", "wrist", 1, 5, "SO")]}  # shootout: left out
+    est = G.estimate_shots(pbp, table, 0.064)
+    assert len(est) == 5
+    assert abs(est[(1, 1, 7)] - 0.39) < 1e-9 and abs(est[(1, 2, 7)] - 0.24) < 1e-9
+    assert abs(est[(1, 3, 7)] - 0.015) < 1e-9
+    assert est[(1, 4, 7)] == 0.064                                         # no band that far: the league average
+    assert abs(est[(1, 5, 7)] - 0.15 * (1.0 + 1.3 + 0.8) / 3) < 1e-9       # the distance band alone
+    # a cell with too few shots falls back to its distance band, then to the league average
+    thin = {k: (v[0], 5) if k[1] else v for k, v in table.items()}
+    assert abs(G.estimate_shots(pbp, thin, 0.064)[(1, 1, 7)] - table[(G._dist_bin(5), "")][0]) < 1e-9
+    assert set(G.estimate_shots(pbp, {}, 0.064).values()) == {0.064}
+
+
+def test_estimated_game_score_tracks_the_full_score():
+    """The stand-in values keep each player's Game Score close to MoneyPuck's (here with
+    the league average alone; the build also uses distance and shot type, which on 18
+    games of 2026-10-28 to 30 gave a correlation of 0.97)."""
+    import statistics
+    from nhlda import gamescore as G
+    fx, xg, rates, q = _game_inputs()
+    rows = [r for r in fx["shifts"] if r.get("typeCode") == 517]
+    full = G.breakdown(fx["pbp"], rows, xg, rates, q, box=fx.get("box"))
+    est = G.breakdown(fx["pbp"], rows, G.estimate_shots(fx["pbp"], {}, rates["shot"]), rates, q,
+                      box=fx.get("box"), estimated=True)
+    prod = G.breakdown(fx["pbp"], [], {}, rates, q, box=fx.get("box"))
+    assert (full["inputs"], est["inputs"], prod["inputs"]) == ("full", "estimated", "production")
+    assert all(p["toi"] for t in prod["teams"].values() for p in t["skaters"])        # the boxscore's TOI
+
+    def pairs(alt):
+        out = []
+        for ab in full["teams"]:
+            F = {p["id"]: p["gs"] for p in full["teams"][ab]["skaters"]}
+            out += [(F[p["id"]], p["gs"]) for p in alt["teams"][ab]["skaters"] if p["id"] in F]
+        return out
+    pe, pp = pairs(est), pairs(prod)
+    corr = lambda ps: statistics.correlation([a for a, _ in ps], [b for _, b in ps])
+    assert corr(pe) > 0.9 and corr(pe) > corr(pp)
+    assert sum((a >= 0) == (b >= 0) for a, b in pe) > sum((a >= 0) == (b >= 0) for a, b in pp)
 
 
 def test_sample_carries_a_last_game_for_every_team():

@@ -34,6 +34,7 @@ import datetime as dt
 import io
 import json
 import logging
+import math
 import os
 import zipfile
 from collections import defaultdict
@@ -46,7 +47,8 @@ MP_SHOTS_URL = "https://peter-tanner.com/moneypuck/downloads/shots_{year}.zip"
 CACHE_NAME = "gamescore.json"
 LOOKBACK_DAYS = 3        # finished games of today and the three days before
 WAIT_DAYS = 2            # inputs still missing this long after the game: the production score is final
-DEFAULT_RATES = {"xg": 2.5, "g": 2.4, "pp": 6.5}   # per 60, used only when MoneyPuck is unreachable
+DEFAULT_RATES = {"xg": 2.5, "g": 2.4, "pp": 6.5, "shot": 0.063}   # per 60 (shot: xG per unblocked 5-on-5 shot), used only when MoneyPuck is unreachable
+INPUT_RANK = {"production": 0, "estimated": 1, "full": 2}
 FINAL_STATES = {"FINAL", "OFF"}
 W = {"g": 0.75, "a1": 0.70, "a2": 0.55, "sog": 0.075, "pd": 0.15, "fow": 0.01, "fol": 0.01,
      "blk": 0.05, "pt": 0.15, "xg": 0.9, "goal": 0.15, "st": 0.15, "use": 0.45}
@@ -71,16 +73,18 @@ def _strength(code, home):
 
 
 def league_rates(teams_csv):
-    """League 5-on-5 xG and goals per 60 and power-play goals per 60 from MoneyPuck's
-    season team summary."""
-    acc = defaultdict(lambda: [0.0, 0.0, 0.0])
+    """League 5-on-5 xG and goals per 60, power-play goals per 60, and the average
+    expected-goal value of an unblocked 5-on-5 shot, from MoneyPuck's season team summary."""
+    acc = defaultdict(lambda: [0.0, 0.0, 0.0, 0.0])
     for r in csv.DictReader(io.StringIO(teams_csv or "")):
         a = acc[(r.get("situation") or "").strip()]
         a[0] += safe_float(r.get("iceTime")); a[1] += safe_float(r.get("xGoalsFor")); a[2] += safe_float(r.get("goalsFor"))
+        a[3] += safe_float(r.get("unblockedShotAttemptsFor"))
     e, p = acc.get("5on5"), acc.get("5on4")
     if not e or e[0] < 36000 or not p or p[0] < 3600:
         return dict(DEFAULT_RATES)
-    return {"xg": e[1] / e[0] * 3600, "g": e[2] / e[0] * 3600, "pp": p[2] / p[0] * 3600}
+    return {"xg": e[1] / e[0] * 3600, "g": e[2] / e[0] * 3600, "pp": p[2] / p[0] * 3600,
+            "shot": e[1] / e[3] if e[3] else DEFAULT_RATES["shot"]}
 
 
 def player_quality(skaters_csv, rates):
@@ -108,6 +112,71 @@ def shot_values(rows):
             out[(per, t - (per - 1) * 1200, int(float(r.get("shooterPlayerId") or 0)))] = float(r["xGoal"])
         except (KeyError, TypeError, ValueError):
             continue
+    return out
+
+
+DIST_BINS = (10, 15, 20, 25, 30, 35, 40, 50, 60)          # feet from the net
+MP_TYPES = {"wrist": "WRIST", "snap": "SNAP", "slap": "SLAP", "backhand": "BACK", "tip-in": "TIP",
+            "deflected": "DEFL", "wrap-around": "WRAP"}    # NHL shotType -> MoneyPuck shotType
+TABLE_MIN = 30                                              # shots a table cell needs before it is used
+
+
+def _dist_bin(d):
+    return next((i for i, edge in enumerate(DIST_BINS) if d < edge), len(DIST_BINS))
+
+
+def shot_table(rows):
+    """The average MoneyPuck xG of an unblocked shot by distance band and shot type, and
+    by distance band alone, from MoneyPuck's shot rows of finished games (1.15.1). It
+    values the shots of a game MoneyPuck has not posted yet; tested on 18 games of
+    2026-10-28 to 30 with the table built from the games before them, the Game Scores
+    came within 0.16 of MoneyPuck's on average (correlation 0.97), against 0.39 for
+    production alone."""
+    acc = defaultdict(lambda: [0.0, 0])
+    for r in rows:
+        _table_add(acc, r)
+    return _table_done(acc)
+
+
+def _table_add(acc, r):
+    try:
+        if r.get("event") not in ("SHOT", "GOAL", "MISS"):
+            return
+        b, x = _dist_bin(float(r["shotDistance"])), float(r["xGoal"])
+    except (KeyError, TypeError, ValueError):
+        return
+    for key in ((b, (r.get("shotType") or "").upper()), (b, "")):
+        acc[key][0] += x
+        acc[key][1] += 1
+
+
+def _table_done(acc):
+    return {k: (s / n, n) for k, (s, n) in acc.items() if n}
+
+
+def estimate_shots(pbp, table, avg):
+    """Stand-in shot values for one game, keyed like shot_values: each unblocked shot
+    (not shootout attempts) gets the table's average for its distance band and shot
+    type, else for its distance band, else avg (the league's average unblocked shot)."""
+    out = {}
+    for e in pbp.get("plays") or []:
+        if e.get("typeDescKey") not in ("goal", "shot-on-goal", "missed-shot"):
+            continue
+        pd_ = e.get("periodDescriptor") or {}
+        if pd_.get("periodType") == "SO":
+            continue
+        d = e.get("details") or {}
+        x, y, v = d.get("xCoord"), d.get("yCoord"), avg
+        if isinstance(x, (int, float)) and isinstance(y, (int, float)):
+            # the attacked net is at x = +89 or -89: on the shooter's side of center when he
+            # shoots from his offensive zone, across it otherwise
+            net = 89 if (d.get("zoneCode") == "O") == (x > 0) else -89
+            b = _dist_bin(math.hypot(net - x, y))
+            for key in ((b, MP_TYPES.get(d.get("shotType"), "?")), (b, "")):
+                if key in table and table[key][1] >= TABLE_MIN:
+                    v = table[key][0]
+                    break
+        out[(pd_.get("number"), _secs(e.get("timeInPeriod")), d.get("scoringPlayerId") or d.get("shootingPlayerId"))] = v
     return out
 
 
@@ -165,17 +234,22 @@ def match_shots(plays, shots):
     return out
 
 
-def breakdown(pbp, shift_rows, shots, rates, quality, box=None, goalie_xg=None):
+def breakdown(pbp, shift_rows, shots, rates, quality, box=None, goalie_xg=None, estimated=False):
     """Score every player of both teams for one finished game. shift_rows: the NHL
     shift chart rows (empty when not published); shots: {(period, sec, shooter): xG}
     (empty when not published); box: the NHL boxscore, whose own shots on goal, blocks,
     time on ice and goalie shots and goals against are used where the play-by-play
     disagrees (1.12.1); goalie_xg: MoneyPuck's {goalie id: xG}.
-    Returns {"inputs": "full"|"production", "teams": {...}}."""
+    1.15.1: estimated=True when shots holds this app's stand-in values (estimate_shots)
+    because MoneyPuck has not posted the game yet: every part is scored as usual, the
+    result is marked "estimated", and goalie GSAx waits for MoneyPuck's own values.
+    Returns {"inputs": "full"|"estimated"|"production", "teams": {...}}."""
     home, away = pbp["homeTeam"], pbp["awayTeam"]
     hid, aid = home["id"], away["id"]
     abbr = {hid: home["abbrev"], aid: away["abbrev"]}
-    full = bool(shift_rows) and bool(shots)
+    onice_ok = bool(shift_rows) and bool(shots)   # the on-ice parts can be scored
+    est = onice_ok and estimated
+    full = onice_ok and not estimated
     roster = {}
     for r in pbp.get("rosterSpots") or []:
         roster[r["playerId"]] = {"team": r["teamId"], "pos": r.get("positionCode") or "",
@@ -313,18 +387,18 @@ def breakdown(pbp, shift_rows, shots, rates, quality, box=None, goalie_xg=None):
                 faced = s.get("ga_g", 0) + s.get("sv_g", 0)
                 if faced:
                     xga = (goalie_xg or {}).get(pid, s.get("xga_g", 0.0))
-                    gk.append({"id": pid, "name": info["name"], "pos": "G", "shots": int(faced),
+                    gk.append({"id": pid, "name": info["name"], "pos": "G", "shots": int(faced),     # GSAx: MoneyPuck's values only
                                "ga": int(s.get("ga_g", 0)), "xga": round(xga, 2) if full else None,
                                "gsax": round(xga - s.get("ga_g", 0), 2) if full else None})
                 continue
             otoi = (off.get(pid) or {}).get("toi")
-            if full and not toi.get(pid) and not otoi:
+            if onice_ok and not toi.get(pid) and not otoi:
                 continue                      # dressed but did not play
             o_prod = (W["g"] * s.get("g", 0) + W["a1"] * s.get("a1", 0) + W["a2"] * s.get("a2", 0) + W["sog"] * s.get("sog", 0)
                       + W["pd"] * s.get("pd", 0) + W["fow"] * s.get("fow", 0) - W["fol"] * s.get("fol", 0))
             d_prod = W["blk"] * s.get("blk", 0) - W["pt"] * s.get("pt", 0)
             o_drv = d_drv = o_st = d_st = o_use = d_use = 0.0
-            if full:
+            if onice_ok:
                 t5, tpp, tpk = s.get("t_5v5", 0) / 3600, s.get("t_PP", 0) / 3600, s.get("t_PK", 0) / 3600
                 o_drv = W["xg"] * (s.get("xgf", 0) - L * t5) + W["goal"] * (s.get("gf", 0) - Lg * t5)
                 d_drv = W["xg"] * (L * t5 - s.get("xga", 0)) + W["goal"] * (Lg * t5 - s.get("ga", 0))
@@ -340,12 +414,12 @@ def breakdown(pbp, shift_rows, shots, rates, quality, box=None, goalie_xg=None):
             o = [round(v, 2) for v in (o_prod, o_drv, o_st, o_use)]
             dd = [round(v, 2) for v in (d_prod, d_drv, d_st, d_use)]
             sk.append({"id": pid, "name": info["name"], "pos": info["pos"],
-                       "toi": round((otoi if otoi else toi.get(pid, 0)) / 60, 1) if full else None,
+                       "toi": round((otoi if otoi else toi.get(pid, 0)) / 60, 1) if (otoi or onice_ok) else None,
                        "gs": round(sum(o) + sum(dd), 2), "o": o, "d": dd,
                        "box": {k: int(s.get(k, 0)) for k in ("g", "a1", "a2", "sog", "blk", "pd", "pt")}})
         sk.sort(key=lambda p: (p["pos"] == "D", -p["gs"], p["name"]))
         teams[abbr[tid]] = {"opp": abbr[oid], "home": tid == hid, "skaters": sk, "goalies": gk}
-    return {"inputs": "full" if full else "production", "teams": teams}
+    return {"inputs": "full" if full else "estimated" if est else "production", "teams": teams}
 
 
 def _team_result(pbp, ab):
@@ -357,26 +431,31 @@ def _team_result(pbp, ab):
             "result": "W" if won else ("OTL" if last in ("OT", "SO") else "L")}
 
 
-async def _shot_rows(session, year, want):
+async def _shot_rows(session, year, want, table=None):
     """MoneyPuck's season shot file, filtered to the games in want (MoneyPuck game
-    ids: the NHL id without the season). {} when it cannot be read."""
+    ids: the NHL id without the season). {} when it cannot be read. When table is a
+    dict, it is filled with shot_table() of every row in the file (1.15.1)."""
     try:
         async with session.get(MP_SHOTS_URL.format(year=year), headers={"User-Agent": BASE_HEADERS["User-Agent"]}) as r:
             if r.status != 200:
                 log.warning("MoneyPuck shots: HTTP %s", r.status)
                 return {}
             blob = await r.read()
-        out = defaultdict(list)
+        out, acc = defaultdict(list), defaultdict(lambda: [0.0, 0])
         with zipfile.ZipFile(io.BytesIO(blob)) as z:
             name = next(n for n in z.namelist() if n.endswith(".csv"))
             with z.open(name) as fh:
                 for row in csv.DictReader(io.TextIOWrapper(fh, encoding="utf-8")):
+                    if table is not None:
+                        _table_add(acc, row)
                     try:
                         g = int(float(row["game_id"]))
                     except (KeyError, ValueError):
                         continue
                     if g in want:
                         out[g].append(row)
+        if table is not None:
+            table.update(_table_done(acc))
         return out
     except Exception as exc:  # noqa: BLE001
         log.warning("MoneyPuck shots: %s", exc)
@@ -409,10 +488,11 @@ async def update(f, session, state_dir, target_date, season_year, game_type_ok=(
     sheets (shots, faceoffs, shifts) and MoneyPuck its shot values after the game; a
     run whose inputs are poorer than the saved score keeps the saved score.
     1.15.0 (John, 2026-10-31: My Teams did not show Tampa Bay's finished afternoon game
-    and its result at the evening update): a game is shown as soon as it is final.
-    MoneyPuck posts its shot values overnight, so until they (and the shift charts)
-    arrive the game is scored on production only and marked pending; a later run
-    replaces it with the full score. After WAIT_DAYS the production score is final."""
+    and its result at the evening update): a game is shown as soon as it is final and
+    marked pending until its full inputs arrive; a later run replaces it with the full
+    score. 1.15.1: MoneyPuck posts its shot values overnight, so meanwhile the shots get
+    stand-in values (estimate_shots, "estimated"); production alone only when the NHL's
+    shift charts are missing too. After WAIT_DAYS the saved score is final."""
     cache = _load_cache(state_dir)
     games = cache.setdefault("games", {})
     day = dt.date.fromisoformat(target_date)
@@ -425,7 +505,8 @@ async def update(f, session, state_dir, target_date, season_year, game_type_ok=(
                 finals.append((d, int(g["id"])))
     todo = list(finals)
     if todo:
-        shots = await _shot_rows(session, season_year, {gid % 1000000 for _, gid in todo})
+        table = {}
+        shots = await _shot_rows(session, season_year, {gid % 1000000 for _, gid in todo}, table=table)
         teams_csv, skaters_csv = await asyncio.gather(
             f.get(f"{MP_BASE}{season_year}/regular/teams.csv", as_text=True),
             f.get(f"{MP_BASE}{season_year}/regular/skaters.csv", as_text=True))
@@ -444,11 +525,19 @@ async def update(f, session, state_dir, target_date, season_year, game_type_ok=(
                 xg = shot_values(shots.get(gid % 1000000, []))
                 full = bool(rows) and len(xg) >= 10
                 late = (day - dt.date.fromisoformat(d)).days >= WAIT_DAYS
-                if not full and (games.get(str(gid)) or {}).get("inputs") == "full":
-                    continue                       # never trade a full score for a production-only one
+                level = "full" if full else "estimated" if rows else "production"
+                saved = (games.get(str(gid)) or {}).get("inputs")
+                if saved and INPUT_RANK.get(level, 0) < INPUT_RANK.get(saved, 0):
+                    if late:                       # no better inputs are coming: the saved score is final
+                        games[str(gid)]["pending"] = False
+                    continue                       # never trade a score for one built on poorer inputs
                 try:
-                    res = breakdown(pbp, rows if full else [], xg if full else {}, rates, quality, box=box,
-                                    goalie_xg=goalie_values(shots.get(gid % 1000000, [])) if full else None)
+                    if full:
+                        res = breakdown(pbp, rows, xg, rates, quality, box=box,
+                                        goalie_xg=goalie_values(shots.get(gid % 1000000, [])))
+                    else:                          # 1.15.1: stand-in shot values until MoneyPuck posts
+                        res = breakdown(pbp, rows, estimate_shots(pbp, table, rates.get("shot", DEFAULT_RATES["shot"])),
+                                        rates, quality, box=box, estimated=True)
                 except Exception as exc:  # noqa: BLE001
                     log.warning("game score %s: %s", gid, exc)
                     continue

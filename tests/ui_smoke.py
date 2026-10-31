@@ -350,7 +350,8 @@ TODAY_CARD_JS = """(ab) => { const c = [...document.querySelectorAll('main secti
   const line = c.querySelector('.today-line'), due = c.querySelector('.due-final'), lg = c.querySelector('details.lastgame > summary');
   return {line: line ? line.textContent.replace(/\\s+/g, ' ').trim() : '', due: due ? due.textContent.trim() : '',
           pills: line ? [...line.querySelectorAll('.pill')].map(p => [p.textContent.trim(), p.dataset.tip || '']) : [],
-          last: lg ? lg.textContent.replace(/\\s+/g, ' ').trim() : '', pending: !!c.querySelector('.gs-pending'),
+          last: lg ? lg.textContent.replace(/\\s+/g, ' ').trim() : '', pending: (c.querySelector('.gs-pending') || {}).textContent || '',
+          goalie: [...c.querySelectorAll('.gs-goalies .gs-gk-txt')].map(x => x.textContent.trim()),
           tonight: /Tonight:/.test(c.textContent)}; }"""
 GAME_CARDS_JS = """() => [...document.querySelectorAll('main article.game')].map(a => [a.querySelector('.match').textContent.replace(/\\s+/g, ' ').trim(),
   (a.querySelector('.due-final') || {}).textContent || '', !!a.querySelector('.finalbar')])"""
@@ -372,8 +373,10 @@ def check_game_final(pg, data, g, ab, last_label):
     res = "Win" if r["pick"] == "win" else "Loss"
     if not any(t.lower() == res.lower() and "my pick" in tip.lower() for t, tip in c["pills"]):
         out.append(f"my teams {ab}: no {res} tag with its definition on today's line ({c['pills']})")
-    if last_label not in c["last"] or not c["pending"]:
-        out.append(f"my teams {ab}: last game is not today's game with the pending note ({c['last']!r}, {c['pending']})")
+    if last_label not in c["last"] or "MoneyPuck has not posted" not in c["pending"]:
+        out.append(f"my teams {ab}: last game is not today's game with the pending note ({c['last']!r}, {c['pending']!r})")
+    if not c["goalie"] or not all("comes with MoneyPuck's shot values" in x for x in c["goalie"]):
+        out.append(f"my teams {ab}: the goalie row does not say goals saved above expected is on its way ({c['goalie']})")
     pg.click('#tabs button[data-tab="today"]')
     cards = pg.evaluate(GAME_CARDS_JS)
     card = next((x for x in cards if g["away"] in x[0] and g["home"] in x[0]), None)
@@ -1298,7 +1301,9 @@ def main():
         lg = fin["gamescore"]["teams"]["NJD"]
         lg.update(date=fin["date"], opp="LAK", home=True, **{"for": r["home_score"], "against": r["away_score"]},
                   result="W" if r["winner"] == "NJD" else ("OTL" if r["last_period"] != "REG" else "L"),
-                  last_period=r["last_period"], inputs="production", pending=True)
+                  last_period=r["last_period"], inputs="estimated", pending=True)
+        for gk in lg.get("goalies") or []:
+            gk.update(xga=None, gsax=None)
         with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
             fh.write("window.NDA_DATA=" + json.dumps(fin) + ";\n")
         pg.reload()

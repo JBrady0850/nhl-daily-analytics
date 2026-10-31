@@ -29,9 +29,13 @@ What the app can and cannot do. Read this before you rely on a number.
   started after the data was built (or was under way when it was built) and which update
   brings the final score.
 - On My Teams, a game that is over at an update becomes the team's Last game at once,
-  with its final score. MoneyPuck posts its shot values overnight, so that day's Game
-  Score counts production only (a note says so); play driving, special teams and usage
-  are added at the first update after MoneyPuck posts the game, usually the next morning.
+  with its final score. MoneyPuck posts its shot values overnight, so that evening each
+  shot is valued at MoneyPuck's season average for shots of its type from its distance
+  (a note says so) and the goalie's goals saved above expected waits. Tested on 18 games
+  of 2026-10-28 to 30, these Game Scores came within 0.16 of the final ones on average
+  and put 92% of players on the same side of zero. The first update after MoneyPuck
+  posts the game, usually the next morning, replaces them with the exact values. If the
+  NHL has not published the shift charts either, only production is scored until it does.
 - GitHub starts scheduled runs on a best-effort basis. A run can start late when
   GitHub is busy (one evening run started two and a half hours late), and GitHub can
   skip a run (the 14:05 run of 2026-10-24 never started). A timer outside GitHub starts
