@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-10-31",
-"count": 801,
+"count": 803,
 "players": [
 {
 "team": "ANA",
@@ -1244,6 +1244,13 @@
 },
 {
 "team": "COL",
+"name": "Gavin Brindley",
+"player_id": "8484149",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "COL",
 "name": "Martin Necas",
 "player_id": "8480039",
 "position": "C",
@@ -1624,6 +1631,13 @@
 "team": "DET",
 "name": "Ben Chiarot",
 "player_id": "8475279",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "Jacob Bernard-Docker",
+"player_id": "8480879",
 "position": "D",
 "role": "skater"
 },
@@ -2275,6 +2289,13 @@
 "team": "MIN",
 "name": "Joel Eriksson Ek",
 "player_id": "8478493",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Mason Shaw",
+"player_id": "8479972",
 "position": "C",
 "role": "skater"
 },
@@ -3029,6 +3050,13 @@
 },
 {
 "team": "NYI",
+"name": "Isaiah George",
+"player_id": "8483448",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYI",
 "name": "Logan Stanley",
 "player_id": "8479378",
 "position": "D",
@@ -3535,13 +3563,6 @@
 "team": "PHI",
 "name": "David Jiricek",
 "player_id": "8483460",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "PHI",
-"name": "Hunter McDonald",
-"player_id": "8483760",
 "position": "D",
 "role": "skater"
 },
@@ -4872,13 +4893,6 @@
 "team": "UTA",
 "name": "Anders Lee",
 "player_id": "8475314",
-"position": "L",
-"role": "skater"
-},
-{
-"team": "UTA",
-"name": "Daniil But",
-"player_id": "8484388",
 "position": "L",
 "role": "skater"
 },
