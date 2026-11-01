@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-01",
-"count": 802,
+"count": 800,
 "players": [
 {
 "team": "ANA",
@@ -420,13 +420,6 @@
 "team": "BUF",
 "name": "Conor Timmins",
 "player_id": "8479982",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "BUF",
-"name": "Dennis Gilbert",
-"player_id": "8478502",
 "position": "D",
 "role": "skater"
 },
@@ -1244,13 +1237,6 @@
 },
 {
 "team": "COL",
-"name": "Gavin Brindley",
-"player_id": "8484149",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "COL",
 "name": "Martin Necas",
 "player_id": "8480039",
 "position": "C",
@@ -1687,6 +1673,13 @@
 "team": "DET",
 "name": "J.T. Compher",
 "player_id": "8477456",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "DET",
+"name": "John Leonard",
+"player_id": "8481077",
 "position": "L",
 "role": "skater"
 },
@@ -2763,13 +2756,6 @@
 },
 {
 "team": "NJD",
-"name": "R\u00e9mi Poirier",
-"player_id": "8482465",
-"position": "G",
-"role": "goalie"
-},
-{
-"team": "NJD",
 "name": "Jesper Bratt",
 "player_id": "8479407",
 "position": "L",
@@ -3050,13 +3036,6 @@
 },
 {
 "team": "NYI",
-"name": "Isaiah George",
-"player_id": "8483448",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "NYI",
 "name": "Logan Stanley",
 "player_id": "8479378",
 "position": "D",
@@ -3227,6 +3206,13 @@
 "team": "NYR",
 "name": "Marcus Pettersson",
 "player_id": "8477969",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Matthew Robertson",
+"player_id": "8481525",
 "position": "D",
 "role": "skater"
 },
@@ -5199,13 +5185,6 @@
 },
 {
 "team": "VGK",
-"name": "Ville Heinola",
-"player_id": "8481572",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "VGK",
 "name": "Adin Hill",
 "player_id": "8478499",
 "position": "G",
@@ -5544,6 +5523,13 @@
 "team": "WSH",
 "name": "Logan Thompson",
 "player_id": "8480313",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "WSH",
+"name": "R\u00e9mi Poirier",
+"player_id": "8482465",
 "position": "G",
 "role": "goalie"
 },
