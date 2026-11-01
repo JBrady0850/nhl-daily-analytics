@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.15.1";
+  const APP_VERSION = "1.16.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -18,8 +18,20 @@
   const st = { teams: Array.isArray(saved.teams) ? saved.teams.filter(t => TEAMS_ORDER.includes(t)) : [],
     win: saved.win === "season" ? "season" : "last10", tab: saved.tab || "today",
     stand: ["wildcard", "division", "conference", "league"].includes(saved.stand) ? saved.stand : "wildcard",
-    inj: ["all", "today", "mine"].includes(saved.inj) ? saved.inj : "all", logos: saved.logos !== false };
-  const persist = () => { try { localStorage.setItem(KEY, JSON.stringify({ teams: st.teams, win: st.win, tab: st.tab, stand: st.stand, inj: st.inj, logos: st.logos })); } catch (e) { /* storage blocked: keep working in memory */ } };
+    inj: ["all", "today", "mine"].includes(saved.inj) ? saved.inj : "all", logos: saved.logos !== false,
+    theme: ["light", "dark"].includes(saved.theme) ? saved.theme : "auto" };
+  const persist = () => { try { localStorage.setItem(KEY, JSON.stringify({ teams: st.teams, win: st.win, tab: st.tab, stand: st.stand, inj: st.inj, logos: st.logos, theme: st.theme })); } catch (e) { /* storage blocked: keep working in memory */ } };
+  // Theme (1.16.0): Auto follows the device; Light and Dark are saved with the other settings.
+  function applyTheme() {
+    if (st.theme === "auto") document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", st.theme);
+    const sel = document.getElementById("theme-sel"); if (sel) sel.value = st.theme;
+  }
+  applyTheme();
+  document.addEventListener("change", e => {
+    if (!e.target || e.target.id !== "theme-sel") return;
+    st.theme = ["light", "dark"].includes(e.target.value) ? e.target.value : "auto";
+    persist(); applyTheme(); render();
+  });
   let D = window.NDA_DATA || null;
 
   // ---------- helpers ----------
@@ -84,7 +96,8 @@
   const logoImg = (ab, lightOnly) => {
     const t = (D && D.teams || {})[ab] || {};
     if (!st.logos || !t.logo || LOGOS.bad.has(ab)) return "";
-    const dark = !lightOnly && t.logo_dark ? `<source srcset="${esc(t.logo_dark)}" media="(prefers-color-scheme: dark)">` : "";
+    const dm = st.theme === "dark" ? "all" : st.theme === "light" ? "" : "(prefers-color-scheme: dark)"; // logos follow the chosen theme
+    const dark = !lightOnly && t.logo_dark && dm ? `<source srcset="${esc(t.logo_dark)}" media="${dm}">` : "";
     return `<picture class="tm-pic">${dark}<img class="tm-logo" src="${esc(t.logo)}" alt="" referrerpolicy="no-referrer" decoding="async" data-ab="${esc(ab)}"></picture>`;
   };
   // lightOnly: the badge sits on a light field in both themes (the gold pick banner)
@@ -1047,12 +1060,9 @@
   function showInstall() {
     const btn = $("#getapp-btn");
     if (btn) btn.hidden = !canInstall();
+    // One install prompt (John, 2026-11-01): the header button only; the banner no longer shows.
     const box = $("#install");
-    const touch = appleTouch() || /Android/.test(navigator.userAgent || "");
-    if (!canInstall() || snoozedUntil() > Date.now() || !(installEvt || touch)) { box.hidden = true; return; }
-    box.hidden = false;
-    box.innerHTML = `<span>Add NHL Daily to your home screen for one-tap access.</span><span class="row"><button class="btn small" data-act="install">${installEvt ? "Install" : "How"}</button><button class="btn small ghost" data-act="hideInstall">Not now</button></span>`;
-    decorate(box);
+    if (box) box.hidden = true;
   }
   function injSources(inj) {
     if (!inj || !inj.loaded) return "No injury report reached; missing players come from each team's last lineup only";

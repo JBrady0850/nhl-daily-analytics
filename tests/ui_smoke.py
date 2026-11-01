@@ -944,8 +944,8 @@ def _until(hint):
 def check_install(b, http_url, file_url):
     """Install app (John, 2026-10-27): a header button stays until the app runs from
     the home screen; Android's own install prompt opens in one tap; an iPhone gets the
-    steps in place (Share icon drawn, Safari on iOS 26 and Chrome); Not now hides the
-    banner for 14 days, not forever; a downloaded copy (file://) offers no install."""
+    steps in place (Share icon drawn, Safari on iOS 26 and Chrome); no install banner beside the
+    header button (one prompt, John 2026-11-01); a downloaded copy (file://) offers no install."""
     out, errs = [], []
 
     def opened(url, ua=None, w=390, h=844, mob=True, init=()):
@@ -973,8 +973,8 @@ def check_install(b, http_url, file_url):
     s = state(pg)
     if not s["btn"] or "Install" not in s["btnText"]:
         out.append(f"install: Android has no Install app button in the header ({s['btn']}, {s['btnText']!r})")
-    elif not s["banner"] or "Install" not in s["bannerText"]:
-        out.append(f"install: Android banner has no Install button ({s['bannerText']!r})")
+    elif s["banner"]:
+        out.append("install: a second install prompt (the banner) shows beside the header button; one prompt only (John, 2026-11-01)")
     else:
         pg.tap("#getapp-btn")
         pg.wait_for_timeout(80)
@@ -1012,37 +1012,8 @@ def check_install(b, http_url, file_url):
             if state(pg)["open"]:
                 out.append("install: Close did not close the steps")
     s = state(pg)
-    if not s["banner"] or pg.locator("#install [data-act=install]").count() != 1:
-        out.append("install: the iPhone banner is missing")
-    else:
-        # the banner's How opens the same steps in place (1.11.1 jumped to Settings)
-        pg.tap("#install [data-act=install]")
-        pg.wait_for_timeout(80)
-        s = state(pg)
-        if not s["open"] or s["tab"] != "today":
-            out.append(f"install: the banner's How did not open the steps in place (open {s['open']}, tab {s['tab']})")
-        pg.keyboard.press("Escape")
-        pg.wait_for_timeout(50)
-        pg.click('#tabs button[data-tab="today"]')
-        # Not now: hidden for 14 days, the header button stays, then the banner returns
-        pg.tap("#install [data-act=hideInstall]")
-        pg.wait_for_timeout(50)
-        s, now = state(pg), pg.evaluate("Date.now()")
-        if s["banner"] or not (now + 13.9 * DAY_MS < _until(s["hint"]) < now + 14.1 * DAY_MS):
-            out.append(f"install: Not now should hide the banner for 14 days (banner {s['banner']}, saved {s['hint']!r})")
-        if not s["btn"]:
-            out.append("install: Not now also removed the header button")
-        pg.evaluate("localStorage.setItem('nda:installHint', String(Date.now() - 1000))")
-        pg.reload()
-        pg.wait_for_timeout(150)
-        if not state(pg)["banner"]:
-            out.append("install: the banner did not return after its 14 days")
-        pg.evaluate("localStorage.setItem('nda:installHint', 'hide')")    # an old, permanent Not now
-        pg.reload()
-        pg.wait_for_timeout(150)
-        s = state(pg)
-        if s["banner"] or _until(s["hint"]) < pg.evaluate("Date.now()") + 13.9 * DAY_MS:
-            out.append(f"install: an old Not now did not become 14 days ({s['banner']}, {s['hint']!r})")
+    if s["banner"]:
+        out.append("install: the iPhone banner duplicates the header button; one prompt only (John, 2026-11-01)")
     pg.click('#tabs button[data-tab="settings"]')
     txt = pg.inner_text("main")
     if "Add to Home Screen" not in txt or "Chrome" not in txt or not pg.locator('main use[href="#i-share"]').count():
