@@ -1,7 +1,7 @@
 {
 "season": "20262027",
-"generated": "2026-10-31",
-"count": 803,
+"generated": "2026-11-01",
+"count": 802,
 "players": [
 {
 "team": "ANA",
@@ -3857,13 +3857,6 @@
 "team": "PIT",
 "name": "Rickard Rakell",
 "player_id": "8476483",
-"position": "R",
-"role": "skater"
-},
-{
-"team": "PIT",
-"name": "Rutger McGroarty",
-"player_id": "8483487",
 "position": "R",
 "role": "skater"
 },
