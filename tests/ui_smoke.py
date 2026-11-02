@@ -57,7 +57,11 @@ def reload(pg):
     storage a moment after the click returns; reloading at once sometimes started the
     new page before it got there, so the page forgot the setting (2026-11-02, in local
     runs: My Teams, the injuries filter and Badges only each lost their saved choice
-    now and then). People do not reload within milliseconds of a tap."""
+    now and then). People do not reload within milliseconds of a tap.
+    Open item (2026-11-02, 1.18.2 probe of 25 follow-and-reload rounds per run, three
+    runs at once): http pages lost nothing (0 of 75 at 300 ms); file:// pages lost every
+    save made since the page opened in 3 of 75 rounds at 300 ms and 2 of 75 at 1000 ms,
+    so a longer pause does not cure it. GitHub's runner has passed every time."""
     pg.wait_for_timeout(300)
     pg.reload()
 
@@ -623,8 +627,9 @@ def check_pill_contrast(b, url):
     background"): every tag's text stands out from what is behind it, in the light and
     dark themes and with Dark chosen in Settings. The dark theme turned all tag text
     near-black for the filled tags, and the Market favors tag, which has no fill, came
-    out at 1.1 to 1 on the dark card. Outline tags (Market favors, clinch marks) need
-    4.5 to 1, the normal-text level; every tag needs at least 3 to 1."""
+    out at 1.1 to 1 on the dark card. 1.18.2 (John: "Go ahead and fix the item found"):
+    the LOSS tag's white text was 3.9 to 1 in the light theme. Every tag now needs
+    4.5 to 1, the level for normal-size text, and a LOSS tag must be among them."""
     out = []
     for label, scheme, theme in (("light", "light", None), ("dark", "dark", None), ("Dark in Settings", "light", "dark")):
         ctx = new_ctx(b, viewport={"width": 1280, "height": 900}, color_scheme=scheme)
@@ -638,11 +643,11 @@ def check_pill_contrast(b, url):
             pg.wait_for_timeout(80)
             for cls, text, ratio in pg.evaluate(CONTRAST_JS):
                 seen.add(cls.split(".")[0])
-                need = 4.5 if cls.split(".")[0] in ("mkt", "clinch") else 3.0
+                need = 4.5
                 if ratio < need:
                     out.append(f"{label} {tab}: tag {text!r} ({cls}) contrast {ratio} to 1 (want {need})")
-        if not {"mkt", "clinch"} <= seen:
-            out.append(f"{label}: the outline tags were not on the page to measure ({sorted(seen)})")
+        if not {"mkt", "clinch", "loss", "win"} <= seen:
+            out.append(f"{label}: the outline, WIN and LOSS tags were not all on the page to measure ({sorted(seen)})")
         ctx.close()
     return out[:8]
 

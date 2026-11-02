@@ -110,10 +110,12 @@ h1 { font-size: 2.5rem; font-weight: 600; line-height: .95; margin: 4px 0 6px; }
   /* 1.18.1: an outline tag has no fill of its own, so its text keeps the page's ink
      (the dark rule above turned it near-black on the dark card: contrast 1.1 to 1) */
   :root:not([data-theme="light"]) .pill.mkt, :root:not([data-theme="light"]) .pill.clinch {color: var(--ink);}
+  :root:not([data-theme="light"]) .pill.loss {color: #FFFFFF;}   /* 1.18.2: white on the deeper red, 5.2 to 1 */
 }
 :root[data-theme="dark"] .pill {color: #07121c;}
 :root[data-theme="dark"] .pill.gold {color: #1d1600;}
 :root[data-theme="dark"] .pill.mkt, :root[data-theme="dark"] .pill.clinch {color: var(--ink);}
+:root[data-theme="dark"] .pill.loss {color: #FFFFFF;}
 
 
 /* game cards: a stripe in both clubs' colors, the rank in scoreboard type */
@@ -212,7 +214,9 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
 .fs-team > b { font: 600 1.75rem/.9 var(--display); color: #8A6A2A; font-variant-numeric: tabular-nums; }
 .fs-team.w { color: #FFFFFF; } .fs-team.w > b { color: var(--led); text-shadow: 0 0 10px rgba(255,170,20,.45); }
 .finalbar > .pill { margin-left: auto; font-size: 1.15rem; padding: 4px 12px 2px; letter-spacing: .1em; }
-.pill.win { background: #2BB36B; color: #04150B; } .pill.loss { background: #E5483B; color: #FFFFFF; }
+.pill.win { background: #2BB36B; color: #04150B; }
+/* 1.18.2: a deeper red, so its white text reads at 5.2 to 1 (it was 3.9 on #E5483B) */
+.pill.loss { background: #CC3328; color: #FFFFFF; }
 /* My Teams, last game: the final score strip, then each player's Game Score as two
    thin bars on one axis (offense on top, defense below), parts stacked out from the
    zero line, a 2px surface gap between parts and a rounded end on the outermost */
