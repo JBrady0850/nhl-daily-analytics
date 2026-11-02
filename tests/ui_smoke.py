@@ -52,6 +52,16 @@ COVERAGE_JS = """(args) => {
 }"""
 
 
+def reload(pg):
+    """Reload after a short pause. A setting saved by a click reaches the browser's
+    storage a moment after the click returns; reloading at once sometimes started the
+    new page before it got there, so the page forgot the setting (2026-11-02, in local
+    runs: My Teams, the injuries filter and Badges only each lost their saved choice
+    now and then). People do not reload within milliseconds of a tap."""
+    pg.wait_for_timeout(300)
+    pg.reload()
+
+
 STAND_CARDS = {"wildcard": 2, "division": 4, "conference": 2, "league": 1}
 STAND_JS = """() => {
   const main = document.querySelector('main');
@@ -97,7 +107,7 @@ def check_standings(pg, sample):
         if view == "league" and r["pts"] != sorted(r["pts"], reverse=True):
             fails.append(f"standings league: points not in order {r['pts'][:8]}")
     pg.click('main .seg.stand button[data-arg="division"]')
-    pg.reload()
+    reload(pg)
     pg.wait_for_timeout(100)
     pg.click('#tabs button[data-tab="standings"]')
     if pg.evaluate(STAND_JS)["pressed"] != ["division"]:
@@ -159,9 +169,17 @@ def check_team_places(pg, sample, ab, mob):
     if [g[0] for g in got] != ["Wild Card", "Division", "Conference", "League"] or [g[1] for g in got] != want or not all(g[2] for g in got):
         out.append(f"my teams {ab}: places {got}, expected {want}")
     first = pg.locator("main .splaces .spos").first
+    first.scroll_into_view_if_needed()
+    pg.wait_for_timeout(100)               # let the tab switch's own scrolling settle first
     (first.tap() if mob else first.hover())
-    pg.wait_for_timeout(60)
-    box = pg.evaluate("(() => { const b = document.getElementById('tipbox'); return {shown: !b.hidden, title: (b.querySelector('b') || {}).textContent}; })()")
+    try:   # wait for it rather than a fixed 60 ms (GitHub's runner missed it once, 2026-11-02)
+        pg.wait_for_function("!document.getElementById('tipbox').hidden", timeout=1500)
+    except Exception:  # noqa: BLE001 - reported below
+        pass
+    box = pg.evaluate("""(() => { const b = document.getElementById('tipbox'), t = document.querySelector('main .splaces .spos');
+      const r = t ? t.getBoundingClientRect() : null;
+      return {shown: !b.hidden, title: (b.querySelector('b') || {}).textContent, scrollY: Math.round(scrollY),
+              tile: r ? [Math.round(r.top), Math.round(r.bottom)] : null, focus: (document.activeElement || {}).className}; })()""")
     if not box["shown"] or box["title"] != "Wild Card":
         out.append(f"my teams {ab}: the Wild Card place shows no definition ({box})")
     return out
@@ -738,7 +756,7 @@ def check_injuries_tab(pg, sample, mob):
     fla = sum(1 for r in rows if r["team"] == "FLA")
     if c["teams"] != (["FLA"] if fla else []) or c["rows"] != fla:
         fails.append(f"injuries, My Teams: teams {c['teams']} with {c['rows']} rows (want FLA with {fla})")
-    pg.reload()
+    reload(pg)
     if pg.evaluate(INJ_JS)["pressed"] != ["mine"]:
         fails.append("the injuries filter is not remembered after a reload")
     pg.click('main .seg.inj button[data-arg="all"]')
@@ -940,7 +958,7 @@ def check_logos(b, url, sample):
         out.append(f"logos: unexpected logo address {got['src']}")
     # a dark theme asks for the dark logo on the cards
     pg.emulate_media(color_scheme="dark")
-    pg.reload(); pg.wait_for_timeout(600)
+    reload(pg); pg.wait_for_timeout(600)
     dark = pg.evaluate("() => (document.querySelector('main article.game .match img.tm-logo') || {}).currentSrc || ''")
     if not dark.endswith("_dark.svg"):
         out.append(f"logos: dark theme loaded {dark}, want the _dark.svg logo")
@@ -952,7 +970,7 @@ def check_logos(b, url, sample):
         return out + ["logos: Settings has no Badges only choice"]
     pg.click('main button[data-act="logos"][data-arg="off"]')
     asked.clear()
-    pg.reload(); pg.wait_for_timeout(400)
+    reload(pg); pg.wait_for_timeout(400)
     pg.click('#tabs button[data-tab="today"]'); pg.wait_for_timeout(300)
     off = pg.evaluate("() => [document.querySelectorAll('main img.tm-logo').length, document.querySelectorAll('main .tm.logo-on').length]")
     if off != [0, 0] or asked:
@@ -1271,7 +1289,7 @@ def main():
                 pg.click('button.chip[data-arg="TBL"]')
                 if pg.evaluate("(JSON.parse(localStorage.getItem('nda:v1')||'{}').teams||[]).length") != n_before:
                     fails.append(f"{name}: team chips stopped toggling")
-                pg.reload()
+                reload(pg)
                 pg.wait_for_timeout(100)
                 kept = pg.evaluate("(JSON.parse(localStorage.getItem('nda:v1')||'{}').teams||[])")
                 if kept != ["FLA"]:
@@ -1310,7 +1328,7 @@ def main():
         other["last10"]["p"] = best["last10"]["p"]
         with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
             fh.write("window.NDA_DATA=" + json.dumps(tie) + ";\n")
-        pg.reload()
+        reload(pg)
         pg.click('#tabs button[data-tab="myteams"]')
         added = not pg.locator('button.chip[data-arg="FLA"][aria-pressed="true"]').count()
         if added:
@@ -1328,7 +1346,7 @@ def main():
                                          reported_at=rep["date"] + "T16:27:19.873Z", report_strength="Likely")
         with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
             fh.write("window.NDA_DATA=" + json.dumps(rep) + ";\n")
-        pg.reload()
+        reload(pg)
         fails.extend(f"reports: {m}" for m in check_goalie_reports(pg, rep))
         # a finished game on My Teams and Today (John, 2026-10-31)
         fin = json.loads(json.dumps(alt))
@@ -1342,7 +1360,7 @@ def main():
             gk.update(xga=None, gsax=None)
         with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
             fh.write("window.NDA_DATA=" + json.dumps(fin) + ";\n")
-        pg.reload()
+        reload(pg)
         pg.click('#tabs button[data-tab="myteams"]')
         added = not pg.locator('button.chip[data-arg="NJD"][aria-pressed="true"]').count()
         if added:
@@ -1360,14 +1378,14 @@ def main():
         live.update(state="LIVE", start_utc=(now - dt.timedelta(hours=3, minutes=30)).strftime("%Y-%m-%dT%H:%M:%SZ"))
         with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
             fh.write("window.NDA_DATA=" + json.dumps(due) + ";\n")
-        pg.reload()
+        reload(pg)
         fails.extend(f"final due: {m}" for m in check_final_due(pg, since, live, "NJD"))
         if added:  # leave My Teams as the later checks expect it
             pg.click('#tabs button[data-tab="myteams"]')
             pg.click('button.chip[data-arg="NJD"]')
         with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
             fh.write("window.NDA_DATA=" + json.dumps(alt) + ";\n")
-        pg.reload()
+        reload(pg)
         top = alt["slate"]["games"][0]["projected"]
         for kind in ("cached", "shift_chart"):
             var = json.loads(json.dumps(alt))
@@ -1378,7 +1396,7 @@ def main():
                 L.update(source="shift_chart", url=None, source_name="Last game (2026-10-22), NHL shift chart")
             with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
                 fh.write("window.NDA_DATA=" + json.dumps(var) + ";\n")
-            pg.reload()
+            reload(pg)
             fails.extend(f"lines {kind}: {m}" for m in check_lines_source(pg, top, kind))
         for st_name, fw in (("behind", {"games": 120, "mean_gain": -0.0011, "t": 1.3, "passed": False}),
                             ("testing", {"games": 25, "mean_gain": 0.00093, "t": -0.8, "passed": False}),
@@ -1387,11 +1405,11 @@ def main():
             var["model"]["learning"]["forward"] = fw
             with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
                 fh.write("window.NDA_DATA=" + json.dumps(var) + ";\n")
-            pg.reload()
+            reload(pg)
             fails.extend(f"model {st_name}: {m}" for m in check_model_why(pg, var["model"]["learning"], st_name))
         with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
             fh.write("window.NDA_DATA=" + json.dumps(alt) + ";\n")
-        pg.reload()
+        reload(pg)
         pg.click('#tabs button[data-tab="settings"]')
         if "11 players from Daily Faceoff's injured lists" not in pg.inner_text("main"):
             fails.append("Settings does not name the injury source")
@@ -1410,7 +1428,7 @@ def main():
         alt.pop("standings")
         with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
             fh.write("window.NDA_DATA=" + json.dumps(alt) + ";\n")
-        pg.reload()
+        reload(pg)
         pg.click('#tabs button[data-tab="standings"]')
         if "not in this data file yet" not in pg.inner_text("main"):
             fails.append("missing standings not explained")
