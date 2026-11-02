@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-02",
-"count": 800,
+"count": 799,
 "players": [
 {
 "team": "ANA",
@@ -2037,13 +2037,6 @@
 "team": "FLA",
 "name": "Akira Schmid",
 "player_id": "8481033",
-"position": "G",
-"role": "goalie"
-},
-{
-"team": "FLA",
-"name": "Cooper Black",
-"player_id": "8484900",
 "position": "G",
 "role": "goalie"
 },
