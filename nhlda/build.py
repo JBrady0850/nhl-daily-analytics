@@ -100,6 +100,10 @@ def _goalie(g):
     if intel:
         out["reported_by"] = intel.get("reported_by")
         out["source_url"] = intel.get("source_url")
+        # 1.17.0: when the beat writer's post was made, and how sure it is (Daily
+        # Faceoff's Confirmed or Likely; none when it names the goalie without a report)
+        out["reported_at"] = intel.get("reported_at") if intel.get("reported_by") else None
+        out["report_strength"] = intel.get("strength")
     return out
 
 

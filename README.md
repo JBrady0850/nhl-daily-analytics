@@ -133,6 +133,17 @@ workflow in this repository:
    commits it.
 5. Publishes the `app` folder to GitHub Pages.
 
+On game days, from 9:30 AM US Central until the last game starts, the outside timer
+also sends a `lineup-watch` event every 15 minutes (with cron lines as a backup). The
+workflow's guard (`nhlda/watch.py`, standard library only) reads Daily Faceoff's
+starting goalies and, in the 90 minutes before each game, its lineups, compares them
+with what the last build read (`state/dfo_cache.json`), and builds only when a goalie
+or a lineup changed. Daily Faceoff relays the teams' beat writers, who post goalie
+news on social media first; X itself cannot be read by any automated reader (its
+robots.txt disallows all of them) and its API needs a paid key, which a public app
+cannot hold. Each goalie line in the app names the writer, the time of the post and
+links to it.
+
 The app itself never contacts the data sources. It only loads the data file from
 GitHub Pages. That is why it is fast and why it needs no keys: browsers cannot read
 most of these sources directly, so the workflow does the reading once and publishes

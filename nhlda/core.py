@@ -537,7 +537,8 @@ class GameEngine:
             gmeta["intel"] = {"reported_by": dfo_intel.get("source_name"),
                               "source_url": dfo_intel.get("source_url"),
                               "detail": dfo_intel.get("detail"),
-                              "reported_at": dfo_intel.get("reported_at")}
+                              "reported_at": dfo_intel.get("reported_at"),
+                              "strength": dfo_intel.get("strength")}
         if starter:
             grow = self.mp.goalie(starter["player"]["player_id"])
             gs = goalie_stats(grow) if grow else {}       # no game this season: no season numbers

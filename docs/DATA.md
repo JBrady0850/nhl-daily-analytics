@@ -57,11 +57,14 @@ Each game:
 
 `goalie` holds `name`, `player_id`, `source` (`CONFIRMED`, `PROJECTED` or `ROTATION`),
 `confirmed`, `last_start`, `days_rest`, `window_starts`, `window_toi_min`,
-`season_sv_pct`, `gsax`, `hdsv_pct`, `gaa`, `games_played`, `reported_by` and
-`source_url`. The season numbers are `null` for a goalie who has not played this
-season (for example one just traded in); his `window_starts` then come from last
-season. `reported_by` and `source_url` appear only when Daily Faceoff named this
-goalie. `dfo_named` appears only when Daily Faceoff named a starter who is not on the
+`season_sv_pct`, `gsax`, `hdsv_pct`, `gaa`, `games_played`, `reported_by`,
+`source_url`, `reported_at` and `report_strength`. The season numbers are `null` for a
+goalie who has not played this season (for example one just traded in); his
+`window_starts` then come from last season. `reported_by`, `source_url`, `reported_at`
+and `report_strength` appear only when Daily Faceoff named this goalie: the beat
+writer whose post Daily Faceoff relays, the post's address (usually on X), when it was
+posted (UTC), and how sure it is (`Confirmed`, `Likely`, or `null` when Daily Faceoff
+names the goalie without a report). `dfo_named` appears only when Daily Faceoff named a starter who is not on the
 NHL roster the update read; the card then shows the rotation guess and `problems`
 says so. In `dfs.goalies`, `save_pct` and `gsax` are `null` for such a goalie, and his
 projection uses last season's rates.

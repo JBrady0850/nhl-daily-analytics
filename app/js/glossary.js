@@ -133,7 +133,7 @@ window.NDA_TIPS = {
     "Window": "Minutes the goalie played in his recent starts (about 180 minutes), the sample behind the P4 goalie factor.",
     "Rest": "Days of rest: days since the team's last game, or since the goalie's last start.",
     "Status": "Where the starter came from: Confirmed or Projected by Daily Faceoff, or Rotation, the model's own pick.",
-    "Reported by": "The reporter whose confirmation Daily Faceoff lists, linked to the original report.",
+    "Report": "Who reported the start and when: the beat writer whose post Daily Faceoff relays, linked to the post. Confirmed by: the start is announced. Likely, per: the writer expects it. No report yet: a projection or the model's rotation guess.",
     "Win %": "The model's win probability for the projected winner.",
     "Tier": "Confidence tier from the win probability: HIGH, MODERATE or LOW.",
     "Pick": "The model's projected winner.",

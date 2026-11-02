@@ -10,14 +10,20 @@ name: Daily data
 # a small timer outside GitHub; dispatch events start a run right away. The cron
 # lines stay as a fallback; cron reads UTC only, so there is a line for each main
 # time in daylight time and in standard time. Every automatic run (dispatch or
-# schedule) builds only when the data file predates the latest main time, so extra
-# triggers stop within seconds. Running the workflow by hand (Run workflow) always
+# schedule) builds only when the data file predates the latest main time, or when
+# the game-day watch below sees a change, so extra triggers stop within seconds. Running the workflow by hand (Run workflow) always
 # builds.
+# Game-day watch (1.17.0): from 9:30 AM Central until the last game of the day
+# starts, the outside timer also sends a "lineup-watch" event every 15 minutes, with
+# the 7- and 37-minute cron lines below as a backup. The guard (nhlda/watch.py) then
+# reads Daily Faceoff's starting goalies and, within 90 minutes of a game, its
+# lineups, and builds only when a goalie or a lineup changed since the last build.
 # To send the event yourself: POST /repos/<owner>/<repo>/dispatches with
-# {"event_type": "daily-data"}, using a token with Contents: write on this repository.
+# {"event_type": "daily-data"} (or "lineup-watch"), using a token with Contents:
+# write on this repository.
 on:
   repository_dispatch:
-    types: [daily-data]
+    types: [daily-data, lineup-watch]
   schedule:
     - cron: "2 14 * * *"     # 9:02 AM Central in daylight time (CDT)
     - cron: "2 15 * * *"     # 9:02 AM Central in standard time (CST); a backup in daylight time
@@ -26,6 +32,8 @@ on:
     - cron: "47 21 * * *"    # 4:47 PM CDT
     - cron: "47 22 * * *"    # 4:47 PM CST; a backup in daylight time
     - cron: "29 23 * * *"    # backup
+    - cron: "7,37 14-23 * * *"   # game-day watch backup (nhlda/watch.py), US Central morning to evening
+    - cron: "7,37 0-5 * * *"     # game-day watch backup, late games
   workflow_dispatch:
 permissions:
   contents: write
@@ -47,7 +55,7 @@ jobs:
       - id: due
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "build=true" >> "$GITHUB_OUTPUT"; exit 0; fi
-          python3 -m nhlda.schedule app/data/latest.json >> "$GITHUB_OUTPUT"
+          python3 -m nhlda.watch app/data/latest.json state >> "$GITHUB_OUTPUT"
   build:
     needs: when
     if: needs.when.outputs.build == 'true'

@@ -467,9 +467,15 @@ def test_workflow_app_and_guard_share_the_main_times():
     runs = re.search(r"const RUNS_CENTRAL = (\[\[.*?\]\]);", app).group(1)
     assert [tuple(x) for x in json.loads(runs)] == list(S.MAIN_CENTRAL)
     assert 'const CENTRAL = "America/Chicago"' in app
-    assert "python3 -m nhlda.schedule app/data/latest.json" in wf and "needs.when.outputs.build == 'true'" in wf
+    assert "python3 -m nhlda.watch app/data/latest.json state" in wf and "needs.when.outputs.build == 'true'" in wf
     assert 'github.event_name }}" = "workflow_dispatch"' in wf
-    assert re.search(r"repository_dispatch:\s*\n\s*types: \[daily-data\]", wf), "the outside timer's event must start the workflow"
+    assert re.search(r"repository_dispatch:\s*\n\s*types: \[daily-data, lineup-watch\]", wf), \
+        "the outside timer's events must start the workflow"
+    # 1.17.0: the game-day watch backup runs twice an hour, off the busy minutes, from
+    # the US Central morning (14 UTC in daylight time) to the late games (05 UTC)
+    watch = re.findall(r'cron: "([\d,]+) ([\d-]+) \* \* \*"', wf)
+    watch = [(m, h) for m, h in watch if "," in m]
+    assert watch == [("7,37", "14-23"), ("7,37", "0-5")]
 
 
 ESPN_LISTS = {"injuries": [
@@ -1037,3 +1043,121 @@ def test_sample_carries_a_last_game_for_every_team():
     for ab, t in gs.items():
         assert t["date"] < d["date"] and t["result"] in ("W", "L", "OTL") and t["opp"] in d["teams"]
         assert t["skaters"] and all(len(p["o"]) == 4 and len(p["d"]) == 4 for p in t["skaters"])
+
+
+# ---------- 1.17.0: the game-day watch (John, 2026-11-02) ----------
+def _watch_case():
+    """Detroit at Florida, 7:00 PM Eastern on 2026-11-02 (00:00 UTC), as built at the
+    9:00 AM Central update: Daily Faceoff named Akira Schmid with no report then."""
+    data = {"date": "2026-11-02", "generated_utc": "2026-11-02T15:01:20Z",
+            "slate": {"games": [
+                {"away": "DET", "home": "FLA", "start_utc": "2026-11-03T00:00:00Z", "state": "FUT"},
+                {"away": "CHI", "home": "BOS", "start_utc": "2026-11-02T18:00:00Z", "state": "LIVE"}]}}
+    entry = lambda name, strength=None, by=None, at=None: {
+        "goalie_name": name, "strength": strength, "confirmed": strength == "Confirmed",
+        "source_name": by, "source_url": None, "reported_at": at}
+    morning = {"DET": entry("Daniil Tarasov"), "FLA": entry("Akira Schmid"),
+               "CHI": entry("Spencer Knight"), "BOS": entry("Jeremy Swayman")}
+    lines = {"players": [{"name": "Brady Tkachuk", "groupIdentifier": "f1", "positionIdentifier": "lw"},
+                         {"name": "Sam Bennett", "groupIdentifier": "f1", "positionIdentifier": "c"},
+                         {"name": "Seth Jones", "groupIdentifier": "d2", "positionIdentifier": "rd",
+                          "season": {"points": 17}}]}
+    cache = {"goalies": {"date": "2026-11-02", "by_team": morning},
+             "lines": {"FLA": {"combinations": lines}, "DET": {"combinations": {"players": []}}}}
+    return data, cache, morning, entry, lines
+
+
+def test_watch_builds_when_daily_faceoff_names_another_goalie():
+    import copy
+    import datetime as dt
+    from nhlda import watch as W
+    data, cache, morning, entry, _ = _watch_case()
+    at = lambda s: dt.datetime.fromisoformat(s.replace("Z", "+00:00"))
+    now = at("2026-11-02T16:00:00Z")                       # 10:00 AM Central
+    same = copy.deepcopy(morning)
+    assert W.decide(data, cache, now, same, {}) == []      # nothing changed: no build
+    news = copy.deepcopy(morning)
+    news["FLA"] = entry("Jacob Markstrom", "Confirmed", "Jordan McPherson", "2026-11-02T15:51:50.102Z")
+    why = W.decide(data, cache, now, news, {})
+    assert len(why) == 1 and why[0].startswith("FLA goalie: Akira Schmid (no report) -> Jacob Markstrom (Confirmed)")
+    assert "Jordan McPherson" in why[0]
+    # the same goalie, now confirmed, or a newer report about him, also builds
+    sure = copy.deepcopy(morning)
+    sure["DET"] = entry("Daniil Tarasov", "Likely", "Max Bultman", "2026-11-02T16:20:00Z")
+    assert [w[:3] for w in W.decide(data, cache, now, sure, {})] == ["DET"]
+    # a game under way is left alone (its pick locked at puck drop)
+    live = copy.deepcopy(morning)
+    live["BOS"] = entry("Joonas Korpisalo", "Confirmed", "Someone", "2026-11-02T17:00:00Z")
+    assert W.decide(data, cache, now, live, {}) == []
+    # Daily Faceoff did not answer: no way to tell, no build
+    assert W.decide(data, cache, now, None, {}) == []
+    # no answer saved for today (the last build read another day): build to read it
+    old = copy.deepcopy(cache)
+    old["goalies"]["date"] = "2026-11-01"
+    assert len(W.decide(data, old, now, same, {})) == 2
+
+
+def test_watch_window_and_lineups_near_puck_drop():
+    import copy
+    import datetime as dt
+    from nhlda import watch as W
+    data, cache, morning, _, lines = _watch_case()
+    at = lambda s: dt.datetime.fromisoformat(s.replace("Z", "+00:00"))
+    # before 9:30 AM Central, or on a file for another day, the watch never builds
+    assert W.upcoming(data, at("2026-11-02T15:20:00Z")) == []                  # 9:20 AM CST
+    assert [g["home"] for g in W.upcoming(data, at("2026-11-02T15:35:00Z"))] == ["FLA"]
+    assert W.upcoming(dict(data, date="2026-11-01"), at("2026-11-02T16:00:00Z")) == []
+    assert W.upcoming(data, at("2026-11-03T00:05:00Z")) == []                  # after puck drop
+    # lineups are read only within 90 minutes of puck drop
+    assert W.lines_due(W.upcoming(data, at("2026-11-02T22:00:00Z")), at("2026-11-02T22:00:00Z")) == []
+    near = at("2026-11-02T23:00:00Z")
+    assert W.lines_due(W.upcoming(data, near), near) == ["DET", "FLA"]
+    # the same lineup with fresher stats is no change; a scratch is
+    fresh = copy.deepcopy(lines)
+    fresh["players"][2]["season"] = {"points": 18}
+    fresh["updatedAt"] = "2026-11-02T22:55:00Z"
+    assert W.decide(data, cache, near, morning, {"FLA": fresh}) == []
+    scratch = copy.deepcopy(lines)
+    scratch["players"][1]["name"] = "Cole Schwindt"
+    scratch["sourceName"] = "George Richards"
+    why = W.decide(data, cache, near, morning, {"FLA": scratch, "DET": None})
+    assert why == ["FLA lineup changed on Daily Faceoff (George Richards)"]
+
+
+def test_watch_check_builds_a_due_main_update_without_reading_daily_faceoff(tmp_path, monkeypatch):
+    import datetime as dt
+    from nhlda import watch as W
+    data, cache, morning, entry, _ = _watch_case()
+    p = tmp_path / "latest.json"
+    p.write_text(json.dumps(data))
+    (tmp_path / "dfo_cache.json").write_text(json.dumps(cache))
+    calls = []
+    monkeypatch.setattr(W, "read_goalies", lambda d: calls.append(d) or dict(morning, FLA=entry("Jacob Markstrom", "Confirmed", "Jordan McPherson", "2026-11-02T15:51:50Z")))
+    monkeypatch.setattr(W, "read_lines", lambda t: calls.append(t) or None)
+    # 4:50 PM Central: the 4:45 PM main update is due, so it builds without asking
+    build, why = W.check(str(p), str(tmp_path), dt.datetime(2026, 11, 2, 22, 50, tzinfo=dt.timezone.utc))
+    assert build and "before the 22:45Z" in why[0] and calls == []
+    # 10:30 AM Central: the morning update is done; Daily Faceoff's news builds
+    build, why = W.check(str(p), str(tmp_path), dt.datetime(2026, 11, 2, 16, 30, tzinfo=dt.timezone.utc))
+    assert build and why[0].startswith("FLA goalie:") and calls == ["2026-11-02"]
+
+
+def test_watch_runs_on_the_standard_library_alone():
+    """The workflow's guard job runs it before pip installs anything."""
+    import ast
+    import sys
+    for mod in ("watch", "dfo", "schedule"):
+        tree = ast.parse(open(os.path.join(ROOT, "nhlda", mod + ".py"), encoding="utf-8").read())
+        names = {a.name.split(".")[0] for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names}
+        names |= {n.module.split(".")[0] for n in ast.walk(tree) if isinstance(n, ast.ImportFrom) and n.module and not n.level}
+        assert names <= set(sys.stdlib_module_names), (mod, names - set(sys.stdlib_module_names))
+
+
+def test_goalie_report_time_and_strength_reach_the_data_file():
+    from nhlda.build import _goalie
+    g = _goalie({"name": "Jacob Markstrom", "source": "DFO_CONFIRMED",
+                 "intel": {"reported_by": "Jordan McPherson", "source_url": "https://x.com/J_McPherson1126/status/1",
+                           "reported_at": "2026-11-02T15:51:50.102Z", "strength": "Confirmed", "detail": "x"}})
+    assert (g["reported_by"], g["reported_at"], g["report_strength"]) == ("Jordan McPherson", "2026-11-02T15:51:50.102Z", "Confirmed")
+    g = _goalie({"name": "Daniil Tarasov", "source": "DFO_PROJECTED", "intel": {"reported_by": None, "reported_at": None}})
+    assert g["reported_at"] is None and g["report_strength"] is None

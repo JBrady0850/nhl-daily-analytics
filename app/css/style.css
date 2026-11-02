@@ -273,6 +273,8 @@ table.inj td:first-child { min-width: 12em; }
 .game { container: game / inline-size; }
 .kv .gk-dt, .kv .gk-dd { grid-column: 1 / -1; }
 .kv .gks { display: grid; grid-template-columns: minmax(min-content, max-content) auto; justify-content: start; align-items: center; gap: 4px 10px; }
+/* 1.17.0: who reported each starter, under his row */
+.kv .gks .gk-r { grid-column: 1 / -1; margin: -3px 0 3px; line-height: 1.35; }
 @container game (min-width: 440px) { .kv .gk-dt, .kv .gk-dd { grid-column: auto; } }
 details.more { margin-top: 8px; } details.more > summary { cursor: pointer; color: var(--accent); font-weight: 600; padding: 6px 0; min-height: 40px; display: flex; align-items: center; list-style: none; }
 details.more > summary::before { content: "\25B8"; margin-right: 6px; font-size: .8em; } details.more[open] > summary::before { content: "\25BE"; }

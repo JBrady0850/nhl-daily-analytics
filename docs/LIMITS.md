@@ -19,9 +19,15 @@ What the app can and cannot do. Read this before you rely on a number.
 
 ## Timing
 
-- The data updates twice a day, at about 9:00 AM and 4:45 PM US Central time. News after the evening
-  run (a late scratch, a goalie change at warmups) is not in the app until the next
-  morning.
+- The data updates twice a day, at about 9:00 AM and 4:45 PM US Central time. On game
+  days, from 9:30 AM Central until the last game starts, a check every 15 minutes
+  rebuilds it when Daily Faceoff reports another starting goalie, a confirmation, a
+  newer report, or (in the 90 minutes before a game) a changed lineup. So morning-skate
+  and warmup news usually reaches the app within 20 minutes, as fast as Daily Faceoff
+  relays it from the beat writers' posts. The check depends on the outside timer (with
+  GitHub's own schedule as a slower backup) and on Daily Faceoff answering; news that
+  Daily Faceoff has not picked up, or that comes after puck drop, is not in the app.
+  Other injury news still waits for the next main update.
 - A game card shows the final score and WIN or LOSS only for a game that was over at
   an update, which in practice means early afternoon games at the 4:45 PM update. A game
   still in its third period then, and every evening game, shows its result in the

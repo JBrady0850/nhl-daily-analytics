@@ -59,47 +59,15 @@ import os
 
 log = logging.getLogger("nhl.intel")
 
-DFO_BASE = "https://www.dailyfaceoff.com/starting-goalies/"
+# Daily Faceoff's addresses, headers, team names and page parsing live in nhlda.dfo
+# (standard library only, shared with the game-day watch, 1.17.0).
+from .dfo import (DFO_BASE, DFO_LINES_URL, INTEL_HEADERS, TEAM_FULL_NAMES, _norm,  # noqa: F401
+                  team_abbrev_from_name, team_slug, next_data, goalie_entries)
+
 HR_INJURIES_URL = "https://www.hockey-reference.com/friv/injuries.cgi"
 # ESPN's public NHL injury feed: JSON, no key, league-wide, and it answers GitHub's
 # servers (Hockey-Reference refuses them). Undocumented, so it can change.
 ESPN_INJURIES_URL = "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/injuries"
-
-# A plain, honest, browser-complete header set. The shared Fetcher's
-# BASE_HEADERS carries an Origin/Referer of nhl.com, which is correct for
-# NHL's own APIs but would be a false trail on a third-party site.
-INTEL_HEADERS = {
-    "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                    "(KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"),
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.9",
-}
-
-TEAM_FULL_NAMES = {
-    "ANA": "Anaheim Ducks", "BOS": "Boston Bruins", "BUF": "Buffalo Sabres",
-    "CAR": "Carolina Hurricanes", "CBJ": "Columbus Blue Jackets", "CGY": "Calgary Flames",
-    "CHI": "Chicago Blackhawks", "COL": "Colorado Avalanche", "DAL": "Dallas Stars",
-    "DET": "Detroit Red Wings", "EDM": "Edmonton Oilers", "FLA": "Florida Panthers",
-    "LAK": "Los Angeles Kings", "MIN": "Minnesota Wild", "MTL": "Montreal Canadiens",
-    "NJD": "New Jersey Devils", "NSH": "Nashville Predators", "NYI": "New York Islanders",
-    "NYR": "New York Rangers", "OTT": "Ottawa Senators", "PHI": "Philadelphia Flyers",
-    "PIT": "Pittsburgh Penguins", "SEA": "Seattle Kraken", "SJS": "San Jose Sharks",
-    "STL": "St. Louis Blues", "TBL": "Tampa Bay Lightning", "TOR": "Toronto Maple Leafs",
-    "UTA": "Utah Mammoth", "VAN": "Vancouver Canucks", "VGK": "Vegas Golden Knights",
-    "WPG": "Winnipeg Jets", "WSH": "Washington Capitals",
-}
-
-
-def _norm(name):
-    return re.sub(r"\s+", " ", (name or "").replace(".", "")).strip().lower()
-
-
-_NAME_TO_ABBREV = {_norm(v): k for k, v in TEAM_FULL_NAMES.items()}
-
-
-def team_abbrev_from_name(full_name):
-    return _NAME_TO_ABBREV.get(_norm(full_name))
-
 
 # =============================================================================
 # DAILY FACEOFF - GOALIE CONFIRMATION
@@ -121,36 +89,18 @@ class DailyFaceoffGoalies:
         if not raw:
             self.error = "fetch_failed"
             return self
-        m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', raw, re.S)
-        if not m:
+        payload = next_data(raw)
+        if payload is None:
             self.error = "no_next_data"
             log.warning("Daily Faceoff: __NEXT_DATA__ not found for %s (page layout may have changed)", date)
             return self
         try:
-            payload = json.loads(m.group(1))
             games = payload["props"]["pageProps"].get("data", []) or []
-        except (json.JSONDecodeError, KeyError, TypeError) as exc:
+        except (KeyError, TypeError, AttributeError) as exc:
             self.error = f"parse_error: {exc}"
             log.warning("Daily Faceoff: could not parse __NEXT_DATA__ for %s: %s", date, exc)
             return self
-
-        for g in games:
-            for side in ("home", "away"):
-                ab = team_abbrev_from_name(g.get(f"{side}TeamName"))
-                if not ab:
-                    continue
-                strength = g.get(f"{side}NewsStrengthName")
-                self.by_team[ab] = {
-                    "goalie_name": g.get(f"{side}GoalieName"),
-                    "confirmed": strength == "Confirmed",
-                    "strength": strength,
-                    "detail": g.get(f"{side}NewsDetails"),
-                    "source_name": g.get(f"{side}NewsSourceName"),
-                    "source_url": g.get(f"{side}NewsSourceUrl"),
-                    "reported_at": g.get(f"{side}NewsCreatedAt"),
-                    "season_sv_pct": g.get(f"{side}GoalieSavePercentage"),
-                    "season_gaa": g.get(f"{side}GoalieGoalsAgainstAvg"),
-                }
+        self.by_team.update(goalie_entries(games))
         self.loaded = True
         log.info("Daily Faceoff: %d team entries for %s%s", len(self.by_team), date,
                  "" if self.loaded and self.by_team else " (empty -- no games that day)")
@@ -172,16 +122,6 @@ class DailyFaceoffGoalies:
 # last10{gamesPlayed, goals, assists, points, shots, powerplayPoints,
 # toiMinutes, toiSeconds (window totals), ...}}], lines: [...]}.
 # =============================================================================
-DFO_LINES_URL = "https://www.dailyfaceoff.com/teams/{slug}/line-combinations"
-
-
-def team_slug(abbrev):
-    """Daily Faceoff team slug from the full team name; verified 2026-09-29
-    against the site's own 32-team list."""
-    name = TEAM_FULL_NAMES.get(str(abbrev).upper())
-    if not name:
-        return None
-    return re.sub(r"[^a-z0-9]+", "-", name.lower().replace(".", "")).strip("-")
 
 
 def _i(v):

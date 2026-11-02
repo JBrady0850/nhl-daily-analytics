@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.16.0";
+  const APP_VERSION = "1.17.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -477,10 +477,23 @@
       <i class="away"></i><i class="home"></i><i class="mk gl gl1"></i><i class="mk gl gl2"></i><i class="mk bl bl1"></i><i class="mk bl bl2"></i><i class="mk cl"></i><i class="mk cc"></i><i class="puck${goldish(ca) || goldish(cb) ? " lt" : ""}"></i>
       <span class="l">${esc(g.away)} ${pct(pa)}</span><span class="r">${esc(g.home)} ${pct(ph)}</span></div>`;
   }
+  // 1.17.0 (John, 2026-11-02: "Social media is the most updated"): who reported the
+  // starter, when, and a link to the post, as Daily Faceoff relays it from the beat writer
+  function reportText(gk) {
+    if (gk.reported_by) {
+      const verb = gk.source === "DFO_CONFIRMED" || gk.report_strength === "Confirmed" ? "Confirmed by"
+        : gk.report_strength === "Likely" ? "Likely, per" : "Reported by";
+      const who = gk.source_url ? `<a href="${esc(gk.source_url)}" target="_blank" rel="noopener" data-tip="Opens the reporter's post, as Daily Faceoff relays it.">${esc(gk.reported_by)}</a>` : esc(gk.reported_by);
+      const day = gk.reported_at && D.date && !String(gk.reported_at).startsWith(D.date) ? ` ${esc(shortDay(String(gk.reported_at).slice(0, 10)))}` : "";
+      return `${verb} ${who}${gk.reported_at ? `,${day} ${esc(localTime(gk.reported_at))}` : ""}`;
+    }
+    return gk.source === "DFO_PROJECTED" ? "Daily Faceoff's projection; no report yet" : "The model's rotation guess; no report yet";
+  }
   function goalieLine(g) {
     // one goalie per row: the name and team in the first column, the status tag beside
-    // them in the second, so a tag never wraps away from its goalie
-    const one = (ab, gk) => gk && gk.name ? `<span class="gk-n">${pname(gk.name, gk.player_id)}&nbsp;<span class="muted">(${esc(ab)})</span></span><span class="gk-s">${srcPill(gk.source)}</span>`
+    // them in the second, so a tag never wraps away from its goalie; under them, who
+    // reported the start (1.17.0)
+    const one = (ab, gk) => gk && gk.name ? `<span class="gk-n">${pname(gk.name, gk.player_id)}&nbsp;<span class="muted">(${esc(ab)})</span></span><span class="gk-s">${srcPill(gk.source)}</span><span class="gk-r tiny muted">${reportText(gk)}</span>`
       : `<span class="gk-n muted">${esc(ab)}: no starter yet</span><span class="gk-s"></span>`;
     return `<span class="gks">${one(g.away, g.away_side.goalie)}${one(g.home, g.home_side.goalie)}</span>`;
   }
@@ -764,9 +777,9 @@
     const body = rows.map(({ ab, g, gk }) => !gk.name ? `<tr>${td(badge(ab, "sm"))}<td colspan="8" class="muted">No starter found yet</td></tr>` :
       `<tr class="${mine(ab) ? "lead" : ""}">${td(`${badge(ab, "sm")}<div class="tiny muted">${esc(g.away)} @ ${esc(g.home)}</div>`)}${td(pname(gk.name, gk.player_id) + ((gk.window_toi_min || 0) < 180 ? ' <span class="pill thin">Thin</span>' : ""))}
         ${td(sv(gk.season_sv_pct), "n")}${td(num(gk.gsax, 2), "n")}${td(sv(gk.hdsv_pct), "n hm")}${td(Math.round(gk.window_toi_min || 0) + "m", "n hm")}${td(esc(gk.days_rest ?? "-") + "d", "n")}${td(srcPill(gk.source))}
-        ${td(gk.reported_by ? (gk.source_url ? `<a href="${esc(gk.source_url)}" target="_blank" rel="noopener">${esc(gk.reported_by)}</a>` : esc(gk.reported_by)) : "-", "hm small")}</tr>`).join("");
-    return `${head("goalies", "Starting goalies")}${stamp()}<p class="small muted">Every probable starter tonight, highest season save percentage first (ties: GSAx, then high-danger save percentage). Projected starters often change by late afternoon; the evening update carries the later confirmations.</p>
-      ${tbl(th("Team") + th("Starter") + th("SV%", "n") + th("GSAx", "n") + th("HDSV%", "n hm") + th("Window", "n hm") + th("Rest", "n") + th("Status") + th("Reported by", "hm"), body)}`;
+        ${td(reportText(gk), "small")}</tr>`).join("");
+    return `${head("goalies", "Starting goalies")}${stamp()}<p class="small muted">Every probable starter tonight, highest season save percentage first (ties: GSAx, then high-danger save percentage). On game days Daily Faceoff's starting goalies are checked every 15 minutes until the last game starts, and the app updates within minutes when a beat writer reports a starter or a change. The Report column says who reported it and when, and links to the post.</p>
+      ${tbl(th("Team") + th("Starter") + th("SV%", "n") + th("GSAx", "n") + th("HDSV%", "n hm") + th("Window", "n hm") + th("Rest", "n") + th("Status") + th("Report"), body)}`;
   }
 
   // ---------- injuries ----------
@@ -1080,7 +1093,7 @@
       <section class="card"><h2 style="margin-top:0">Get the app</h2>${installSteps()}</section>
       <section class="card"><h2 style="margin-top:0">Today's data</h2><dl class="kv"><dt>Slate</dt><dd>${esc(longDate(D.date))}, ${esc(D.slate.game_count)} games</dd>
         <dt>Built</dt><dd>${esc(localStamp(D.generated_utc))}</dd>
-        <dt>Schedule</dt><dd>Twice a day, about ${dailyRuns().map(esc).join(" and ")} your time. GitHub can start a run late.</dd>
+        <dt>Schedule</dt><dd>Twice a day, about ${dailyRuns().map(esc).join(" and ")} your time. GitHub can start a run late. On game days it also checks Daily Faceoff's starting goalies (and each team's lineup in the 90 minutes before its game) every 15 minutes from 9:30 AM US Central until the last game starts, and updates within minutes when one changes.</dd>
         <dt>Next update</dt><dd>${updSpan()}</dd>
         <dt>Starting goalies</dt><dd>${gl.loaded ? `${esc(gl.teams)} teams listed by Daily Faceoff, ${esc(gl.confirmed)} confirmed` : "Daily Faceoff not reached; starters are the model's rotation guess"}</dd>
         <dt>Injuries</dt><dd>${injSources(inj)}</dd>
@@ -1097,6 +1110,7 @@
     return `${head("help", "How it works")}
       <section class="card"><p>Twice a day (at 9:00 AM and 4:45 PM US Central time) a free GitHub workflow reads the NHL's public schedule, standings and game logs, MoneyPuck's season numbers, Daily Faceoff's starting goalies, line combinations and injured lists, and ESPN's public injury report. It scores every team on five pillars (form, missing players, playoff-race motivation, the starting goalie and rest), turns the gap between the two teams into a win probability, and publishes one data file that this app reads.</p>
       <p>The line under each page title tells you when the next update is due. GitHub starts its own scheduled runs late or now and then not at all, so a small timer outside GitHub starts each update, with GitHub's schedule as a backup; a backup run builds only when the update has not posted yet. While an update is due, an open copy of the app checks for the new file every ${CHECK_MIN.due} minutes and loads it on its own; the Check for newer data button checks right away.</p>
+      <p>On game days, from 9:30 AM US Central until the last game starts, the same timer asks every 15 minutes for a quick check: the workflow reads Daily Faceoff's starting goalies and, in the 90 minutes before each game, its lineups, and builds a new file only when a goalie or a lineup changed. Daily Faceoff relays the teams' beat writers, who post goalie news on social media first (mostly on X, which no automated reader may use), so a morning-skate report or a warmup change usually reaches the app within 20 minutes. Each goalie line names the writer, the time of the post and links to it.</p>
       <p>Each morning it also settles the previous night's games, keeps the season record, and every 10 settled games tests whether a refit of the model would predict better. A refit is adopted only after it proves itself on games it has not seen.</p></section>
       <section class="card"><h2 style="margin-top:0">Limits</h2><ul class="steps-list"><li>Hockey is close to a coin flip: last season the model picked 56 percent of winners on games it had not seen, and about 64 percent on picks that cleared the gate. Treat the numbers as estimates.</li>
       <li>Morning starting goalies are mostly projections; check the evening update or the team's own news before relying on one.</li>

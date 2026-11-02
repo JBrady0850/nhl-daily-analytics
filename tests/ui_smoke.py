@@ -532,6 +532,58 @@ GOALIE_ROWS_JS = """() => [...document.querySelectorAll('main article.game')].ma
 })"""
 
 
+REPORT_JS = """() => [...document.querySelectorAll('main article.game')].flatMap(card => {
+  const g = card.querySelector('.gks'); if (!g) return [];
+  const names = [...g.querySelectorAll('.gk-n')].map(e => e.textContent.replace(/\\s+/g, ' ').trim());
+  return [...g.querySelectorAll('.gk-r')].map((r, i) => { const a = r.querySelector('a');
+    return {name: names[i], text: r.textContent.replace(/\\s+/g, ' ').trim(), href: a ? a.getAttribute('href') : null,
+            target: a ? a.getAttribute('target') : null, full: getComputedStyle(r).gridColumnStart === '1' && getComputedStyle(r).gridColumnEnd === '-1'}; }); })"""
+
+
+def check_goalie_reports(pg, data):
+    """1.17.0 (John, 2026-11-02: "Social media is the most updated"): under every
+    starter on Today, who reported the start and when, linked to the post Daily Faceoff
+    relays; a projection or rotation guess says no report yet."""
+    pg.click('#tabs button[data-tab="today"]')
+    got = pg.evaluate(REPORT_JS)
+    want = []
+    for g in data["slate"]["games"]:
+        for side in ("away_side", "home_side"):
+            gk = g[side].get("goalie") or {}
+            if gk.get("name"):
+                want.append(gk)
+    out = []
+    if len(got) != len(want):
+        return [f"today: {len(got)} report lines for {len(want)} starters"]
+    by_name = {}
+    for r in got:
+        by_name.setdefault(r["name"].split(" (")[0].replace("\u00a0", " ").strip(), []).append(r)
+    for gk in want:
+        r = (by_name.get(gk["name"]) or [None]).pop(0) if by_name.get(gk["name"]) else None
+        if not r:
+            out.append(f"today: no report line for {gk['name']}")
+            continue
+        if not r["full"]:
+            out.append(f"today: {gk['name']}'s report line does not span its row")
+        if gk.get("reported_by"):
+            verb = "Confirmed by" if gk.get("source") == "DFO_CONFIRMED" else "Likely, per" if gk.get("report_strength") == "Likely" else "Reported by"
+            if not r["text"].startswith(f"{verb} {gk['reported_by']}"):
+                out.append(f"today: {gk['name']}: {r['text']!r} does not credit {gk['reported_by']}")
+            if gk.get("source_url") and (r["href"] != gk["source_url"] or r["target"] != "_blank"):
+                out.append(f"today: {gk['name']}: the reporter does not link to the post in a new tab ({r['href']})")
+            if gk.get("reported_at") and not re.search(r"\d{1,2}:\d{2}\s?[AP]M", r["text"]):
+                out.append(f"today: {gk['name']}: no time on {r['text']!r}")
+        else:
+            want_t = "Daily Faceoff's projection; no report yet" if gk.get("source") == "DFO_PROJECTED" else "The model's rotation guess; no report yet"
+            if r["text"] != want_t:
+                out.append(f"today: {gk['name']}: {r['text']!r} (want {want_t!r})")
+    pg.click('#tabs button[data-tab="goalies"]')
+    head = pg.locator("main th", has_text="Report")
+    if head.count() != 1 or "beat writer" not in (head.first.get_attribute("data-tip") or ""):
+        out.append("goalies: the Report column has no definition")
+    return out[:6]
+
+
 def check_goalie_rows(pg, n_games):
     """Today: each game's two goalies sit on their own rows and each status tag stays on
     its goalie's row, inside the card (John, 2026-10-23)."""
@@ -1129,6 +1181,7 @@ def main():
                     fails.append(f"{name}: goalies not sorted by SV% {vals}")
                 fails.extend(f"{name}: {m}" for m in check_standings(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_goalie_rows(pg, len(sample["slate"]["games"])))
+                fails.extend(f"{name}: {m}" for m in check_goalie_reports(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_win_marker(pg))
                 fails.extend(f"{name}: {m}" for m in check_team_places(pg, sample, "FLA", mob))
                 fails.extend(f"{name}: {m}" for m in check_last_game(pg, sample, "FLA"))
@@ -1265,6 +1318,18 @@ def main():
         fails.extend(f"tied leaders: {m}" for m in check_points_leaders(pg, tie, "FLA"))
         if added:  # leave My Teams as the later checks expect it
             pg.click('button.chip[data-arg="FLA"]')
+        # who reported each starter and when (John, 2026-11-02)
+        rep = json.loads(json.dumps(alt))
+        g0 = rep["slate"]["games"][1]
+        g0["away_side"]["goalie"].update(source="DFO_CONFIRMED", reported_by="Jordan McPherson",
+                                         source_url="https://x.com/J_McPherson1126/status/2117283256357748768",
+                                         reported_at=rep["date"] + "T15:51:50.102Z", report_strength="Confirmed")
+        g0["home_side"]["goalie"].update(source="DFO_PROJECTED", reported_by="Charlie Roumeliotis", source_url=None,
+                                         reported_at=rep["date"] + "T16:27:19.873Z", report_strength="Likely")
+        with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
+            fh.write("window.NDA_DATA=" + json.dumps(rep) + ";\n")
+        pg.reload()
+        fails.extend(f"reports: {m}" for m in check_goalie_reports(pg, rep))
         # a finished game on My Teams and Today (John, 2026-10-31)
         fin = json.loads(json.dumps(alt))
         g = next(x for x in fin["slate"]["games"] if x["away"] == "LAK" and x["home"] == "NJD")
