@@ -1,6 +1,6 @@
 {
 "season": "20262027",
-"generated": "2026-11-01",
+"generated": "2026-11-02",
 "count": 800,
 "players": [
 {
@@ -2854,6 +2854,13 @@
 },
 {
 "team": "NSH",
+"name": "Shane Wright",
+"player_id": "8483524",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NSH",
 "name": "Steven Stamkos",
 "player_id": "8474564",
 "position": "C",
@@ -2962,13 +2969,6 @@
 "name": "Reid Schaefer",
 "player_id": "8483513",
 "position": "L",
-"role": "skater"
-},
-{
-"team": "NSH",
-"name": "Matthew Wood",
-"player_id": "8484241",
-"position": "R",
 "role": "skater"
 },
 {
@@ -3918,13 +3918,6 @@
 },
 {
 "team": "SEA",
-"name": "Shane Wright",
-"player_id": "8483524",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "SEA",
 "name": "Adam Larsson",
 "player_id": "8476457",
 "position": "D",
@@ -4032,6 +4025,13 @@
 "team": "SEA",
 "name": "Mackie Samoskevich",
 "player_id": "8482713",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Matthew Wood",
+"player_id": "8484241",
 "position": "R",
 "role": "skater"
 },
