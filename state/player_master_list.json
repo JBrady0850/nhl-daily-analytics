@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-02",
-"count": 799,
+"count": 800,
 "players": [
 {
 "team": "ANA",
@@ -147,6 +147,13 @@
 "team": "ANA",
 "name": "Jeff Malott",
 "player_id": "8482408",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Nico Myatovic",
+"player_id": "8484201",
 "position": "L",
 "role": "skater"
 },
