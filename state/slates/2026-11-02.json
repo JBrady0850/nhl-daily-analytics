@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "COL @ CHI",
-   "home_win_prob": 0.38,
+   "home_win_prob": 0.3636,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.3302,
-    "away_prob": 0.6698,
+    "home_prob": 0.3318,
+    "away_prob": 0.6682,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -24,9 +24,9 @@
     "p1_form": 4.178,
     "p2_absence": 0.949,
     "p3_motivation": 0.0,
-    "p4_gvi": -1.416,
+    "p4_gvi": 1.274,
     "p5_friction": 0.0,
-    "adj_raa": 53.712
+    "adj_raa": 56.401
    }
   },
   {
@@ -63,8 +63,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5306,
-    "away_prob": 0.4694,
+    "home_prob": 0.53,
+    "away_prob": 0.47,
     "books": 6
    },
    "model_home_win_prob": null,

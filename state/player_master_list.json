@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-02",
-"count": 799,
+"count": 798,
 "players": [
 {
 "team": "ANA",
@@ -4263,13 +4263,6 @@
 "team": "STL",
 "name": "Justin Barron",
 "player_id": "8482111",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "STL",
-"name": "Logan Mailloux",
-"player_id": "8482733",
 "position": "D",
 "role": "skater"
 },
