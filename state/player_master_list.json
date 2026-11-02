@@ -1307,6 +1307,13 @@
 },
 {
 "team": "COL",
+"name": "Keaton Middleton",
+"player_id": "8479387",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "COL",
 "name": "Noah Juulsen",
 "player_id": "8478454",
 "position": "D",
@@ -3607,13 +3614,6 @@
 "player_id": "8479361",
 "position": "G",
 "role": "goalie"
-},
-{
-"team": "PHI",
-"name": "Alex Bump",
-"player_id": "8483731",
-"position": "L",
-"role": "skater"
 },
 {
 "team": "PHI",

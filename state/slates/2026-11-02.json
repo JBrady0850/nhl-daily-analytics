@@ -3,21 +3,21 @@
  "games": [
   {
    "matchup": "COL @ CHI",
-   "home_win_prob": 0.3634,
+   "home_win_prob": 0.365,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.3252,
-    "away_prob": 0.6748,
+    "home_prob": 0.3253,
+    "away_prob": 0.6747,
     "books": 6
    },
    "home_pillars": {
-    "p1_form": -13.669,
+    "p1_form": -13.403,
     "p2_absence": -3.428,
     "p3_motivation": 0.0,
     "p4_gvi": 0.721,
     "p5_friction": 0.0,
-    "adj_raa": 33.624
+    "adj_raa": 33.89
    },
    "away_pillars": {
     "p1_form": 3.959,
@@ -30,21 +30,21 @@
   },
   {
    "matchup": "VGK @ BOS",
-   "home_win_prob": 0.4486,
+   "home_win_prob": 0.447,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4846,
-    "away_prob": 0.5154,
+    "home_prob": 0.4826,
+    "away_prob": 0.5174,
     "books": 6
    },
    "home_pillars": {
-    "p1_form": 2.076,
+    "p1_form": 1.822,
     "p2_absence": -3.713,
     "p3_motivation": 0.0,
     "p4_gvi": -2.52,
     "p5_friction": -0.555,
-    "adj_raa": 45.288
+    "adj_raa": 45.034
    },
    "away_pillars": {
     "p1_form": 5.949,
@@ -61,8 +61,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5337,
-    "away_prob": 0.4663,
+    "home_prob": 0.5329,
+    "away_prob": 0.4671,
     "books": 6
    },
    "home_pillars": {
@@ -84,29 +84,29 @@
   },
   {
    "matchup": "DET @ FLA",
-   "home_win_prob": 0.4812,
+   "home_win_prob": 0.4697,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.6134,
-    "away_prob": 0.3866,
+    "home_prob": 0.6125,
+    "away_prob": 0.3875,
     "books": 6
    },
    "home_pillars": {
     "p1_form": 8.926,
     "p2_absence": 1.769,
     "p3_motivation": 0.0,
-    "p4_gvi": -0.093,
+    "p4_gvi": -2.087,
     "p5_friction": 0.555,
-    "adj_raa": 61.157
+    "adj_raa": 59.163
    },
    "away_pillars": {
-    "p1_form": 15.145,
+    "p1_form": 14.919,
     "p2_absence": -1.21,
     "p3_motivation": 0.0,
     "p4_gvi": 1.725,
     "p5_friction": -0.555,
-    "adj_raa": 65.105
+    "adj_raa": 64.879
    }
   }
  ]
