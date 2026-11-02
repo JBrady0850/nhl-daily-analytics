@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-02",
-"count": 800,
+"count": 799,
 "players": [
 {
 "team": "ANA",
@@ -2443,13 +2443,6 @@
 "team": "MIN",
 "name": "Nick Foligno",
 "player_id": "8473422",
-"position": "L",
-"role": "skater"
-},
-{
-"team": "MIN",
-"name": "Rieger Lorenz",
-"player_id": "8483478",
 "position": "L",
 "role": "skater"
 },
