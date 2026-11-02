@@ -107,9 +107,13 @@ h1 { font-size: 2.5rem; font-weight: 600; line-height: .95; margin: 4px 0 6px; }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .pill {color: #07121c;}
   :root:not([data-theme="light"]) .pill.gold {color: #1d1600;}
+  /* 1.18.1: an outline tag has no fill of its own, so its text keeps the page's ink
+     (the dark rule above turned it near-black on the dark card: contrast 1.1 to 1) */
+  :root:not([data-theme="light"]) .pill.mkt, :root:not([data-theme="light"]) .pill.clinch {color: var(--ink);}
 }
 :root[data-theme="dark"] .pill {color: #07121c;}
 :root[data-theme="dark"] .pill.gold {color: #1d1600;}
+:root[data-theme="dark"] .pill.mkt, :root[data-theme="dark"] .pill.clinch {color: var(--ink);}
 
 
 /* game cards: a stripe in both clubs' colors, the rank in scoreboard type */

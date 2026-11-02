@@ -608,6 +608,45 @@ def check_blend_panel(pg, blend, state):
     return out
 
 
+CONTRAST_JS = """() => {
+  const rgb = s => (s.match(/[\\d.]+/g) || []).map(Number);
+  const lum = ([r, g, b]) => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
+  const bgOf = el => { for (let e = el; e; e = e.parentElement) { const c = rgb(getComputedStyle(e).backgroundColor); if (c.length === 3 || (c.length === 4 && c[3] > 0.5)) return c.slice(0, 3); } return [255, 255, 255]; };
+  return [...document.querySelectorAll('main .pill')].filter(p => p.offsetWidth).map(p => {
+    const fg = rgb(getComputedStyle(p).color).slice(0, 3), bg = bgOf(p), a = lum(fg), b = lum(bg);
+    return [[...p.classList].filter(c => c !== 'pill' && c !== 'has-tip').join('.'), p.textContent.trim().slice(0, 30),
+            Math.round((Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) * 10) / 10]; }); }"""
+
+
+def check_pill_contrast(b, url):
+    """1.18.1 (John, 2026-11-02, a phone screenshot: "The note does not work on a dark
+    background"): every tag's text stands out from what is behind it, in the light and
+    dark themes and with Dark chosen in Settings. The dark theme turned all tag text
+    near-black for the filled tags, and the Market favors tag, which has no fill, came
+    out at 1.1 to 1 on the dark card. Outline tags (Market favors, clinch marks) need
+    4.5 to 1, the normal-text level; every tag needs at least 3 to 1."""
+    out = []
+    for label, scheme, theme in (("light", "light", None), ("dark", "dark", None), ("Dark in Settings", "light", "dark")):
+        ctx = new_ctx(b, viewport={"width": 1280, "height": 900}, color_scheme=scheme)
+        pg = ctx.new_page()
+        pg.goto(url)
+        pg.evaluate(f"localStorage.setItem('nda:v1', JSON.stringify({{teams: ['FLA'], tab: 'today'{', theme: ' + repr(theme) if theme else ''}}}))")
+        reload(pg)
+        seen = set()
+        for tab in ("today", "myteams", "standings", "injuries", "goalies"):
+            pg.click(f'#tabs button[data-tab="{tab}"]')
+            pg.wait_for_timeout(80)
+            for cls, text, ratio in pg.evaluate(CONTRAST_JS):
+                seen.add(cls.split(".")[0])
+                need = 4.5 if cls.split(".")[0] in ("mkt", "clinch") else 3.0
+                if ratio < need:
+                    out.append(f"{label} {tab}: tag {text!r} ({cls}) contrast {ratio} to 1 (want {need})")
+        if not {"mkt", "clinch"} <= seen:
+            out.append(f"{label}: the outline tags were not on the page to measure ({sorted(seen)})")
+        ctx.close()
+    return out[:8]
+
+
 REPORT_JS = """() => [...document.querySelectorAll('main article.game')].flatMap(card => {
   const g = card.querySelector('.gks'); if (!g) return [];
   const names = [...g.querySelectorAll('.gk-n')].map(e => e.textContent.replace(/\\s+/g, ' ').trim());
@@ -1424,6 +1463,10 @@ def main():
                 fh.write("window.NDA_DATA=" + json.dumps(var) + ";\n")
             reload(pg)
             fails.extend(f"blend: {m}" for m in check_blend_panel(pg, var["model"]["market_blend"], st_name))
+        # outline tags stay readable in every theme (John, 2026-11-02)
+        with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
+            fh.write("window.NDA_DATA=" + json.dumps(mkd) + ";\n")
+        fails.extend(f"contrast: {m}" for m in check_pill_contrast(b, "file://" + os.path.join(noted, "index.html")))
         # who reported each starter and when (John, 2026-11-02)
         rep = json.loads(json.dumps(alt))
         g0 = rep["slate"]["games"][1]
