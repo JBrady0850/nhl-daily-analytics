@@ -895,6 +895,71 @@ def run_learning(state_dir):
 
 
 # =============================================================================
+# MARKET BLEND TEST (public 1.18.0)
+# John, 2026-11-02: "There is no way Detroit is favored over the Florida Panthers."
+# The model had Detroit 53%, the sportsbook consensus Florida 62%. On this season's
+# 102 settled games with a line the market's log loss was lower (0.6669 against
+# 0.6774) but by 0.8 standard errors, under the 2.0 the learning cycle asks for. John
+# chose to test a fixed 50/50 blend of model and market the same way the candidate
+# settings are tested: on games it was not chosen from (played from BLEND_SINCE on),
+# put into use only after at least LEARN_MIN_FORWARD of them and a lead of two
+# standard errors in log loss over the model alone. Once in use the build publishes
+# the blend wherever the game has a line, and the test is kept as it stood.
+# =============================================================================
+BLEND_WEIGHT = 0.5              # the model's share of the blend; the market gets the rest
+BLEND_SINCE = "2026-11-02"      # games played from this date on (the blend was chosen after earlier games)
+
+
+def _ll(p, won):
+    p = min(max(p, 1e-6), 1 - 1e-6)
+    return -math.log(p if won else 1 - p)
+
+
+def blend_deltas(ledger_rows, since=BLEND_SINCE, weight=BLEND_WEIGHT):
+    """Per settled game with a market line, played on or after since: the blend's log
+    loss minus the published probability's (negative: the blend did better)."""
+    out = []
+    for r in ledger_rows:
+        if (r.get("date") or "") < since or r.get("market_prob") in ("", None) or r.get("win_prob") in ("", None):
+            continue
+        p, q = safe_float(r["win_prob"]), safe_float(r["market_prob"])
+        won = r.get("correct") == "1"
+        out.append(_ll(weight * p + (1 - weight) * q, won) - _ll(p, won))
+    return out
+
+
+def market_blend(state_dir, now_utc=None):
+    """The market blend test for the app, and whether the blend is in use. Adoption is
+    kept in state/learning.json (market_blend) and is permanent; the test then stays
+    as it stood when it passed."""
+    st = _load_learning(state_dir)
+    mb = st.setdefault("market_blend", {"weight": BLEND_WEIGHT, "since": BLEND_SINCE,
+                                        "adopted_utc": None, "adopted_test": None})
+    if mb.get("adopted_utc"):
+        test = mb.get("adopted_test") or {}
+    else:
+        test = R.forward_test(blend_deltas(read_ledger(state_dir), mb["since"], mb["weight"]))
+        if test.get("passed"):
+            mb["adopted_utc"] = now_utc or dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M")
+            mb["adopted_test"] = test
+            _save_learning(state_dir, st)
+    return {"weight": mb["weight"], "since": mb["since"], "in_use": bool(mb.get("adopted_utc")),
+            "adopted_utc": mb.get("adopted_utc"), "games": test.get("games", 0),
+            "mean_gain": test.get("mean_gain"), "t": test.get("t"),
+            "min_games": R.LEARN_MIN_FORWARD, "required_t": R.LEARN_FORWARD_T}
+
+
+def blend_game(home_prob, market, blend):
+    """(home probability to publish, model's own home probability or None): the blend
+    when it is in use and the game has a line, else the model's."""
+    mk = (market or {}).get("home_prob")
+    if not (blend or {}).get("in_use") or not isinstance(mk, (int, float)) or home_prob is None:
+        return home_prob, None
+    w = blend.get("weight", BLEND_WEIGHT)
+    return w * home_prob + (1 - w) * mk, home_prob
+
+
+# =============================================================================
 # PLAYER MASTER LIST (name -> NHL id fallback for the lines tables)
 # =============================================================================
 async def refresh_master_list(f: Fetcher, season, state_dir):

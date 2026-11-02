@@ -550,6 +550,64 @@ GOALIE_ROWS_JS = """() => [...document.querySelectorAll('main article.game')].ma
 })"""
 
 
+MKT_JS = """() => [...document.querySelectorAll('main article.game')].map(a => {
+  const f = a.querySelector('.pill.mkt');
+  return [a.querySelector('.match').textContent.replace(/\\s+/g, ' ').trim(), f ? f.textContent.trim() : null, f ? (f.dataset.tip || '') : null, f ? f.tabIndex : null]; })"""
+
+
+def check_market_flag(pg, data, follow):
+    """1.18.0 (John, 2026-11-02: "There is no way Detroit is favored over the Florida
+    Panthers"): a game whose sportsbook line favors the other team says so on its card,
+    with the market's number in the definition, and on My Teams; a game where the market
+    agrees has no flag."""
+    out = []
+    pg.click('#tabs button[data-tab="today"]')
+    got = {m: (t, tip, tab) for m, t, tip, tab in pg.evaluate(MKT_JS)}
+    for g in data["slate"]["games"]:
+        mk, fav = g.get("market"), g.get("projected")
+        key = next((m for m in got if g["away"] in m and g["home"] in m), None)
+        if key is None:
+            continue
+        other = g["away"] if fav == g["home"] else g["home"]
+        q = (mk or {}).get("home_prob" if other == g["home"] else "away_prob")
+        text, tip, tab = got[key]
+        if mk and q is not None and q > 0.5:
+            want = f"Market favors {other} {q * 100:.1f}%"
+            if text != want or f"{q * 100:.1f}%" not in (tip or "") or tab is None or tab < 0:
+                out.append(f"today {key}: flag {text!r} (want {want!r}), definition {tip!r}, tab {tab}")
+        elif text:
+            out.append(f"today {key}: a market flag {text!r} where the market agrees or has no line")
+    if follow:
+        pg.click('#tabs button[data-tab="myteams"]')
+        line = pg.evaluate(TODAY_CARD_JS, follow) or {}
+        if "Market favors" not in line.get("line", ""):
+            out.append(f"my teams {follow}: no market flag on today's line ({line.get('line')!r})")
+    return out
+
+
+BLEND_JS = """() => { const c = [...document.querySelectorAll('main section.card')].find(s => (s.querySelector('h2') || {}).textContent === 'Market blend test');
+  if (!c) return null; return {state: (c.querySelector('.why') || {}).dataset.state, verdict: (c.querySelector('.why-verdict') || {}).textContent || '',
+    marks: [...c.querySelectorAll('.why-tests .why-mark')].map(m => m.textContent.trim()), text: c.textContent.replace(/\\s+/g, ' ')}; }"""
+
+
+def check_blend_panel(pg, blend, state):
+    """The Model tab's Market blend test: its state, the two tests and the verdict."""
+    pg.click('#tabs button[data-tab="model"]')
+    got = pg.evaluate(BLEND_JS)
+    if not got:
+        return ["model: no Market blend test section"]
+    out = []
+    want_verdict = {"testing": "still being tested", "behind": "predicts worse", "small": "too small to trust", "passed": "In use since"}[state]
+    if got["state"] != state or want_verdict not in got["verdict"]:
+        out.append(f"model blend {state}: state {got['state']!r}, verdict {got['verdict']!r}")
+    want_marks = ["Met", "Met"] if state == "passed" else (["Not yet", "Not yet"] if state == "testing" else ["Met", "Not yet"])
+    if got["marks"] != want_marks:
+        out.append(f"model blend {state}: tests {got['marks']} (want {want_marks})")
+    if "50% model, 50% market" not in got["text"] or "40 such games" not in got["text"]:
+        out.append(f"model blend {state}: the rule is not explained")
+    return out
+
+
 REPORT_JS = """() => [...document.querySelectorAll('main article.game')].flatMap(card => {
   const g = card.querySelector('.gks'); if (!g) return [];
   const names = [...g.querySelectorAll('.gk-n')].map(e => e.textContent.replace(/\\s+/g, ' ').trim());
@@ -759,6 +817,7 @@ def check_injuries_tab(pg, sample, mob):
     reload(pg)
     if pg.evaluate(INJ_JS)["pressed"] != ["mine"]:
         fails.append("the injuries filter is not remembered after a reload")
+    pg.click('#tabs button[data-tab="injuries"]')
     pg.click('main .seg.inj button[data-arg="all"]')
     return fails
 
@@ -1336,6 +1395,35 @@ def main():
         fails.extend(f"tied leaders: {m}" for m in check_points_leaders(pg, tie, "FLA"))
         if added:  # leave My Teams as the later checks expect it
             pg.click('button.chip[data-arg="FLA"]')
+        # the market flag and the blend test (John, 2026-11-02)
+        mkd = json.loads(json.dumps(alt))
+        g_dis, g_agree = mkd["slate"]["games"][1], mkd["slate"]["games"][2]
+        fav = g_dis["projected"]
+        g_dis["market"] = ({"home_prob": 0.3787, "away_prob": 0.6213, "books": 6} if fav == g_dis["home"]
+                           else {"home_prob": 0.6213, "away_prob": 0.3787, "books": 6})
+        g_agree["market"] = ({"home_prob": 0.58, "away_prob": 0.42, "books": 5} if g_agree["projected"] == g_agree["home"]
+                             else {"home_prob": 0.42, "away_prob": 0.58, "books": 5})
+        with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
+            fh.write("window.NDA_DATA=" + json.dumps(mkd) + ";\n")
+        reload(pg)
+        pg.click('#tabs button[data-tab="myteams"]')
+        added = not pg.locator(f'button.chip[data-arg="{fav}"][aria-pressed="true"]').count()
+        if added:
+            pg.click(f'button.chip[data-arg="{fav}"]')
+        fails.extend(f"market: {m}" for m in check_market_flag(pg, mkd, fav))
+        if added:
+            pg.click('#tabs button[data-tab="myteams"]')
+            pg.click(f'button.chip[data-arg="{fav}"]')
+        for st_name, mb in (("testing", {"games": 12, "mean_gain": 0.004, "t": -0.9}),
+                            ("behind", {"games": 52, "mean_gain": -0.003, "t": 1.1}),
+                            ("small", {"games": 61, "mean_gain": 0.004, "t": -1.4}),
+                            ("passed", {"games": 64, "mean_gain": 0.011, "t": -2.3, "in_use": True, "adopted_utc": "2026-11-20 15:01"})):
+            var = json.loads(json.dumps(mkd))
+            var["model"]["market_blend"].update(mb)
+            with open(os.path.join(noted, "data", "latest.js"), "w", encoding="utf-8") as fh:
+                fh.write("window.NDA_DATA=" + json.dumps(var) + ";\n")
+            reload(pg)
+            fails.extend(f"blend: {m}" for m in check_blend_panel(pg, var["model"]["market_blend"], st_name))
         # who reported each starter and when (John, 2026-11-02)
         rep = json.loads(json.dumps(alt))
         g0 = rep["slate"]["games"][1]

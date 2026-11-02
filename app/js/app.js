@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.17.0";
+  const APP_VERSION = "1.18.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -505,6 +505,17 @@
       <span class="pick-pct"><b>${pct(p)}</b><span>to win</span></span></div>`;
   // a finished game: the final score on a scoreboard strip under the banner, and
   // whether the pick won or lost (overtime and shootout results count)
+  // 1.18.0 (John, 2026-11-02: "There is no way Detroit is favored over the Florida
+  // Panthers"): when the sportsbooks' consensus favors the other team, the card says so
+  function marketFlag(g) {
+    const mk = g && g.market, fav = g && g.projected;
+    if (!mk || !fav || typeof mk.home_prob !== "number" || typeof mk.away_prob !== "number") return "";
+    const other = fav === g.home ? g.away : g.home, q = other === g.home ? mk.home_prob : mk.away_prob;
+    if (!(q > 0.5)) return "";
+    const blended = typeof g.model_home_win_prob === "number";
+    const tip = `The sportsbooks' consensus line favors ${teamName(other)} at ${pct(q)}, so the market and ${blended ? "this pick, which already averages the model with the market," : "the model"} disagree. ${blended ? "" : "The pick is the model's own; the Model tab tests whether averaging the model with the market predicts better."}`.trim();
+    return `<span class="pill mkt" data-tip="${esc(tip)}">Market favors ${esc(other)} ${esc(pct(q))}</span>`;
+  }
   function finalStrip(g) {
     const r = g.result;
     if (!r) return "";
@@ -524,7 +535,7 @@
       <p class="small muted" style="margin:0">${esc(teamName(g.away))} at ${esc(teamName(g.home))}, ${esc(localTime(g.start_utc))}${g.venue ? ", " + esc(g.venue) : ""}</p>
       ${winbar(g)}
       ${fav ? pickBanner(fav, g.win_prob) + finalStrip(g) + dueLine(g) + `
-      <p style="margin:4px 0" class="row">${tierPill(g.tier)} ${g.gate_cleared ? '<span class="pill lead">Gate cleared</span>' : ""} ${yours ? '<span class="pill gold">Your team</span>' : ""}</p>` : ""}
+      <p style="margin:4px 0" class="row">${tierPill(g.tier)} ${marketFlag(g)} ${g.gate_cleared ? '<span class="pill lead">Gate cleared</span>' : ""} ${yours ? '<span class="pill gold">Your team</span>' : ""}</p>` : ""}
       <dl class="kv"><dt>Market</dt><dd>${typeof mk === "number" ? pct(mk) + ` for ${esc(fav)}` + (g.market.books ? ` <span class="muted">(${esc(g.market.books)} books)</span>` : "") : '<span class="muted">no line yet</span>'}</dd>
       <dt class="gk-dt">Goalies</dt><dd class="gk-dd">${goalieLine(g)}</dd>
       <dt>Rating gap</dt><dd>${num(g.delta, 1)} <span class="muted">RAA points</span></dd></dl>
@@ -744,7 +755,7 @@
     const g = games().find(x => x.home === ab || x.away === ab);
     // 1.15.0: once the game is final, the line gives the final score and whether the pick
     // won; before that, when the score arrives (finalDue)
-    const r = g && g.result, proj = g && g.projected ? [`Projected winner ${esc(g.projected)} ${pct(g.win_prob)}`, tierPill(g.tier)].filter(Boolean).join(" ") : "";
+    const r = g && g.result, proj = g && g.projected ? [`Projected winner ${esc(g.projected)} ${pct(g.win_prob)}`, tierPill(g.tier), marketFlag(g)].filter(Boolean).join(" ") : "";
     const per = r && r.last_period === "OT" ? " in overtime" : r && r.last_period === "SO" ? " in a shootout" : "";
     const tonight = !g ? `<p class="small muted">No game today.</p>`
       : r ? `<div class="today-line"><p class="small">Today: ${esc(g.away)} @ ${esc(g.home)}, final: ${esc(g.away)} ${esc(r.away_score)}, ${esc(g.home)} ${esc(r.home_score)}${per}.</p>${proj ? `<p class="row small">${proj} <span class="pill ${r.pick === "win" ? "win" : "loss"}">${r.pick === "win" ? "Win" : "Loss"}</span></p>` : ""}</div>`
@@ -946,6 +957,27 @@
       ${body}
       <p class="small muted">A standard error measures the lead against game-to-game luck. The bar is set at two because, in simulated NHL seasons, adopting smaller leads moved the model on noise and predicted the next games worse.</p></div>`;
   }
+  // 1.18.0: the market blend test, scored like the candidate on games it was not chosen from
+  function blendPanel(M) {
+    const B = M.market_blend;
+    if (!B || B.weight == null) return "";
+    const n = B.games || 0, minN = B.min_games || 40, req = Math.abs(B.required_t || 2), w = Math.round(B.weight * 100);
+    const lead = typeof B.t === "number" ? -B.t : 0, gain = B.mean_gain || 0;
+    const state = B.in_use ? "passed" : n < minN ? "testing" : lead <= 0 ? "behind" : "small";
+    const test = (ok, lab, body) => `<li class="${ok ? "ok" : "no"}"><span class="why-mark">${ok ? "Met" : "Not yet"}</span> <span>${lab}: ${body}</span></li>`;
+    const meter = Math.max(0, Math.min(100, lead / req * 100));
+    const verdict = { passed: `In use since ${esc(localStamp(String(B.adopted_utc || "").replace(" ", "T") + ":00Z"))}: where a game has a sportsbook line, the win percentages average the model (${w}%) and the market (${100 - w}%).`,
+      testing: "Not in use: it is still being tested.", behind: "Not in use: it predicts worse than the model alone.",
+      small: "Not in use: its lead is too small to trust yet." }[state];
+    const body = !n ? `<p>No game with a line has been settled since ${esc(shortDay(B.since))} yet.</p>`
+      : `<p>On ${esc(n)} settled games with a line since ${esc(shortDay(B.since))}, the blend's win probabilities were ${gain > 0 ? "better" : gain < 0 ? "worse" : "no different"} than the model's alone by ${num(Math.abs(gain), 5)} log loss per game (${num(Math.abs(gain) * n, 3)} in total).</p>`;
+    return `<section class="card"><h2 style="margin-top:0">Market blend test</h2>
+      <p class="small">Since ${esc(shortDay(B.since))}, every game with a sportsbook line is also scored as if the app had published the average of its own win probability and the market's (${w}% model, ${100 - w}% market). The blend goes into use only if it beats the model alone on at least ${esc(minN)} such games, by ${num(req, 1)} standard errors, the same rule the candidate settings face. Before ${esc(shortDay(B.since))} the market had predicted this season's games a little better, but not by a margin that rules out luck.</p>
+      <div class="why" data-state="${state}"><p class="why-verdict"><b>${verdict}</b></p>
+      <ul class="why-tests">${test(B.in_use || n >= minN, "Enough games", `<b>${esc(n)}</b> of ${esc(minN)} required.`)}${test(B.in_use || lead >= req, "A clear lead", lead > 0 ? `<b>${num(lead, 1)}</b> of ${num(req, 1)} standard errors required.` : n ? `behind by <b>${num(-lead, 1)}</b> standard errors; ${num(req, 1)} ahead required.` : `${num(req, 1)} standard errors required.`)}</ul>
+      <div class="why-meter" role="img" aria-label="Lead: ${num(Math.max(lead, 0), 1)} of ${num(req, 1)} standard errors"><i style="width:${(B.in_use ? 100 : meter).toFixed(1)}%"></i></div>
+      ${body}</div></section>`;
+  }
   function vModel() {
     const M = D.model || {}, L = M.learning || {}, cur = M.settings_in_use || {}, base = M.baseline || {}, cand = M.candidate || {};
     const names = ["P1 Form", "P2 Absence", "P3 Motivation", "P4 Goalie", "P5 Friction"];
@@ -969,6 +1001,7 @@
       <section class="card"><h2 style="margin-top:0">Learning</h2><p>${esc(L.games || 0)} settled games this season; next learning cycle at ${esc(L.next_at || "-")}. ${esc(L.cycles || 0)} cycles so far, ${esc(L.accepted_cycles || 0)} adopted.</p>${whyPanel(M, L) || `<p>${status}</p>`}
       ${L.last ? `<p class="small muted">Last cycle ${esc(L.last.cycle)}: ${esc(L.last.reason || "")}</p>` : ""}
       ${tbl(th("Setting") + th("In use", "n") + th("Candidate", "n") + th("Baseline", "n"), set)}${candNote}<p class="tiny muted">Baseline: the 2025-26 calibration on 1,312 games. A change is adopted only after it beats the settings in use on at least 40 games it was not fit on, by two standard errors of log loss.</p></section>
+      ${blendPanel(M)}
       <section class="card"><h2 style="margin-top:0">Calibration this season</h2><p class="small muted">How often the projected winner won in each probability band. A calibrated model's 60 percent picks win about 60 percent of the time; small bands swing a lot.</p>${cal ? tbl(th("Band") + th("Games", "n") + th("Average", "n") + th("Won", "n") + th(""), cal) : '<p class="muted">No games yet.</p>'}</section>`;
   }
 

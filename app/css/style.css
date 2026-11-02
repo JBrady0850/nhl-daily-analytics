@@ -146,6 +146,8 @@ table.standings tr.grp td { font: 600 1.05rem/1 var(--display); letter-spacing: 
   background: color-mix(in srgb, var(--board) 5%, var(--panel)); padding-top: 9px; }
 table.standings tr.cut td { border-top: 3px solid var(--redline); }
 .steam { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+/* 1.18.0: the market favors the other team */
+.pill.mkt { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--mod); }
 .pill.clinch { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px currentColor; text-transform: lowercase; padding: 2px 7px 0; }
 @media (max-width: 600px) { .seg.stand button { padding: 7px 8px 5px; font-size: 1.02rem; } }
 .teamline .tm { font-size: 1.3rem; }

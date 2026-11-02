@@ -174,6 +174,11 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
             learning = {"error": str(exc)[:160]}
             C._apply_learning(C._baseline_settings())
         try:
+            blend = C.market_blend(state_dir)         # 1.18.0: the market blend test
+        except Exception as exc:  # noqa: BLE001
+            problems.append(f"market blend: {exc}")
+            blend = {"in_use": False}
+        try:
             await C.refresh_master_list(f, season, state_dir)
         except Exception as exc:  # noqa: BLE001
             problems.append(f"player list: {exc}")
@@ -260,17 +265,23 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
             for e in engines:
                 key = f"{e.away}_vs_{e.home}"
                 wp = e.payload["home_team"].get("win_probability", {}) or {}
-                hwp = wp.get("home_win_prob")
                 mk = market.get(key) or {}
+                # 1.18.0: once the market blend has passed its test, a game with a line
+                # publishes the blend; the model's own number stays in model_home_win_prob
+                hwp, own = C.blend_game(wp.get("home_win_prob"), mk, blend)
+                conf, tier = (R.tier_for(hwp) if own is not None
+                              else (wp.get("confidence_pct"), wp.get("confidence_tier")))
                 g = {"game_id": e.m.get("game_id"), "matchup": f"{e.away} @ {e.home}",
                      "away": e.away, "home": e.home, "start_utc": e.m.get("start_utc"),
                      "venue": e.m.get("venue"), "state": e.m.get("game_state"),
-                     "home_win_prob": _r(hwp), "away_win_prob": _r(wp.get("away_win_prob")),
-                     "tier": wp.get("confidence_tier"), "confidence_pct": wp.get("confidence_pct"),
+                     "home_win_prob": _r(hwp), "away_win_prob": _r(1 - hwp) if hwp is not None else None,
+                     "tier": tier, "confidence_pct": conf,
                      "delta": _r(deltas[key], 2),
                      "gate_cleared": bool((gate.get("matchups", {}).get(key) or {}).get("authorized")),
                      "market": ({"home_prob": _r(mk.get("home_prob")), "away_prob": _r(mk.get("away_prob")),
                                  "books": mk.get("books")} if mk else None)}
+                if own is not None:
+                    g["model_home_win_prob"] = _r(own)
                 if hwp is not None:
                     g["projected"] = e.home if hwp >= 0.5 else e.away
                     g["win_prob"] = _r(hwp if hwp >= 0.5 else 1 - hwp)
@@ -318,6 +329,7 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
             json.dump({"date": target_date, "games": [
                 {"matchup": g["matchup"], "home_win_prob": g["home_win_prob"], "tier": g["tier"],
                  "gate_cleared": g["gate_cleared"], "market": g["market"],
+                 "model_home_win_prob": g.get("model_home_win_prob"),
                  "home_pillars": g["home_side"]["pillars"], "away_pillars": g["away_side"]["pillars"]}
                 for g in games if g.get("home_win_prob") is not None]},
                 open(os.path.join(state_dir, "slates", f"{target_date}.json"), "w", encoding="utf-8"), indent=1)
@@ -387,6 +399,7 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
                       "learning": {k: learning.get(k) for k in ("games", "next_at", "cycles", "accepted_cycles",
                                                                 "forward", "min_forward", "forward_t", "last",
                                                                 "candidate_from", "scores", "forward_max")},
+                      "market_blend": blend,
                       "calibration": std.get("calibration")},
             "dfs": {"skaters": top_sk, "goalies": top_g},
             "injuries": injuries,

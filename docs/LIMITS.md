@@ -9,7 +9,9 @@ What the app can and cannot do. Read this before you rely on a number.
   Model tab shows how often each probability band actually won.
 - The Results tab also compares the model with the betting market on games where the
   NHL score feed carried a line. The market has often been the better forecaster. The
-  model is shown for what it is, not as an edge.
+  model is shown for what it is, not as an edge. A card tags a game where the market
+  favors the other team, and since Nov 2, 2026 a 50/50 blend of model and market is
+  under test (Model tab); it is used only if it proves better on 40 or more games.
 - Early in the season the form factor leans on last season while each team has fewer
   than 5 games. The motivation factor (playoff race) stays off until 35 percent of the
   season has been played.

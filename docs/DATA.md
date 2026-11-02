@@ -50,7 +50,8 @@ Each game:
 | `home_win_prob`, `away_win_prob` | Both sides' probabilities. |
 | `tier`, `confidence_pct` | `HIGH` (58.5 percent or more), `MODERATE` (54.0 to 58.4) or `LOW`. |
 | `delta`, `gate_cleared` | The rating gap between the teams and whether it reached the day's gate. |
-| `market` | `home_prob`, `away_prob` and `books`: the sportsbook consensus from the NHL score feed, margin removed. Comparison only. `null` when the feed has no lines. |
+| `market` | `home_prob`, `away_prob` and `books`: the sportsbook consensus from the NHL score feed, margin removed. For comparison, and for the market blend once it passes its test (see `model.market_blend`). `null` when the feed has no lines. |
+| `model_home_win_prob` | Only when the market blend is in use and the game has a line: the model's own home win probability; `home_win_prob`, `away_win_prob`, `projected`, `win_prob`, `tier` and `confidence_pct` then follow the blend. |
 | `pick_locked` | `true` when the game had started by this update, so its pick and every other prediction field come from the last update before puck drop. A later update never changes or grades a different pick. |
 | `result` | Only for a game that was over at this update: `away_score`, `home_score`, `last_period` (`REG`, `OT` or `SO`), `winner`, and `pick` (`win` or `loss`). The season record in `results` counts the game the next morning. |
 | `home_side`, `away_side` | `raa` (team score), `pillars` (`p1_form`, `p2_absence`, `p3_motivation`, `p4_gvi`, `p5_friction`, `adj_raa`), `form`, `goalie`, `absences`. |
@@ -138,6 +139,7 @@ Trophy, `e` eliminated, or `null`).
 | --- | --- |
 | `settings_in_use`, `baseline`, `candidate` | `h` (home ice in rating points), `k` (logistic slope) and `w` (the five pillar weights). `candidate` is the setting under test, proposed at the last learning cycle; `null` before the first cycle. |
 | `learning` | `games`, `next_at`, `cycles`, `accepted_cycles`, `forward` (the candidate's score on unseen games: `games`, `mean_gain`, `t`, `passed`), `min_forward`, `forward_t` (the lead required, in standard errors, negative), `forward_max` (the latest games the record keeps), `last`, `candidate_from` (settled games when the candidate was proposed) and `scores` (`in_use`, `candidate`, `baseline`, each `log_loss`, `brier` and `accuracy` on this season's settled games at the last cycle; the candidate was fit on those games). |
+| `market_blend` | The market blend test (1.18.0): `weight` (the model's share, 0.5), `since` (only games played from this date count), `in_use`, `adopted_utc`, `games` (settled games with a line since `since`), `mean_gain` (log loss per game, positive when the blend did better than the published probability), `t`, `min_games` (40) and `required_t` (-2.0). Once `in_use`, the test stays as it stood when it passed. |
 | `calibration` | Probability bands: `lo`, `hi`, `games`, `correct`, `hit_rate`, `mean_prob`. |
 
 ## `injuries`

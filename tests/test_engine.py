@@ -1161,3 +1161,59 @@ def test_goalie_report_time_and_strength_reach_the_data_file():
     assert (g["reported_by"], g["reported_at"], g["report_strength"]) == ("Jordan McPherson", "2026-11-02T15:51:50.102Z", "Confirmed")
     g = _goalie({"name": "Daniil Tarasov", "source": "DFO_PROJECTED", "intel": {"reported_by": None, "reported_at": None}})
     assert g["reported_at"] is None and g["report_strength"] is None
+
+
+# ---------- 1.18.0: the market blend test (John, 2026-11-02) ----------
+def _blend_ledger(tmp_path, rows):
+    from nhlda import core as C
+    C._append_ledger(str(tmp_path), [dict({k: "" for k in C.LEDGER_FIELDS}, **r) for r in rows])
+
+
+def test_market_blend_counts_only_games_with_a_line_from_its_start_date(tmp_path):
+    from nhlda import core as C
+    _blend_ledger(tmp_path, [
+        # before the blend was chosen: never counted
+        {"date": "2026-11-01", "matchup": "UTA @ PHI", "projected": "UTA", "win_prob": 0.59, "market_prob": 0.59, "correct": 0},
+        # Detroit at Florida: the model 53% on Detroit, the market 37.9%; Florida wins
+        {"date": "2026-11-02", "matchup": "DET @ FLA", "projected": "DET", "win_prob": 0.5303, "market_prob": 0.3787, "correct": 0},
+        {"date": "2026-11-02", "matchup": "VGK @ BOS", "projected": "BOS", "win_prob": 0.60, "market_prob": "", "correct": 1}])
+    d = C.blend_deltas(C.read_ledger(str(tmp_path)))
+    import math
+    want = -math.log(1 - (0.5 * 0.5303 + 0.5 * 0.3787)) + math.log(1 - 0.5303)
+    assert len(d) == 1 and abs(d[0] - want) < 1e-9 and d[0] < 0      # the blend did better on it
+    b = C.market_blend(str(tmp_path))
+    assert (b["games"], b["in_use"], b["weight"], b["since"], b["min_games"], b["required_t"]) == (1, False, 0.5, "2026-11-02", 40, -2.0)
+
+
+def test_market_blend_goes_into_use_only_after_a_clear_lead_and_stays(tmp_path):
+    from nhlda import core as C
+    rows = []
+    for i in range(45):          # the market is right far more often than the model's 56% picks
+        won = i % 4 == 0         # 12 of 45
+        rows.append({"date": "2026-11-%02d" % (3 + i // 10), "matchup": f"G{i}", "projected": "X",
+                     "win_prob": 0.56, "market_prob": 0.40, "correct": int(won)})
+    _blend_ledger(tmp_path, rows[:30])
+    b = C.market_blend(str(tmp_path))
+    assert not b["in_use"] and b["games"] == 30                      # 40 games are required
+    _blend_ledger(tmp_path, rows[30:])
+    b = C.market_blend(str(tmp_path), now_utc="2026-11-08 15:01")
+    assert b["in_use"] and b["adopted_utc"] == "2026-11-08 15:01" and b["games"] == 45 and b["t"] < -2.0
+    # once in use the test stands as it passed, whatever settles later
+    _blend_ledger(tmp_path, [dict(rows[0], matchup="later", correct=1)] * 30)
+    again = C.market_blend(str(tmp_path))
+    assert again["in_use"] and again["games"] == 45 and again["t"] == b["t"]
+    assert json.load(open(tmp_path / "learning.json"))["market_blend"]["adopted_utc"] == "2026-11-08 15:01"
+
+
+def test_blend_game_publishes_the_average_only_when_in_use_and_a_line_exists():
+    from nhlda import core as C, raa_core as R
+    off, on = {"in_use": False, "weight": 0.5}, {"in_use": True, "weight": 0.5}
+    mk = {"home_prob": 0.6213, "away_prob": 0.3787}
+    assert C.blend_game(0.4697, mk, off) == (0.4697, None)
+    assert C.blend_game(0.4697, None, on) == (0.4697, None)
+    p, own = C.blend_game(0.4697, mk, on)
+    assert own == 0.4697 and abs(p - 0.5455) < 1e-9              # Florida 54.6% instead of 47.0%
+    assert R.tier_for(p) == (9.1, "MODERATE") and R.tier_for(0.53) == (6.0, "LOW") and R.tier_for(0.6) == (20.0, "HIGH")
+    # the tiers match the model's own
+    w = R.compute_win_probability(60.0, 55.0)
+    assert R.tier_for(w["home_win_prob"]) == (w["confidence_pct"], w["confidence_tier"])

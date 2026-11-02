@@ -3,7 +3,9 @@ window.NDA_GLOSSARY = [
   ["Win %", "The model's win probability for the projected winner (the team it favors)."],
   ["Tier", "Confidence from the win probability: HIGH when the favorite is at 58.5 percent or more, MODERATE at 54.0 to 58.4, LOW below 54.0."],
   ["Gate", "Information only. CLEARED when the rating gap between the teams reaches the day's gate: 70 percent of the slate's largest gap, never below 13 rating points, and at most 40 percent of the slate. In the 2025-26 calibration, picks that cleared a 13-point gate were right about 64 percent of the time."],
-  ["Market %", "The sportsbook consensus win probability for the same team: each book's two moneylines with the margin removed, the median across books. Shown for comparison only; it never enters the model."],
+  ["Market %", "The sportsbook consensus win probability for the same team: each book's two moneylines with the margin removed, the median across books. Shown for comparison; it enters the win percentages only if the market blend passes its test (Model tab)."],
+  ["Market favors (team, %)", "On a game card: the sportsbooks' consensus line favors the other team, so the market and the pick disagree. Hover over or tap the tag for the market's number."],
+  ["Market blend test (Model tab)", "Since Nov 2, 2026, each game with a sportsbook line is also scored as if the app had published the average of its own win probability and the market's. The blend goes into use only after it beats the model alone on at least 40 such games by two standard errors of log loss, the same rule the candidate settings face."],
   ["RAA", "Relative Advantage Assessment: the five-pillar team score on a neutral 50.0 baseline. The gap between two teams' scores, plus home ice, sets the win probability."],
   ["P1 Form", "Shot share over the last 5 games and the season (blended with expected-goal share), season goal differential per game, the home or road split, and a small last-3-games term."],
   ["P2 Absence", "Rating points lost to regular players who are out: missed the last game or listed on the injury report, weighted by their share of ice time and scoring."],
@@ -190,7 +192,7 @@ window.NDA_TIPS = {
   dt: {
     "Schedule": "When the free GitHub workflow builds new data: 9:00 AM and 4:45 PM US Central time, all year, shown in this device's time. A run can still arrive a few minutes late; backup runs in the hours after each time fill in for a missed one.",
     "Next update": "When to expect newer data. While an update is due, the open app checks for the new file every few minutes and loads it on its own; the Check for newer data button checks right away.",
-    "Market": "The sportsbook consensus win probability for the projected winner: each book's two moneylines with the margin removed, the median across books. For comparison only; it never enters the model.",
+    "Market": "The sportsbook consensus win probability for the projected winner: each book's two moneylines with the margin removed, the median across books. For comparison; it enters the win percentages only if the market blend passes its test (Model tab).",
     "Rating gap": "The difference between the two teams' RAA scores, in rating points. A bigger gap means a stronger favorite."
   },
   pos: {

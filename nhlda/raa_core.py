@@ -268,6 +268,12 @@ def compute_raa(inputs):
     return pillars, recovery
 
 
+def tier_for(p_home):
+    """(confidence_pct, tier) for a home win probability, as compute_win_probability sets them."""
+    conf = abs(p_home - 0.5) * 200
+    return round(conf, 1), ("HIGH" if conf >= 17 else ("MODERATE" if conf >= 8 else "LOW"))
+
+
 def compute_win_probability(home_adj_raa, away_adj_raa):
     delta = (home_adj_raa + HOME_ADVANTAGE) - away_adj_raa
     p_home = 1.0 / (1.0 + math.exp(-_clamp(WIN_PROB_K * delta, -30, 30)))
