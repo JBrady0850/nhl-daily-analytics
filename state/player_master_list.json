@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-02",
-"count": 798,
+"count": 797,
 "players": [
 {
 "team": "ANA",
@@ -68,13 +68,6 @@
 },
 {
 "team": "ANA",
-"name": "Nick Jensen",
-"player_id": "8475324",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "ANA",
 "name": "Noah Warren",
 "player_id": "8483521",
 "position": "D",
@@ -107,6 +100,13 @@
 "player_id": "8482731",
 "position": "D",
 "role": "skater"
+},
+{
+"team": "ANA",
+"name": "Laurent Brossoit",
+"player_id": "8476316",
+"position": "G",
+"role": "goalie"
 },
 {
 "team": "ANA",
@@ -175,13 +175,6 @@
 "team": "ANA",
 "name": "Judd Caulfield",
 "player_id": "8481538",
-"position": "R",
-"role": "skater"
-},
-{
-"team": "ANA",
-"name": "Nikita Klepov",
-"player_id": "8486052",
 "position": "R",
 "role": "skater"
 },
@@ -3309,6 +3302,13 @@
 },
 {
 "team": "NYR",
+"name": "Jaroslav Chmelar",
+"player_id": "8482877",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "NYR",
 "name": "Oliver Bjorkstrand",
 "player_id": "8477416",
 "position": "R",
@@ -3318,13 +3318,6 @@
 "team": "NYR",
 "name": "Pavel Dorofeyev",
 "player_id": "8481604",
-"position": "R",
-"role": "skater"
-},
-{
-"team": "NYR",
-"name": "Taylor Raddysh",
-"player_id": "8479390",
 "position": "R",
 "role": "skater"
 },
