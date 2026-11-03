@@ -3512,13 +3512,6 @@
 },
 {
 "team": "PHI",
-"name": "Jack Studnicka",
-"player_id": "8480021",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "PHI",
 "name": "Noel Acciari",
 "player_id": "8478569",
 "position": "C",
@@ -4109,6 +4102,13 @@
 "team": "SJS",
 "name": "Dmitry Orlov",
 "player_id": "8475200",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Eric Pohlkamp",
+"player_id": "8484421",
 "position": "D",
 "role": "skater"
 },
