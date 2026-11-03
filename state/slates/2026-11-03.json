@@ -7,8 +7,8 @@
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.3619,
-    "away_prob": 0.6381,
+    "home_prob": 0.3615,
+    "away_prob": 0.6385,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -35,8 +35,8 @@
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.3883,
-    "away_prob": 0.6117,
+    "home_prob": 0.3818,
+    "away_prob": 0.6182,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -175,8 +175,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4675,
-    "away_prob": 0.5325,
+    "home_prob": 0.4683,
+    "away_prob": 0.5317,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -259,8 +259,8 @@
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5,
-    "away_prob": 0.5,
+    "home_prob": 0.5032,
+    "away_prob": 0.4968,
     "books": 6
    },
    "model_home_win_prob": null,
