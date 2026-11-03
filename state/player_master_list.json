@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-03",
-"count": 797,
+"count": 798,
 "players": [
 {
 "team": "ANA",
@@ -1183,6 +1183,13 @@
 "team": "CHI",
 "name": "Andrew Mangiapane",
 "player_id": "8478233",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Dillon Boucher",
+"player_id": "8485554",
 "position": "L",
 "role": "skater"
 },
