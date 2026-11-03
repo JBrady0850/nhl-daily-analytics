@@ -2272,13 +2272,6 @@
 "role": "skater"
 },
 {
-"team": "LAK",
-"name": "Taylor Ward",
-"player_id": "8483406",
-"position": "R",
-"role": "skater"
-},
-{
 "team": "MIN",
 "name": "Joel Eriksson Ek",
 "player_id": "8478493",
@@ -3731,6 +3724,13 @@
 "team": "PIT",
 "name": "Ilya Solovyov",
 "player_id": "8482470",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Jake Livanavage",
+"player_id": "8486169",
 "position": "D",
 "role": "skater"
 },
