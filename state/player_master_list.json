@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-03",
-"count": 798,
+"count": 799,
 "players": [
 {
 "team": "ANA",
@@ -2114,6 +2114,13 @@
 "team": "LAK",
 "name": "Alex Turcotte",
 "player_id": "8481532",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Kenny Connors",
+"player_id": "8483675",
 "position": "C",
 "role": "skater"
 },
