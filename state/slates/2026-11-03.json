@@ -59,7 +59,7 @@
   },
   {
    "matchup": "ANA @ VAN",
-   "home_win_prob": 0.4006,
+   "home_win_prob": 0.3904,
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
@@ -80,9 +80,9 @@
     "p1_form": -6.284,
     "p2_absence": -2.85,
     "p3_motivation": 0.0,
-    "p4_gvi": -4.974,
+    "p4_gvi": -3.333,
     "p5_friction": -0.555,
-    "adj_raa": 35.338
+    "adj_raa": 36.978
    }
   },
   {
