@@ -35,8 +35,8 @@
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.3815,
-    "away_prob": 0.6185,
+    "home_prob": 0.3827,
+    "away_prob": 0.6173,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -63,8 +63,8 @@
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4148,
-    "away_prob": 0.5852,
+    "home_prob": 0.4123,
+    "away_prob": 0.5877,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -91,8 +91,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5869,
-    "away_prob": 0.4131,
+    "home_prob": 0.5916,
+    "away_prob": 0.4084,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -119,8 +119,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.6073,
-    "away_prob": 0.3927,
+    "home_prob": 0.608,
+    "away_prob": 0.392,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -147,8 +147,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.6985,
-    "away_prob": 0.3015,
+    "home_prob": 0.7032,
+    "away_prob": 0.2968,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -175,8 +175,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4388,
-    "away_prob": 0.5612,
+    "home_prob": 0.438,
+    "away_prob": 0.562,
     "books": 5
    },
    "model_home_win_prob": null,
@@ -203,8 +203,8 @@
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5207,
-    "away_prob": 0.4793,
+    "home_prob": 0.5216,
+    "away_prob": 0.4784,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -231,8 +231,8 @@
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4667,
-    "away_prob": 0.5333,
+    "home_prob": 0.4677,
+    "away_prob": 0.5323,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -287,8 +287,8 @@
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5092,
-    "away_prob": 0.4908,
+    "home_prob": 0.5097,
+    "away_prob": 0.4903,
     "books": 6
    },
    "model_home_win_prob": null,
