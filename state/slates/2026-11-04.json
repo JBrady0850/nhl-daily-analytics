@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "CHI @ FLA",
-   "home_win_prob": 0.6471,
+   "home_win_prob": 0.6673,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.6896,
-    "away_prob": 0.3104,
+    "home_prob": 0.6908,
+    "away_prob": 0.3092,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -22,16 +22,16 @@
    },
    "away_pillars": {
     "p1_form": -13.106,
-    "p2_absence": -2.234,
+    "p2_absence": -5.668,
     "p3_motivation": 0.0,
     "p4_gvi": 0.303,
     "p5_friction": 0.0,
-    "adj_raa": 34.963
+    "adj_raa": 31.529
    }
   },
   {
    "matchup": "OTT @ BUF",
-   "home_win_prob": 0.5934,
+   "home_win_prob": 0.6063,
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
@@ -50,11 +50,11 @@
    },
    "away_pillars": {
     "p1_form": -5.851,
-    "p2_absence": -3.418,
+    "p2_absence": -5.464,
     "p3_motivation": 0.0,
     "p4_gvi": -4.776,
     "p5_friction": -0.555,
-    "adj_raa": 35.4
+    "adj_raa": 33.354
    }
   },
   {

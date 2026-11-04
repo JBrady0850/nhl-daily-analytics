@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-04",
-"count": 797,
+"count": 796,
 "players": [
 {
 "team": "ANA",
@@ -5432,13 +5432,6 @@
 "team": "WSH",
 "name": "Cole Hutson",
 "player_id": "8484873",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "WSH",
-"name": "Dylan McIlrath",
-"player_id": "8475795",
 "position": "D",
 "role": "skater"
 },
