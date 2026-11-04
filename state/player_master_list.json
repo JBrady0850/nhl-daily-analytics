@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-04",
-"count": 797,
+"count": 794,
 "players": [
 {
 "team": "ANA",
@@ -5164,13 +5164,6 @@
 },
 {
 "team": "VGK",
-"name": "Viliam Kmec",
-"player_id": "8485138",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "VGK",
 "name": "Adin Hill",
 "player_id": "8478499",
 "position": "G",
@@ -5213,13 +5206,6 @@
 },
 {
 "team": "VGK",
-"name": "Jonas Rondbjerg",
-"player_id": "8480007",
-"position": "R",
-"role": "skater"
-},
-{
-"team": "VGK",
 "name": "Mark Stone",
 "player_id": "8475913",
 "position": "R",
@@ -5236,13 +5222,6 @@
 "team": "WPG",
 "name": "Adam Lowry",
 "player_id": "8476392",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "WPG",
-"name": "Brad Lambert",
-"player_id": "8483471",
 "position": "C",
 "role": "skater"
 },
