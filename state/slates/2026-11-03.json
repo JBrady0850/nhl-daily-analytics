@@ -3,22 +3,22 @@
  "games": [
   {
    "matchup": "CAR @ NSH",
-   "home_win_prob": 0.3413,
+   "home_win_prob": 0.3294,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.3621,
-    "away_prob": 0.6379,
+    "home_prob": 0.364,
+    "away_prob": 0.636,
     "books": 6
    },
    "model_home_win_prob": null,
    "home_pillars": {
     "p1_form": -0.503,
-    "p2_absence": -3.007,
+    "p2_absence": -5.053,
     "p3_motivation": 0.0,
     "p4_gvi": 0.605,
     "p5_friction": 0.555,
-    "adj_raa": 47.651
+    "adj_raa": 45.605
    },
    "away_pillars": {
     "p1_form": 20.0,
@@ -63,8 +63,8 @@
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.3722,
-    "away_prob": 0.6278,
+    "home_prob": 0.3738,
+    "away_prob": 0.6262,
     "books": 6
    },
    "model_home_win_prob": null,
