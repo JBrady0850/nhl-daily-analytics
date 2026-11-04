@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-04",
-"count": 796,
+"count": 797,
 "players": [
 {
 "team": "ANA",
@@ -5159,6 +5159,13 @@
 "team": "VGK",
 "name": "Shea Theodore",
 "player_id": "8477447",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Viliam Kmec",
+"player_id": "8485138",
 "position": "D",
 "role": "skater"
 },
