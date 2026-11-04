@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-04",
-"count": 799,
+"count": 797,
 "players": [
 {
 "team": "ANA",
@@ -1314,13 +1314,6 @@
 },
 {
 "team": "COL",
-"name": "Keaton Middleton",
-"player_id": "8479387",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "COL",
 "name": "Noah Juulsen",
 "player_id": "8478454",
 "position": "D",
@@ -2289,13 +2282,6 @@
 "team": "MIN",
 "name": "Joel Eriksson Ek",
 "player_id": "8478493",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "MIN",
-"name": "Mason Shaw",
-"player_id": "8479972",
 "position": "C",
 "role": "skater"
 },

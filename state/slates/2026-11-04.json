@@ -1,0 +1,117 @@
+{
+ "date": "2026-11-04",
+ "games": [
+  {
+   "matchup": "CHI @ FLA",
+   "home_win_prob": 0.6471,
+   "tier": "HIGH",
+   "gate_cleared": true,
+   "market": {
+    "home_prob": 0.6896,
+    "away_prob": 0.3104,
+    "books": 6
+   },
+   "model_home_win_prob": null,
+   "home_pillars": {
+    "p1_form": 9.951,
+    "p2_absence": -0.68,
+    "p3_motivation": 0.0,
+    "p4_gvi": -2.143,
+    "p5_friction": 0.0,
+    "adj_raa": 57.128
+   },
+   "away_pillars": {
+    "p1_form": -13.106,
+    "p2_absence": -2.234,
+    "p3_motivation": 0.0,
+    "p4_gvi": 0.303,
+    "p5_friction": 0.0,
+    "adj_raa": 34.963
+   }
+  },
+  {
+   "matchup": "OTT @ BUF",
+   "home_win_prob": 0.5934,
+   "tier": "HIGH",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.5381,
+    "away_prob": 0.4619,
+    "books": 6
+   },
+   "model_home_win_prob": null,
+   "home_pillars": {
+    "p1_form": 0.93,
+    "p2_absence": -2.353,
+    "p3_motivation": 0.0,
+    "p4_gvi": -0.311,
+    "p5_friction": 0.555,
+    "adj_raa": 48.821
+   },
+   "away_pillars": {
+    "p1_form": -5.851,
+    "p2_absence": -3.418,
+    "p3_motivation": 0.0,
+    "p4_gvi": -4.776,
+    "p5_friction": -0.555,
+    "adj_raa": 35.4
+   }
+  },
+  {
+   "matchup": "CGY @ SEA",
+   "home_win_prob": 0.4273,
+   "tier": "MODERATE",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.5506,
+    "away_prob": 0.4494,
+    "books": 6
+   },
+   "model_home_win_prob": null,
+   "home_pillars": {
+    "p1_form": -11.2,
+    "p2_absence": -4.305,
+    "p3_motivation": 0.0,
+    "p4_gvi": -7.145,
+    "p5_friction": 1.665,
+    "adj_raa": 29.016
+   },
+   "away_pillars": {
+    "p1_form": -5.931,
+    "p2_absence": -0.659,
+    "p3_motivation": 0.0,
+    "p4_gvi": -0.442,
+    "p5_friction": -1.665,
+    "adj_raa": 41.303
+   }
+  },
+  {
+   "matchup": "SJS @ LAK",
+   "home_win_prob": 0.5516,
+   "tier": "MODERATE",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.5923,
+    "away_prob": 0.4077,
+    "books": 6
+   },
+   "model_home_win_prob": null,
+   "home_pillars": {
+    "p1_form": -1.139,
+    "p2_absence": -4.916,
+    "p3_motivation": 0.0,
+    "p4_gvi": -0.585,
+    "p5_friction": 1.11,
+    "adj_raa": 44.47
+   },
+   "away_pillars": {
+    "p1_form": -12.145,
+    "p2_absence": -3.61,
+    "p3_motivation": 0.0,
+    "p4_gvi": 4.469,
+    "p5_friction": -1.11,
+    "adj_raa": 37.604
+   }
+  }
+ ]
+}
