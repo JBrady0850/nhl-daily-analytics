@@ -30,8 +30,36 @@
    }
   },
   {
+   "matchup": "UTA @ MTL",
+   "home_win_prob": 0.331,
+   "tier": "HIGH",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.473,
+    "away_prob": 0.527,
+    "books": 5
+   },
+   "model_home_win_prob": null,
+   "home_pillars": {
+    "p1_form": -13.763,
+    "p2_absence": -5.445,
+    "p3_motivation": 0.0,
+    "p4_gvi": -7.37,
+    "p5_friction": 0.0,
+    "adj_raa": 23.422
+   },
+   "away_pillars": {
+    "p1_form": 5.359,
+    "p2_absence": -3.049,
+    "p3_motivation": 0.0,
+    "p4_gvi": -0.849,
+    "p5_friction": 0.0,
+    "adj_raa": 51.461
+   }
+  },
+  {
    "matchup": "STL @ NJD",
-   "home_win_prob": 0.6186,
+   "home_win_prob": 0.6317,
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
@@ -44,9 +72,9 @@
     "p1_form": 13.007,
     "p2_absence": 1.862,
     "p3_motivation": 0.0,
-    "p4_gvi": -2.219,
+    "p4_gvi": -0.072,
     "p5_friction": 0.0,
-    "adj_raa": 62.65
+    "adj_raa": 64.798
    },
    "away_pillars": {
     "p1_form": -3.762,
@@ -86,34 +114,6 @@
    }
   },
   {
-   "matchup": "UTA @ MTL",
-   "home_win_prob": 0.3999,
-   "tier": "HIGH",
-   "gate_cleared": false,
-   "market": {
-    "home_prob": 0.4739,
-    "away_prob": 0.5261,
-    "books": 5
-   },
-   "model_home_win_prob": null,
-   "home_pillars": {
-    "p1_form": -13.763,
-    "p2_absence": -5.445,
-    "p3_motivation": 0.0,
-    "p4_gvi": 4.039,
-    "p5_friction": 0.0,
-    "adj_raa": 34.831
-   },
-   "away_pillars": {
-    "p1_form": 5.359,
-    "p2_absence": -3.049,
-    "p3_motivation": 0.0,
-    "p4_gvi": -0.849,
-    "p5_friction": 0.0,
-    "adj_raa": 51.461
-   }
-  },
-  {
    "matchup": "NSH @ COL",
    "home_win_prob": 0.5991,
    "tier": "HIGH",
@@ -147,8 +147,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.3785,
-    "away_prob": 0.6215,
+    "home_prob": 0.3771,
+    "away_prob": 0.6229,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -287,8 +287,8 @@
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5733,
-    "away_prob": 0.4267,
+    "home_prob": 0.5732,
+    "away_prob": 0.4268,
     "books": 6
    },
    "model_home_win_prob": null,
