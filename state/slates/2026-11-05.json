@@ -7,8 +7,8 @@
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.7768,
-    "away_prob": 0.2232,
+    "home_prob": 0.777,
+    "away_prob": 0.223,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -35,8 +35,8 @@
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4679,
-    "away_prob": 0.5321,
+    "home_prob": 0.4742,
+    "away_prob": 0.5258,
     "books": 5
    },
    "model_home_win_prob": null,
@@ -63,8 +63,8 @@
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.6404,
-    "away_prob": 0.3596,
+    "home_prob": 0.652,
+    "away_prob": 0.348,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -91,8 +91,8 @@
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.6236,
-    "away_prob": 0.3764,
+    "home_prob": 0.6244,
+    "away_prob": 0.3756,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -147,8 +147,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.374,
-    "away_prob": 0.626,
+    "home_prob": 0.3751,
+    "away_prob": 0.6249,
     "books": 6
    },
    "model_home_win_prob": null,
