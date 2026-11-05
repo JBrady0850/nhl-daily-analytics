@@ -35,8 +35,8 @@
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.6594,
-    "away_prob": 0.3406,
+    "home_prob": 0.6598,
+    "away_prob": 0.3402,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -119,8 +119,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.3718,
-    "away_prob": 0.6282,
+    "home_prob": 0.3702,
+    "away_prob": 0.6298,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -227,7 +227,7 @@
   },
   {
    "matchup": "ANA @ EDM",
-   "home_win_prob": 0.5627,
+   "home_win_prob": 0.5414,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
@@ -248,9 +248,9 @@
     "p1_form": -3.637,
     "p2_absence": -4.257,
     "p3_motivation": 0.0,
-    "p4_gvi": -4.974,
+    "p4_gvi": -1.68,
     "p5_friction": 0.0,
-    "adj_raa": 37.132
+    "adj_raa": 40.426
    }
   },
   {
@@ -259,8 +259,8 @@
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4969,
-    "away_prob": 0.5031,
+    "home_prob": 0.4964,
+    "away_prob": 0.5036,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -287,8 +287,8 @@
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5713,
-    "away_prob": 0.4287,
+    "home_prob": 0.5725,
+    "away_prob": 0.4275,
     "books": 6
    },
    "model_home_win_prob": null,

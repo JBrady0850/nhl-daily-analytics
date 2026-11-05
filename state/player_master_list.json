@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-05",
-"count": 794,
+"count": 795,
 "players": [
 {
 "team": "ANA",
@@ -3976,6 +3976,13 @@
 "team": "SEA",
 "name": "Jacob Melanson",
 "player_id": "8482874",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Jagger Firkus",
+"player_id": "8483442",
 "position": "R",
 "role": "skater"
 },
