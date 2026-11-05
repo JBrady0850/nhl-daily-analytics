@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-05",
-"count": 793,
+"count": 794,
 "players": [
 {
 "team": "ANA",
@@ -3003,6 +3003,13 @@
 "team": "NYI",
 "name": "Alexander Romanov",
 "player_id": "8481014",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Ben Hutton",
+"player_id": "8477018",
 "position": "D",
 "role": "skater"
 },
