@@ -35,8 +35,8 @@
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5342,
-    "away_prob": 0.4658,
+    "home_prob": 0.5358,
+    "away_prob": 0.4642,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -63,8 +63,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5487,
-    "away_prob": 0.4513,
+    "home_prob": 0.5421,
+    "away_prob": 0.4579,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -91,8 +91,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5992,
-    "away_prob": 0.4008,
+    "home_prob": 0.5978,
+    "away_prob": 0.4022,
     "books": 6
    },
    "model_home_win_prob": null,
