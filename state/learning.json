@@ -22,17 +22,17 @@
   ]
  },
  "candidate": {
-  "k": 0.026254,
+  "k": 0.026172,
   "h": 1.571,
   "w": [
-   1.0179,
-   0.9174,
-   0.9941,
-   0.9911,
-   1.0795
+   1.0215,
+   0.9143,
+   0.9972,
+   0.9815,
+   1.0855
   ]
  },
- "candidate_from": 246,
+ "candidate_from": 250,
  "forward": [
   0.009731,
   0.007758,
@@ -263,9 +263,13 @@
   -0.006283,
   -0.014003,
   0.007517,
-  0.018965
+  0.018965,
+  -0.005895,
+  0.008138,
+  -0.014437,
+  -0.012532
  ],
- "next_at": 250,
+ "next_at": 260,
  "history": [
   {
    "cycle": 1,
@@ -2058,6 +2062,81 @@
      "log_loss": 0.6581,
      "brier": 0.2333,
      "accuracy": 0.5813
+    }
+   }
+  },
+  {
+   "cycle": 23,
+   "utc": "2026-11-05 15:00",
+   "games": 250,
+   "new_games_scored": 4,
+   "accepted": false,
+   "reason": "candidate ahead of the settings in use on 234 unseen games (0.7 standard errors, 2.0 required); kept the settings in use",
+   "forward": {
+    "games": 234,
+    "mean_gain": 0.0004,
+    "t": -0.66,
+    "passed": false
+   },
+   "before": {
+    "k": 0.0261,
+    "h": 1.071,
+    "w": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "after": {
+    "k": 0.0261,
+    "h": 1.071,
+    "w": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "tested": {
+    "k": 0.026254,
+    "h": 1.571,
+    "w": [
+     1.0179,
+     0.9174,
+     0.9941,
+     0.9911,
+     1.0795
+    ]
+   },
+   "candidate": {
+    "k": 0.026172,
+    "h": 1.571,
+    "w": [
+     1.0215,
+     0.9143,
+     0.9972,
+     0.9815,
+     1.0855
+    ]
+   },
+   "scores": {
+    "in_use": {
+     "log_loss": 0.6587,
+     "brier": 0.2336,
+     "accuracy": 0.58
+    },
+    "candidate": {
+     "log_loss": 0.6572,
+     "brier": 0.2329,
+     "accuracy": 0.58
+    },
+    "baseline": {
+     "log_loss": 0.6587,
+     "brier": 0.2336,
+     "accuracy": 0.58
     }
    }
   }

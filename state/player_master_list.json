@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-05",
-"count": 793,
+"count": 795,
 "players": [
 {
 "team": "ANA",
@@ -1666,6 +1666,13 @@
 "team": "DET",
 "name": "John Gibson",
 "player_id": "8476434",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "DET",
+"name": "Michal Postava",
+"player_id": "8485545",
 "position": "G",
 "role": "goalie"
 },
@@ -5215,6 +5222,13 @@
 "team": "WPG",
 "name": "Adam Lowry",
 "player_id": "8476392",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Brayden Yager",
+"player_id": "8484242",
 "position": "C",
 "role": "skater"
 },
