@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-05",
-"count": 795,
+"count": 794,
 "players": [
 {
 "team": "ANA",
@@ -961,13 +961,6 @@
 "player_id": "8484768",
 "position": "D",
 "role": "skater"
-},
-{
-"team": "CGY",
-"name": "Arsenii Sergeev",
-"player_id": "8482949",
-"position": "G",
-"role": "goalie"
 },
 {
 "team": "CGY",
