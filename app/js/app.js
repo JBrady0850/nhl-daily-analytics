@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.18.2";
+  const APP_VERSION = "1.19.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -691,11 +691,46 @@
     });
     return out;
   }
-  function gsRow(p, lo, span) {
+  // 1.19.0 (John, 2026-11-05: "for the graph for my teams also include a trend line for
+  // the performance help or hurt to identify players that are dragging down the team"):
+  // each skater's Game Score in each of his team's last ten games, oldest on the left,
+  // with the zero line, his straight-line trend and his average; DRAGGING when he
+  // averaged below zero over at least five of them and the trend is not climbing
+  const TREND_W = 100, TREND_H = 30;
+  function trendScale(sk) {
+    const v = sk.flatMap(p => ((p.trend || {}).g || []).filter(x => typeof x === "number"));
+    let lo = Math.min(-0.5, ...v), hi = Math.max(1, ...v);
+    lo = Math.max(lo, -1.5); hi = Math.min(hi, 2.5);          // one wild night must not flatten the rest
+    return { lo, hi };
+  }
+  function gsTrend(p, sc, games) {
+    const t = p.trend;
+    if (!t || !Array.isArray(t.g) || !t.n) return `<span class="gs-trend none small muted">-</span>`;
+    const k = t.g.length, xs = i => k < 2 ? TREND_W / 2 : 3 + i * (TREND_W - 6) / (k - 1);
+    const ys = v => { const c = Math.min(sc.hi, Math.max(sc.lo, v)); return 2 + (sc.hi - c) / (sc.hi - sc.lo) * (TREND_H - 4); };
+    const pts = t.g.map((v, i) => typeof v === "number" ? [xs(i), ys(v)] : null).filter(Boolean);
+    const line = pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+    const played = t.g.map((v, i) => [i, v]).filter(([, v]) => typeof v === "number");
+    let fit = "";
+    if (typeof t.slope === "number" && played.length >= 2) {
+      const mx = played.reduce((a, [i]) => a + i, 0) / played.length, i0 = played[0][0], i1 = played[played.length - 1][0];
+      const at = i => t.avg + t.slope * (i - mx);
+      fit = `<line class="tr-fit" x1="${xs(i0).toFixed(1)}" y1="${ys(at(i0)).toFixed(1)}" x2="${xs(i1).toFixed(1)}" y2="${ys(at(i1)).toFixed(1)}"/>`;
+    }
+    const last = pts[pts.length - 1];
+    const each = t.g.map((v, i) => { const g = games[i] || {}; return `${shortDay(g.date)} ${g.home ? "vs" : "at"} ${g.opp || "?"} ${typeof v === "number" ? signed(v) : "did not play"}`; }).join("; ");
+    const dir = typeof t.slope !== "number" ? "" : t.slope > 0.02 ? "rising" : t.slope < -0.02 ? "falling" : "flat";
+    const tip = `Game Score in each of his team's last ${k} games, oldest first: ${each}. Average ${signed(t.avg)} over the ${t.n} he played${dir ? `; trend ${dir} (${signed(t.slope, 2)} per game)` : ""}.${t.drag ? " DRAGGING: below zero on average and not climbing, so he has cost his team more than he gave." : ""}`;
+    const zero = 0 >= sc.lo && 0 <= sc.hi ? `<line class="tr-zero" x1="0" x2="${TREND_W}" y1="${ys(0).toFixed(1)}" y2="${ys(0).toFixed(1)}"/>` : "";
+    return `<span class="gs-trend${t.drag ? " drag" : ""}" data-tip="${esc(tip)}" tabindex="0" role="img" aria-label="${esc(p.name)}, last ${k} games: average ${signed(t.avg)}${dir ? ", trend " + dir : ""}${t.drag ? ", dragging the team down" : ""}">
+      <span class="tr-lab">Last ${k}</span><svg viewBox="0 0 ${TREND_W} ${TREND_H}" preserveAspectRatio="none" aria-hidden="true">${zero}<polyline class="tr-line" points="${line}"/>${fit}${last ? `<circle class="tr-dot" cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="2.4"/>` : ""}</svg>
+      <b class="tr-avg">${signed(t.avg)}</b>${t.drag ? `<span class="pill bad">Dragging</span>` : ""}</span>`;
+  }
+  function gsRow(p, lo, span, sc, games) {
     const say = (lab, v) => `${lab} ${GS_PARTS.map(([, n], i) => `${n.toLowerCase()} ${signed(v[i])}`).join(", ")}`;
-    return `<div class="gs-row"><span class="gs-name">${pname(p.name, p.id)}</span><b class="gs-val" data-tip="Game Score ${signed(p.gs)}: offense ${signed(p.o.reduce((a, b) => a + b, 0))} plus defense ${signed(p.d.reduce((a, b) => a + b, 0))}. Above 0 he helped his team; below 0 he hurt it.">${signed(p.gs)}</b>
+    return `<div class="gs-row${p.trend && p.trend.drag ? " drag" : ""}"><span class="gs-name">${pname(p.name, p.id)}</span><b class="gs-val" data-tip="Game Score ${signed(p.gs)}: offense ${signed(p.o.reduce((a, b) => a + b, 0))} plus defense ${signed(p.d.reduce((a, b) => a + b, 0))}. Above 0 he helped his team; below 0 he hurt it.">${signed(p.gs)}</b>
       <div class="gs-bars" role="img" aria-label="${esc(p.name)}: ${signed(p.gs)}. ${esc(say("Offense", p.o))}. ${esc(say("Defense", p.d))}.">
-      <div class="gs-plot" style="--z:${((0 - lo) / span * 100).toFixed(2)}%"><span class="gs-trk o">${gsTrack(p.o, "offense", lo, span)}</span><span class="gs-trk d">${gsTrack(p.d, "defense", lo, span)}</span></div></div></div>`;
+      <div class="gs-plot" style="--z:${((0 - lo) / span * 100).toFixed(2)}%"><span class="gs-trk o">${gsTrack(p.o, "offense", lo, span)}</span><span class="gs-trk d">${gsTrack(p.d, "defense", lo, span)}</span></div></div>${games ? gsTrend(p, sc, games) : ""}</div>`;
   }
   // the goalie is measured in goals saved, not Game Score, so he gets a plain sentence
   // instead of a bar on the skaters' scale
@@ -722,13 +757,21 @@
     const us = `<span class="fs-team${t.result === "W" ? " w" : ""}"><span>${esc(ab)}</span> <b>${esc(t.for)}</b></span>`, them = `<span class="fs-team${t.result !== "W" ? " w" : ""}"><span>${esc(t.opp)}</span> <b>${esc(t.against)}</b></span>`;
     const strip = `<div class="finalbar team ${t.result === "W" ? "won" : "lost"}"><span class="fs-lab">Final${esc(per)}</span>${t.home ? them + us : us + them}<span class="pill ${t.result === "W" ? "win" : "loss"}">${GS_RESULT[t.result] || esc(t.result)}</span></div>`;
     const group = (lab, rows) => rows ? `<p class="gs-grp">${lab}</p>${rows}` : "";
+    const games = Array.isArray(t.trend_games) && t.trend_games.length && sk.some(p => p.trend) ? t.trend_games : null;
+    const sc = games ? trendScale(sk) : null, nG = games ? games.length : 0;
+    const drag = games ? sk.filter(p => p.trend && p.trend.drag).sort((a, b) => a.trend.avg - b.trend.avg) : [];
+    const dragLine = !games ? "" : `<p class="small gs-dragline">${drag.length
+      ? `<b>Dragging the team down over its last ${nG} games:</b> ${drag.map(p => `${pname(p.name, p.id)} (${signed(p.trend.avg)} a game)`).join(", ")}.`
+      : `No skater from this game is dragging the team down over its last ${nG} games.`}</p>`;
     const fw = sk.filter(p => p.pos !== "D"), dm = sk.filter(p => p.pos === "D");
     const key = GS_PARTS.map(([k, n]) => `<span class="gs-key" data-tip="${esc((TIPS.gs || {})[n] || n)}"><i class="gs-sw gs-${k}"></i>${esc(n)}</span>`).join("");
     const cells = v => v.map(x => td(signed(x), "n")).join("");
-    const rows = sk.map(p => `<tr>${td(esc(p.name))}${td(esc(p.pos))}${td(p.toi == null ? "-" : num(p.toi, 1), "n hm")}${td(`<b>${signed(p.gs)}</b>`, "n")}${cells(p.o)}${cells(p.d)}</tr>`).join("");
+    const tcells = p => !games ? "" : td(p.trend ? signed(p.trend.avg) : "-", "n") + td(p.trend ? esc(p.trend.n) : "-", "n") + td(p.trend && typeof p.trend.slope === "number" ? signed(p.trend.slope) : "-", "n");
+    const rows = sk.map(p => `<tr>${td(esc(p.name))}${td(esc(p.pos))}${td(p.toi == null ? "-" : num(p.toi, 1), "n hm")}${td(`<b>${signed(p.gs)}</b>`, "n")}${cells(p.o)}${cells(p.d)}${tcells(p)}</tr>`).join("");
     const hd = thT("Player", "The player. His name in the chart above opens his NHL.com page.") + thT("Pos", TIPS.heads.Pos) + thT("TOI", "Time on ice in the game, minutes.", "n hm") + thT("Game Score", TIPS.gs["Game Score"], "n") +
       ["Production", "Play driving", "Special teams", "Usage"].map(n => thT("O " + n.split(" ")[0], `Offense, ${n.toLowerCase()}: ${TIPS.gs[n]}`, "n")).join("") +
-      ["Production", "Play driving", "Special teams", "Usage"].map(n => thT("D " + n.split(" ")[0], `Defense, ${n.toLowerCase()}: ${TIPS.gs[n]}`, "n")).join("");
+      ["Production", "Play driving", "Special teams", "Usage"].map(n => thT("D " + n.split(" ")[0], `Defense, ${n.toLowerCase()}: ${TIPS.gs[n]}`, "n")).join("") +
+      (games ? thT(`Avg ${nG}`, `His average Game Score over the games he played of his team's last ${nG}.`, "n") + thT("GP", `Games he played of his team's last ${nG}.`, "n") + thT("Trend", "The slope of his straight-line trend: how much his Game Score rose (+) or fell (-) per game over his team's last games.", "n") : "");
     // 1.15.1 (John: "The helped hurt graph for the Tampa Bay Lightning was not updated
     // correctly"): before MoneyPuck posts a game, every part is scored on stand-in shot
     // values ("estimated"); production alone only when the NHL's shift charts are missing too
@@ -742,9 +785,9 @@
       ${strip}
       <p class="small gs-how"><b>Two bars per player: the top bar is his offense</b> (what he created: goals, assists, shots, chances), <b>the bottom bar his defense</b> (what he stopped: blocks, chances against). Parts right of the center line helped his team; parts left of it hurt. The number beside each name is his Game Score, the two bars added together, in goals-like units: above 0 he helped, below 0 he hurt, 0 is an ordinary game.</p>
       <div class="gs-legend">${key}</div>
-      <div class="gs-chart"><div class="gs-head"><span class="gs-name">Player</span><span class="gs-val" data-tip="${esc(TIPS.gs["Game Score"])}">Game Score</span>
-      <div class="gs-sides" style="--z:${((0 - lo) / span * 100).toFixed(2)}%"><span class="hurt" data-tip="Left of the line: the parts of his game that cost his team.">Hurt</span><span class="helped" data-tip="Right of the line: the parts of his game that helped his team.">Helped</span></div></div>
-      ${group("Forwards", fw.map(p => gsRow(p, lo, span)).join(""))}${group("Defense", dm.map(p => gsRow(p, lo, span)).join(""))}</div>
+      ${dragLine}<div class="gs-chart${games ? " trended" : ""}"><div class="gs-head"><span class="gs-name">Player</span><span class="gs-val" data-tip="${esc(TIPS.gs["Game Score"])}">Game Score</span>
+      <div class="gs-sides" style="--z:${((0 - lo) / span * 100).toFixed(2)}%"><span class="hurt" data-tip="Left of the line: the parts of his game that cost his team.">Hurt</span><span class="helped" data-tip="Right of the line: the parts of his game that helped his team.">Helped</span></div>${games ? `<span class="gs-trend-h" data-tip="${esc(TIPS.gs.Trend)}">Last ${nG}</span>` : ""}</div>
+      ${group("Forwards", fw.map(p => gsRow(p, lo, span, sc, games)).join(""))}${group("Defense", dm.map(p => gsRow(p, lo, span, sc, games)).join(""))}</div>
       ${gk.length ? `<div class="gs-goalies"><div class="gs-head"><span class="gs-name">Goalie</span><span class="gs-val" data-tip="${esc(TIPS.gs.Goalie)}">Goals saved</span><span></span></div>${gk.map(g => gsGoalie(g, t.pending)).join("")}</div>` : ""}
       ${note}
       <details class="more"><summary>Numbers</summary>${tbl(hd, rows, "gs-table")}</details>

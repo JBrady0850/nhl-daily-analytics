@@ -1217,3 +1217,108 @@ def test_blend_game_publishes_the_average_only_when_in_use_and_a_line_exists():
     # the tiers match the model's own
     w = R.compute_win_probability(60.0, 55.0)
     assert R.tier_for(w["home_win_prob"]) == (w["confidence_pct"], w["confidence_tier"])
+
+
+# ---------- 1.19.0: each player's trend over his team's last ten games ----------
+# John, 2026-11-05: "for the graph for my teams also include a trend line for the
+# performance help or hurt to identify players that are dragging down the team"
+
+def test_trend_average_slope_and_dragging_flag():
+    from nhlda import gamescore as G
+    assert G.series_stats([None, None]) == (0, None, None)
+    n, avg, slope = G.series_stats([0.5, None, 0.3, 0.1, -0.1, -0.3, None, -0.5])
+    assert n == 6 and abs(avg - 0.0) < 1e-9 and slope < 0
+    n, avg, slope = G.series_stats([1.0, 2.0, 3.0])
+    assert abs(slope - 1.0) < 1e-9
+    # below zero and falling, five games or more: dragging
+    assert G.dragging(*G.series_stats([0.1, -0.1, -0.2, -0.3, -0.4]))
+    # below zero but climbing out of it: not flagged
+    assert not G.dragging(*G.series_stats([-0.6, -0.4, -0.2, -0.1, 0.0]))
+    # too few games, or above zero: not flagged
+    assert not G.dragging(*G.series_stats([None] * 6 + [-0.5, -0.6, -0.7, -0.8]))
+    assert not G.dragging(*G.series_stats([0.4, 0.3, 0.2, 0.1, 0.05]))
+
+
+def test_history_keeps_each_teams_last_ten_games_and_replaces_a_rescore():
+    from nhlda import gamescore as G
+    hist = {"season": 2026, "teams": {}}
+    def game(day, p_gs, opp="CHI"):
+        return {"date": f"2026-10-{day:02d}", "inputs": "full",
+                "teams": {"FLA": {"opp": opp, "home": True, "result": "W",
+                                  "skaters": [{"id": 1, "gs": p_gs}, {"id": 2, "gs": -p_gs}]}}}
+    for day in range(1, 13):
+        G.hist_add(hist, 2026020000 + day, game(day, day / 10))
+    rows = hist["teams"]["FLA"]
+    assert [r["date"] for r in rows] == [f"2026-10-{d:02d}" for d in range(3, 13)]
+    G.hist_add(hist, 2026020012, game(12, 2.0))                    # the NHL's correction, scored again
+    assert len(hist["teams"]["FLA"]) == 10 and hist["teams"]["FLA"][-1]["gs"] == {"1": 2.0, "2": -2.0}
+    G.hist_add(hist, 2026020001, game(1, 9.9))                     # older than the last ten: dropped
+    assert hist["teams"]["FLA"][0]["date"] == "2026-10-03"
+    latest = {"FLA": {"skaters": [{"id": 1, "gs": 2.0}, {"id": 2, "gs": -2.0}, {"id": 3, "gs": 0.1}]}}
+    G.add_trends(latest, hist)
+    t = latest["FLA"]
+    assert len(t["trend_games"]) == 10 and t["trend_games"][-1] == {"game": 2026020012, "date": "2026-10-12",
+                                                                     "opp": "CHI", "home": True, "result": "W"}
+    p1, p2, p3 = t["skaters"]
+    assert p1["trend"]["n"] == 10 and p1["trend"]["slope"] > 0 and not p1["trend"]["drag"]
+    assert p2["trend"]["avg"] < 0 and p2["trend"]["slope"] < 0 and p2["trend"]["drag"]
+    assert p3["trend"] == {"g": [None] * 10, "n": 0, "avg": None, "slope": None, "drag": False}
+    check_public({"gamescore": {"teams": latest}})
+
+
+TOI_HTML = """<table>
+<tr><td class="playerHeading + border" colspan="8">13 BARKOV, ALEKSANDER</td></tr>
+<tr><td>Shift #</td><td>Per</td><td>Start of Shift</td><td>End of Shift</td><td>Duration</td></tr>
+<tr class="evenColor"><td>1</td><td>1</td><td>0:00 / 20:00</td><td>0:45 / 19:15</td><td>00:45</td><td>&nbsp;</td></tr>
+<tr class="oddColor"><td>2</td><td>OT</td><td>1:10 / 3:50</td><td>1:52 / 3:08</td><td>00:42</td><td>G</td></tr>
+<tr><td>TOT</td><td>2</td><td>1:27</td></tr>
+<tr><td class="playerHeading + border" colspan="8">99 NOBODY, NOT ROSTERED</td></tr>
+<tr class="evenColor"><td>1</td><td>2</td><td>5:00 / 15:00</td><td>5:30 / 14:30</td><td>00:30</td><td>&nbsp;</td></tr>
+<tr><td class="playerHeading + border" colspan="8">5 EKBLAD, AARON</td></tr>
+<tr class="evenColor"><td>1</td><td>3</td><td>10:05 / 9:55</td><td>11:00 / 9:00</td><td>00:55</td><td>&nbsp;</td></tr>
+</table>"""
+
+
+def test_shifts_from_the_nhls_time_on_ice_report():
+    """The NHL's shift chart feed later empties for many games (2026-10-13 to 10-28 on
+    2026-11-05), so the official TH and TV reports supply the shifts."""
+    from nhlda import gamescore as G
+    pbp = {"rosterSpots": [{"teamId": 13, "playerId": 8477493, "sweaterNumber": 13},
+                           {"teamId": 13, "playerId": 8477932, "sweaterNumber": 5},
+                           {"teamId": 16, "playerId": 1, "sweaterNumber": 99}]}
+    rows = G.toi_report_rows(TOI_HTML, 13, pbp)
+    assert rows == [
+        {"typeCode": 517, "playerId": 8477493, "period": 1, "startTime": "0:00", "endTime": "0:45"},
+        {"typeCode": 517, "playerId": 8477493, "period": 4, "startTime": "1:10", "endTime": "1:52"},
+        {"typeCode": 517, "playerId": 8477932, "period": 3, "startTime": "10:05", "endTime": "11:00"}]
+
+
+def test_update_scores_missing_older_games_from_the_schedule(tmp_path):
+    """The first run scores the older games of each team's last ten (the season's
+    history), and the latest game carries every skater's trend."""
+    import asyncio
+    from nhlda import gamescore as G
+    fx = json.load(open(GAME, encoding="utf-8"))
+
+    class Sched(_FakeFetch):
+        async def get(self, url, params=None, as_text=False, **kw):
+            if "/schedule/" in url:
+                g = {"id": 2026020180, "gameType": 2, "gameState": "OFF",
+                     "homeTeam": {"abbrev": "CHI"}, "awayTeam": {"abbrev": "FLA"}}
+                return {"gameWeek": [{"date": "2026-10-25", "games": [g]}], "previousStartDate": None}
+            return await super().get(url, params, as_text, **kw)
+
+    async def fake_rows(session, year, want, table=None):
+        return {20180: fx["shots"]} if 20180 in want else {}
+    orig = G._shot_rows
+    G._shot_rows = fake_rows
+    try:
+        # ten days on, outside the look-back window: only the history walk finds the game
+        out = asyncio.run(G.update(Sched(fx, "2026-11-04"), None, str(tmp_path), "2026-11-04", 2026))
+    finally:
+        G._shot_rows = orig
+    hist = json.load(open(tmp_path / "gamescore_history.json", encoding="utf-8"))
+    assert hist["season"] == 2026 and [r["game"] for r in hist["teams"]["FLA"]] == [2026020180]
+    t = out["teams"]["FLA"]
+    assert t["game_id"] == 2026020180 and t["trend_games"][0]["opp"] == "CHI"
+    assert all(p["trend"]["g"] == [p["gs"]] and p["trend"]["n"] == 1 for p in t["skaters"])

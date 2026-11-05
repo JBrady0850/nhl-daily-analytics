@@ -435,7 +435,7 @@ LAST_GAME_JS = """(ab) => {
   const rows = [...lg.querySelectorAll('.gs-chart .gs-row, .gs-goalies .gs-row')];
   const segs = [...lg.querySelectorAll('.gs-seg')];
   const pill = lg.querySelector('.finalbar .pill') || {dataset: {}};
-  return {card: true, last: true, open: lg.open,
+  return {card: true, last: true, open: lg.open, narrow: innerWidth <= 640,
     names: rows.map(r => { const a = r.querySelector('.gs-name a'); return (a ? a.childNodes[0] : r.querySelector('.gs-name')).textContent.trim(); }),
     vals: rows.map(r => r.querySelector('.gs-val').textContent.trim()),
     segs: segs.length, segTips: segs.every(x => !!x.dataset.tip),
@@ -471,7 +471,18 @@ LAST_GAME_JS = """(ab) => {
       const r = s.getBoundingClientRect(), zx = r.left + r.width * parseFloat(s.style.getPropertyValue('--z')) / 100;
       const plots = [...lg.querySelectorAll('.gs-chart .gs-row .gs-plot')];
       return plots.length > 0 && plots.every(p => { const q = p.getBoundingClientRect(); return Math.abs(q.left + q.width * parseFloat(p.style.getPropertyValue('--z')) / 100 - zx) <= 1.5; }); })(),
-    how: (lg.querySelector('.gs-how') || {textContent: ''}).textContent};
+    how: (lg.querySelector('.gs-how') || {textContent: ''}).textContent,
+    // 1.19.0: each skater's trend over his team's last games, its heading, the dragging summary
+    trends: [...lg.querySelectorAll('.gs-chart .gs-row')].map(r => { const t = r.querySelector('.gs-trend'); if (!t) return null;
+      const q = t.getBoundingClientRect(), row = r.getBoundingClientRect(), dot = t.querySelector('.tr-dot');
+      return [(t.querySelector('.tr-avg') || {textContent: ''}).textContent.trim(), !!t.querySelector('.pill.bad'), !!t.dataset.tip,
+        !!t.querySelector('polyline.tr-line'), !!t.querySelector('line.tr-zero'), !!dot, q.right <= row.right + 0.5 && q.left >= row.left - 0.5,
+        (t.getAttribute('aria-label') || '').length > 10]; }),
+    trendHead: (() => { const h = lg.querySelector('.gs-chart > .gs-head .gs-trend-h'); return h ? [h.textContent.trim(), !!h.dataset.tip] : null; })(),
+    dragLine: (() => { const d = lg.querySelector('.gs-dragline'); if (!d) return '';
+      const c = d.cloneNode(true); c.querySelectorAll('a.plink').forEach(a => a.replaceWith(a.childNodes[0].textContent));
+      return c.textContent.replace(/\\s+/g, ' ').trim(); })(),
+    dragRows: [...lg.querySelectorAll('.gs-chart .gs-row.drag')].length};
 }"""
 
 
@@ -500,6 +511,20 @@ def check_last_game(pg, sample, ab):
             "head": ["Player", "Game Score", True, "Hurt", "Helped"], "sides": True,
             "ticks": 0, "goalieBars": 0, "odLabels": True, "zeroAligned": True,
             "goalieText": [f"Allowed {g['ga']} goal{'' if g['ga'] == 1 else 's'} on {g['shots']} shots. An average goalie would have allowed {g['xga']:.2f} on those shots, so he {'saved' if g['gsax'] >= 0 else 'allowed'} {abs(g['gsax']):.2f} goals more than expected." for g in t["goalies"]], "valTips": True, "tableScore": True}
+    # 1.19.0 (John, 2026-11-05: a trend line to identify players dragging the team down)
+    if t.get("trend_games"):
+        n = len(t["trend_games"])
+        drag = sorted([p for p in order if p["trend"]["drag"]], key=lambda p: p["trend"]["avg"])
+        want["trends"] = [[sign(p["trend"]["avg"]), p["trend"]["drag"], True, True, True, True, True, True]
+                          if p["trend"]["n"] else None for p in order]
+        for i, p in enumerate(order):
+            if not p["trend"]["n"]:
+                want["trends"][i] = got.get("trends", [None] * len(order))[i]   # a dash, no line
+        want["trendHead"] = [f"Last {n}", True]
+        want["dragRows"] = len(drag)
+        want["dragLine"] = (f"Dragging the team down over its last {n} games: "
+                            + ", ".join(f"{p['name']} ({sign(p['trend']['avg'])} a game)" for p in drag) + "."
+                            if drag else f"No skater from this game is dragging the team down over its last {n} games.")
     out = [f"my teams {ab} last game {k}: {got.get(k)} (want {v})" for k, v in want.items() if got.get(k) != v]
     if not got.get("how", "").startswith("Two bars per player"):
         out.append(f"my teams {ab} last game: the text above the chart does not open by explaining the two bars ({got.get('how', '')[:60]!r})")
@@ -1365,6 +1390,7 @@ def main():
                 want = sum(1 for grp in ("lines", "pairs") for ln in sample["lines"]["FLA"][grp] for p in ln["players"] if p.get("nhl_id"))
                 lg = sample["gamescore"]["teams"]["FLA"]
                 want += len(lg["skaters"]) + len(lg["goalies"])        # the last game's chart links each player once
+                want += sum(1 for p in lg["skaters"] if (p.get("trend") or {}).get("drag"))   # 1.19.0: and the dragging summary
                 if len(links) != want or want < 15:
                     fails.append(f"{name}: {len(links)} player links on My Teams, expected {want}")
                 bad = [l for l in links if not re.match(r"^https://www\.nhl\.com/player/\d{6,8}$", l[0] or "") or l[1] != "_blank" or "noopener" not in (l[2] or "")]

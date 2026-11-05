@@ -36,6 +36,7 @@ import json
 import logging
 import math
 import os
+import re
 import zipfile
 from collections import defaultdict
 
@@ -45,6 +46,10 @@ log = logging.getLogger("nhlda.gamescore")
 
 MP_SHOTS_URL = "https://peter-tanner.com/moneypuck/downloads/shots_{year}.zip"
 CACHE_NAME = "gamescore.json"
+HIST_NAME = "gamescore_history.json"
+HISTORY_GAMES = 10       # 1.19.0: each team's last ten games feed the players' trends
+BACKFILL_MAX = 200       # older games scored per run to fill the history (the first run scores the season)
+DRAG_MIN_GAMES = 5       # games he must have played of the last ten before he can be flagged
 LOOKBACK_DAYS = 3        # finished games of today and the three days before
 WAIT_DAYS = 2            # inputs still missing this long after the game: the production score is final
 DEFAULT_RATES = {"xg": 2.5, "g": 2.4, "pp": 6.5, "shot": 0.063}   # per 60 (shot: xG per unblocked 5-on-5 shot), used only when MoneyPuck is unreachable
@@ -481,6 +486,150 @@ def latest_by_team(cache):
     return {ab: v[1] for ab, v in sorted(best.items())}
 
 
+# ---------- 1.19.0: shifts from the NHL's HTML time-on-ice reports ----------
+# The NHL's shift chart feed later returns no rows for many games (on 2026-11-05 it was
+# empty for every game of 2026-10-13 to 10-28, including games it served in full the
+# day after), while its official time-on-ice reports (TH home, TV visitor) stay
+# published. When the feed is empty, the shifts are read from those reports.
+TOI_URL = "https://www.nhl.com/scores/htmlreports/{season}/{side}{num}.HTM"
+_TOI_HEAD = re.compile(r'class="playerHeading[^"]*"[^>]*>\s*(\d+)\s+([^<]+)<', re.I)
+_TOI_ROW = re.compile(r"<tr[^>]*>(.*?)</tr>", re.I | re.S)
+_TOI_CELL = re.compile(r"<td[^>]*>(.*?)</td>", re.I | re.S)
+
+
+def toi_report_rows(text, team_id, pbp):
+    """Shift rows in the shift chart's shape (typeCode 517, playerId, period,
+    startTime, endTime, elapsed in the period) from one TH or TV report, matching each
+    player by sweater number among his team's roster spots."""
+    by_num = {int(r["sweaterNumber"]): r["playerId"] for r in pbp.get("rosterSpots") or []
+              if r.get("teamId") == team_id and r.get("sweaterNumber") is not None}
+    out = []
+    heads = list(_TOI_HEAD.finditer(text or ""))
+    for i, h in enumerate(heads):
+        pid = by_num.get(int(h.group(1)))
+        if not pid:
+            continue
+        block = text[h.end():heads[i + 1].start() if i + 1 < len(heads) else len(text)]
+        for row in _TOI_ROW.findall(block):
+            cells = [re.sub(r"<[^>]+>|&nbsp;", " ", c).strip() for c in _TOI_CELL.findall(row)]
+            if len(cells) < 5 or not cells[0].isdigit():
+                continue
+            per = cells[1].upper()
+            per = 4 if per == "OT" else int(per) if per.isdigit() else 0
+            a, b = cells[2].split("/")[0].strip(), cells[3].split("/")[0].strip()
+            if per and re.fullmatch(r"\d+:\d\d", a) and re.fullmatch(r"\d+:\d\d", b):
+                out.append({"typeCode": 517, "playerId": pid, "period": per, "startTime": a, "endTime": b})
+    return out
+
+
+async def toi_report_shifts(f, gid, pbp):
+    """Every skater's shifts of one game from the two HTML reports; [] when either
+    report is missing."""
+    season = f"{gid // 1000000}{gid // 1000000 + 1}"
+    num = f"{gid % 1000000:06d}"
+    th, tv = await asyncio.gather(f.get(TOI_URL.format(season=season, side="TH", num=num), as_text=True),
+                                  f.get(TOI_URL.format(season=season, side="TV", num=num), as_text=True))
+    if not th or not tv:
+        return []
+    home, away = (pbp.get("homeTeam") or {}).get("id"), (pbp.get("awayTeam") or {}).get("id")
+    rows = toi_report_rows(th, home, pbp)
+    vis = toi_report_rows(tv, away, pbp)
+    return rows + vis if rows and vis else []
+
+
+# ---------- 1.19.0: each player's trend over his team's last ten games ----------
+# John, 2026-11-05: "for the graph for my teams also include a trend line for the
+# performance help or hurt to identify players that are dragging down the team".
+
+def _load_hist(state_dir, season_year):
+    try:
+        h = json.load(open(os.path.join(state_dir, HIST_NAME), encoding="utf-8"))
+        if h.get("season") == season_year:
+            return h
+    except (OSError, ValueError, AttributeError):
+        pass
+    return {"season": season_year, "teams": {}}
+
+
+def hist_add(hist, gid, game):
+    """Put one scored game into each of its teams' history, replacing an earlier score
+    of the same game, and keep each team's last HISTORY_GAMES games."""
+    for ab, entry in (game.get("teams") or {}).items():
+        rows = [r for r in hist["teams"].get(ab, []) if r["game"] != int(gid)]
+        rows.append({"game": int(gid), "date": game.get("date"), "opp": entry.get("opp"),
+                     "home": bool(entry.get("home")), "result": entry.get("result"),
+                     "inputs": game.get("inputs"),
+                     "gs": {str(p["id"]): p["gs"] for p in entry.get("skaters") or []}})
+        rows.sort(key=lambda r: (r["date"] or "", r["game"]))
+        hist["teams"][ab] = rows[-HISTORY_GAMES:]
+
+
+def series_stats(vals):
+    """Average and least-squares slope (Game Score per game) of the games he played;
+    vals holds one value per team game, None where he did not play."""
+    pts = [(i, v) for i, v in enumerate(vals) if v is not None]
+    n = len(pts)
+    if not n:
+        return 0, None, None
+    avg = sum(v for _, v in pts) / n
+    if n < 2:
+        return n, avg, None
+    mx = sum(i for i, _ in pts) / n
+    sxx = sum((i - mx) ** 2 for i, _ in pts)
+    slope = sum((i - mx) * (v - avg) for i, v in pts) / sxx if sxx else None
+    return n, avg, slope
+
+
+def dragging(n, avg, slope):
+    """A player dragging his team down: at least DRAG_MIN_GAMES of the last ten played,
+    below zero on average (he cost his team more than he gave), and his trend line
+    flat or falling (not climbing out of it)."""
+    return bool(n >= DRAG_MIN_GAMES and avg is not None and avg < 0 and (slope is None or slope <= 0))
+
+
+def add_trends(latest, hist):
+    """Give every skater of each team's latest game his trend over the team's last ten
+    games (oldest first), and the team its list of those games."""
+    for ab, t in latest.items():
+        rows = (hist.get("teams") or {}).get(ab) or []
+        if not rows:
+            continue
+        t["trend_games"] = [{"game": r["game"], "date": r["date"], "opp": r["opp"], "home": r["home"],
+                             "result": r.get("result")} for r in rows]
+        for p in t.get("skaters") or []:
+            vals = [r["gs"].get(str(p["id"])) for r in rows]
+            n, avg, slope = series_stats(vals)
+            p["trend"] = {"g": vals, "n": n, "avg": None if avg is None else round(avg, 2),
+                          "slope": None if slope is None else round(slope, 3),
+                          "drag": dragging(n, avg, slope)}
+    return latest
+
+
+async def recent_finals(f, target_date, game_type_ok=(2, 3)):
+    """Every team's last HISTORY_GAMES finished games up to target_date, from the NHL's
+    weekly schedule, walking back a week at a time: {ab: [(date, game id), ...]}."""
+    per, seen, start = defaultdict(list), set(), target_date
+    for _ in range(12):
+        data = await f.get(f"{NHL_BASE}schedule/{start}") or {}
+        for day in data.get("gameWeek") or []:
+            for g in day.get("games") or []:
+                gid, d = g.get("id"), day.get("date")
+                if gid in seen or not d or d > target_date or g.get("gameType") not in game_type_ok \
+                        or g.get("gameState") not in FINAL_STATES:
+                    continue
+                seen.add(gid)
+                for side in ("homeTeam", "awayTeam"):
+                    ab = (g.get(side) or {}).get("abbrev")
+                    if ab:
+                        per[ab].append((d, int(gid)))
+        prev, first = data.get("previousStartDate"), data.get("regularSeasonStartDate") or ""
+        if not prev or prev >= start or (first and start <= first) \
+                or (len(per) >= 32 and min(len(v) for v in per.values()) >= HISTORY_GAMES):
+            break
+        start = prev
+    return {ab: sorted(v)[-HISTORY_GAMES:] for ab, v in per.items()}
+
+
 async def update(f, session, state_dir, target_date, season_year, game_type_ok=(2, 3)):
     """Score every finished game of the last LOOKBACK_DAYS days, keep each team's
     latest game in state/gamescore.json, and return the public block. Games are scored
@@ -504,6 +653,19 @@ async def update(f, session, state_dir, target_date, season_year, game_type_ok=(
             if g.get("gameDate") == d and g.get("gameState") in FINAL_STATES and g.get("gameType") in game_type_ok:
                 finals.append((d, int(g["id"])))
     todo = list(finals)
+    # 1.19.0: older games missing from a team's last ten (the season on the first run,
+    # or games a skipped update never scored) are scored too, oldest data first
+    hist = _load_hist(state_dir, season_year)
+    try:
+        want = await recent_finals(f, target_date, game_type_ok)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("game score history: %s", exc)
+        want = {}
+    have = {r["game"] for rows in hist["teams"].values() for r in rows}
+    queued = {gid for _, gid in todo}
+    back = sorted({(d, gid) for rows in want.values() for d, gid in rows
+                   if gid not in have and gid not in queued}, reverse=True)[:BACKFILL_MAX]
+    todo += back
     if todo:
         table = {}
         shots = await _shot_rows(session, season_year, {gid % 1000000 for _, gid in todo}, table=table)
@@ -522,6 +684,11 @@ async def update(f, session, state_dir, target_date, season_year, game_type_ok=(
                 if not pbp or pbp.get("gameState") not in FINAL_STATES:
                     continue
                 rows = [r for r in (sh or {}).get("data") or [] if r.get("typeCode") == 517]
+                if not rows:                       # 1.19.0: the feed is empty; read the official reports
+                    try:
+                        rows = await toi_report_shifts(f, gid, pbp)
+                    except Exception as exc:  # noqa: BLE001
+                        log.warning("time-on-ice reports %s: %s", gid, exc)
                 xg = shot_values(shots.get(gid % 1000000, []))
                 full = bool(rows) and len(xg) >= 10
                 late = (day - dt.date.fromisoformat(d)).days >= WAIT_DAYS
@@ -546,11 +713,21 @@ async def update(f, session, state_dir, target_date, season_year, game_type_ok=(
                 games[str(gid)] = {"date": d, "inputs": res["inputs"], "complete": True, "teams": res["teams"],
                                    "pending": not full and not late,   # full inputs still expected
                                    "rates": {k: round(v, 3) for k, v in rates.items()}}
+                hist_add(hist, gid, games[str(gid)])
+    # every saved score is in the history too (a run that kept a saved score did not
+    # add it above)
+    for gid, g in games.items():
+        if not all(
+                any(r["game"] == int(gid) for r in hist["teams"].get(ab, [])) for ab in g.get("teams") or {}):
+            hist_add(hist, gid, g)
     # keep only each team's latest game
     latest = latest_by_team(cache)
     keep = {str(v["game_id"]) for v in latest.values()}
     cache["games"] = {gid: g for gid, g in games.items() if gid in keep}
     with open(os.path.join(state_dir, CACHE_NAME), "w", encoding="utf-8") as fh:
         json.dump(cache, fh, separators=(",", ":"))
+    with open(os.path.join(state_dir, HIST_NAME), "w", encoding="utf-8") as fh:
+        json.dump(hist, fh, separators=(",", ":"))
+    add_trends(latest, hist)
     return {"teams": latest,
             "credit": "NHL play-by-play and shift charts; expected goals and season rates from MoneyPuck.com"}

@@ -178,6 +178,8 @@ runs, so each name is looked up once.
 | `inputs`, `pending` | `inputs` is `full` (the NHL's shift charts and MoneyPuck's shot values), `estimated` (the shift charts, with each unblocked shot valued at MoneyPuck's season average for shots of its type from its distance, because MoneyPuck had not posted the game; goalie `xga` and `gsax` are then null), or `production` (no shift charts: only the production parts are scored). `pending` is true while better inputs are still expected: a game appears as soon as it is final, usually `estimated` on the evening of the game, and a later update replaces it with the full score once MoneyPuck posts. Two days after the game the score is final (`pending` false). |
 | `skaters` | Forwards then defensemen, each best first: `id`, `name`, `pos`, `toi` (minutes, the NHL boxscore's), `gs` (the Game Score, the sum of the eight parts), `o` and `d` (offense and defense, each `[production, play driving, special teams, usage]`; the app draws `o` as the top bar and `d` as the bottom bar), and `box` (`g`, `a1`, `a2`, `sog`, `blk`, `pd` penalties drawn, `pt` penalties taken). |
 | `goalies` | `id`, `name`, `shots` faced and `ga` (the NHL boxscore's), `xga` (MoneyPuck's expected goals of the unblocked shots he faced, its own figure for him) and `gsax` (`xga` minus `ga`). |
+| `trend_games` | Since 1.19.0: the team's last games (up to ten), oldest first, each `game`, `date`, `opp`, `home` and `result`; the last one is this game. |
+| `skaters[].trend` | Since 1.19.0: `g` (his Game Score in each of `trend_games`, null where he did not play), `n` (games he played), `avg` (his average over them), `slope` (his least-squares trend, Game Score per game, null under two games) and `drag` (true when he played at least five, `avg` is below zero and `slope` is zero or less: he is dragging the team down). |
 
 The model is this app's own, in the units of the public Game Score (Dom Luszczyszyn,
 Hockey Graphs, 2016):
@@ -208,7 +210,14 @@ shift chart lists twice counts once. A game is scored the first update after bot
 published (usually the next morning) and again at every update for three days after
 the game, so the NHL's later corrections reach the app; a run that cannot read the
 shot values keeps the earlier full score. `state/gamescore.json` keeps each team's
-latest scored game.
+latest scored game, and `state/gamescore_history.json` (1.19.0) each team's last ten
+games, every skater's Game Score in each. Each update reads the NHL's weekly schedule
+back to each team's tenth-last game and scores any of those games the history lacks
+(on the first run, the season so far; at most 200 a run). When the NHL's shift chart
+feed returns no rows for a game (it later empties for many games), the shifts come
+from the NHL's official time-on-ice reports (`TH` home and `TV` visitor, HTML), each
+player matched by sweater number; on two games with both, each skater's Game Score
+from the reports was within 0.11 of the feed's (mean 0.006).
 
 ## `dfs`
 

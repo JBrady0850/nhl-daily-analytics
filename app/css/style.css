@@ -263,13 +263,41 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
 .gs-seg.endp { border-radius: 0 4px 4px 0; } .gs-seg.endn { border-radius: 4px 0 0 4px; }
 .gs-prod { background: var(--gs-prod); } .gs-drive { background: var(--gs-drive); } .gs-st { background: var(--gs-st); }
 .gs-use { background: var(--gs-use); }
+/* 1.19.0: each skater's trend over his team's last ten games (sparkline, straight-line
+   trend, average, DRAGGING tag) in a fourth column; under the bars on phones */
+.gs-chart.trended .gs-head, .gs-chart.trended .gs-row { grid-template-columns: minmax(6.5rem, 10.5rem) 4.6rem minmax(0, 1fr) 12.5rem; }
+.gs-trend-h { cursor: help; text-align: left; }
+.gs-trend { display: flex; align-items: center; gap: 6px; min-width: 0; cursor: help; }
+.gs-trend svg { flex: 0 0 auto; width: 84px; height: 28px; overflow: visible; }
+.gs-trend .tr-lab { display: none; font: 600 .82rem/1 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.gs-trend .tr-zero { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; opacity: .7; vector-effect: non-scaling-stroke; }
+.gs-trend .tr-line { fill: none; stroke: var(--ink); stroke-opacity: .7; stroke-width: 1.4; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.gs-trend .tr-fit { stroke: var(--accent); stroke-width: 2.2; opacity: .95; vector-effect: non-scaling-stroke; }
+.gs-trend .tr-dot { fill: var(--ink); }
+.gs-trend.drag .tr-line { stroke: var(--bad); stroke-opacity: .8; }
+.gs-trend.drag .tr-dot { fill: var(--bad); }
+.gs-trend.drag .tr-fit { stroke: var(--bad); opacity: .9; }
+.gs-trend .tr-avg { font: 600 .82rem/1 var(--mono); font-variant-numeric: tabular-nums; min-width: 3.1em; text-align: right; }
+.gs-trend .pill { font-size: .78rem; padding: 2px 6px 0; letter-spacing: .05em; }
+.gs-row.drag { background: color-mix(in srgb, var(--bad) 7%, transparent); }
+/* tablets and narrow windows: the trend sits under the bars, so the plot keeps its width */
+@media (max-width: 960px) {
+  .gs-chart.trended .gs-head, .gs-chart.trended .gs-row { grid-template-columns: minmax(6.5rem, 10.5rem) 4.6rem minmax(0, 1fr); row-gap: 3px; }
+  .gs-chart.trended .gs-trend { grid-column: 3; }
+  .gs-trend-h { display: none; }
+  .gs-trend .tr-lab { display: inline; }
+}
+.gs-dragline { margin: 0 0 8px; padding: 6px 9px; border-left: 3px solid var(--bad); background: color-mix(in srgb, var(--bad) 6%, var(--panel)); border-radius: 0 8px 8px 0; }
 .gs-goalies { margin-top: 14px; }
 .gs-gk-txt { color: var(--muted); line-height: 1.35; }
 table.gs-table td:first-child { min-width: 10em; }
 /* phones: the name and value on one line, the bars across the full width below */
 @media (max-width: 640px) {
-  .gs-head, .gs-row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 3px; }
-  .gs-bars, .gs-sides, .gs-gk-txt { grid-column: 1 / -1; }
+  .gs-head, .gs-row, .gs-chart.trended .gs-head, .gs-chart.trended .gs-row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 3px; }
+  .gs-bars, .gs-sides, .gs-gk-txt, .gs-trend, .gs-trend-h, .gs-chart.trended .gs-trend { grid-column: 1 / -1; }
+  .gs-trend-h { display: none; }
+  .gs-trend svg { width: 110px; }
+  .gs-trend .tr-lab { display: inline; }
 }
 @media print { .pickline::before { box-shadow: none; } .pk-star { box-shadow: 0 0 0 2px var(--star-ink); } }
 /* injuries */
