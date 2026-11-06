@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-06",
-"count": 795,
+"count": 796,
 "players": [
 {
 "team": "ANA",
@@ -726,6 +726,13 @@
 },
 {
 "team": "CBJ",
+"name": "Jack Williams",
+"player_id": "8485469",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CBJ",
 "name": "Kent Johnson",
 "player_id": "8482660",
 "position": "C",
@@ -742,6 +749,13 @@
 "team": "CBJ",
 "name": "Sean Monahan",
 "player_id": "8477497",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Steven Lorentz",
+"player_id": "8478904",
 "position": "C",
 "role": "skater"
 },
@@ -1829,13 +1843,6 @@
 "player_id": "8480834",
 "position": "D",
 "role": "skater"
-},
-{
-"team": "EDM",
-"name": "Brett Epp",
-"player_id": "8486540",
-"position": "G",
-"role": "goalie"
 },
 {
 "team": "EDM",
