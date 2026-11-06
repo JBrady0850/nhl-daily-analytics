@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-06",
-"count": 796,
+"count": 795,
 "players": [
 {
 "team": "ANA",
@@ -1057,13 +1057,6 @@
 "team": "CHI",
 "name": "Connor Bedard",
 "player_id": "8484144",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "CHI",
-"name": "Dominic Toninato",
-"player_id": "8476952",
 "position": "C",
 "role": "skater"
 },
@@ -3253,13 +3246,6 @@
 },
 {
 "team": "NYR",
-"name": "James Reimer",
-"player_id": "8473503",
-"position": "G",
-"role": "goalie"
-},
-{
-"team": "NYR",
 "name": "Joonas Korpisalo",
 "player_id": "8476914",
 "position": "G",
@@ -4263,6 +4249,13 @@
 "team": "STL",
 "name": "Justin Barron",
 "player_id": "8482111",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Logan Mailloux",
+"player_id": "8482733",
 "position": "D",
 "role": "skater"
 },
