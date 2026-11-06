@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-06",
-"count": 797,
+"count": 796,
 "players": [
 {
 "team": "ANA",
@@ -3731,13 +3731,6 @@
 "team": "PIT",
 "name": "Ilya Solovyov",
 "player_id": "8482470",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "PIT",
-"name": "Jake Livanavage",
-"player_id": "8486169",
 "position": "D",
 "role": "skater"
 },
