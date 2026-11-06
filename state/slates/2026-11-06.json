@@ -35,8 +35,8 @@
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5442,
-    "away_prob": 0.4558,
+    "home_prob": 0.5522,
+    "away_prob": 0.4478,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -63,8 +63,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.6053,
-    "away_prob": 0.3947,
+    "home_prob": 0.6048,
+    "away_prob": 0.3952,
     "books": 6
    },
    "model_home_win_prob": null,
