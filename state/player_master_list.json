@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-07",
-"count": 796,
+"count": 795,
 "players": [
 {
 "team": "ANA",
@@ -4263,13 +4263,6 @@
 "team": "STL",
 "name": "Philip Broberg",
 "player_id": "8481598",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "STL",
-"name": "Quinton Burns",
-"player_id": "8484151",
 "position": "D",
 "role": "skater"
 },
