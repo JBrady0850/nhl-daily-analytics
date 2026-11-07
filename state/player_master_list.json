@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-07",
-"count": 796,
+"count": 797,
 "players": [
 {
 "team": "ANA",
@@ -238,6 +238,13 @@
 "team": "BOS",
 "name": "Matthew Poitras",
 "player_id": "8483505",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "BOS",
+"name": "Michael Eyssimont",
+"player_id": "8479591",
 "position": "C",
 "role": "skater"
 },
