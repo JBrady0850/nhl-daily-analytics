@@ -35,8 +35,8 @@
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.7457,
-    "away_prob": 0.2543,
+    "home_prob": 0.746,
+    "away_prob": 0.254,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -91,8 +91,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4532,
-    "away_prob": 0.5468,
+    "home_prob": 0.4515,
+    "away_prob": 0.5485,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -175,8 +175,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.7209,
-    "away_prob": 0.2791,
+    "home_prob": 0.7206,
+    "away_prob": 0.2794,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -203,8 +203,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5259,
-    "away_prob": 0.4741,
+    "home_prob": 0.5267,
+    "away_prob": 0.4733,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -231,8 +231,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4407,
-    "away_prob": 0.5593,
+    "home_prob": 0.4344,
+    "away_prob": 0.5656,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -251,34 +251,6 @@
     "p4_gvi": -4.03,
     "p5_friction": 2.841,
     "adj_raa": 59.76
-   }
-  },
-  {
-   "matchup": "UTA @ OTT",
-   "home_win_prob": 0.5272,
-   "tier": "LOW",
-   "gate_cleared": false,
-   "market": {
-    "home_prob": 0.485,
-    "away_prob": 0.515,
-    "books": 5
-   },
-   "model_home_win_prob": null,
-   "home_pillars": {
-    "p1_form": -2.491,
-    "p2_absence": -5.352,
-    "p3_motivation": 0.0,
-    "p4_gvi": 0.511,
-    "p5_friction": 0.555,
-    "adj_raa": 43.223
-   },
-   "away_pillars": {
-    "p1_form": 1.996,
-    "p2_absence": -2.847,
-    "p3_motivation": 0.0,
-    "p4_gvi": -8.476,
-    "p5_friction": -0.555,
-    "adj_raa": 40.118
    }
   },
   {
@@ -315,8 +287,8 @@
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4765,
-    "away_prob": 0.5235,
+    "home_prob": 0.4743,
+    "away_prob": 0.5257,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -335,6 +307,34 @@
     "p4_gvi": 4.039,
     "p5_friction": -1.11,
     "adj_raa": 43.668
+   }
+  },
+  {
+   "matchup": "UTA @ OTT",
+   "home_win_prob": 0.5058,
+   "tier": "LOW",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.4838,
+    "away_prob": 0.5162,
+    "books": 5
+   },
+   "model_home_win_prob": null,
+   "home_pillars": {
+    "p1_form": -2.491,
+    "p2_absence": -5.352,
+    "p3_motivation": 0.0,
+    "p4_gvi": -2.78,
+    "p5_friction": 0.555,
+    "adj_raa": 39.931
+   },
+   "away_pillars": {
+    "p1_form": 1.996,
+    "p2_absence": -2.847,
+    "p3_motivation": 0.0,
+    "p4_gvi": -8.476,
+    "p5_friction": -0.555,
+    "adj_raa": 40.118
    }
   }
  ]

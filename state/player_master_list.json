@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-07",
-"count": 795,
+"count": 796,
 "players": [
 {
 "team": "ANA",
@@ -4655,6 +4655,13 @@
 "team": "TOR",
 "name": "Anthony Stolarz",
 "player_id": "8476932",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "TOR",
+"name": "Artur Akhtyamov",
+"player_id": "8482515",
 "position": "G",
 "role": "goalie"
 },
