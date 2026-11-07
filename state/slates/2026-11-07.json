@@ -7,8 +7,8 @@
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.7824,
-    "away_prob": 0.2176,
+    "home_prob": 0.783,
+    "away_prob": 0.217,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -35,8 +35,8 @@
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4299,
-    "away_prob": 0.5701,
+    "home_prob": 0.4294,
+    "away_prob": 0.5706,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -63,8 +63,8 @@
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.7504,
-    "away_prob": 0.2496,
+    "home_prob": 0.7502,
+    "away_prob": 0.2498,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -87,12 +87,12 @@
   },
   {
    "matchup": "NYR @ SEA",
-   "home_win_prob": 0.4161,
+   "home_win_prob": 0.4267,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4491,
-    "away_prob": 0.5509,
+    "home_prob": 0.4484,
+    "away_prob": 0.5516,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -108,9 +108,9 @@
     "p1_form": 2.298,
     "p2_absence": -1.994,
     "p3_motivation": 0.0,
-    "p4_gvi": -2.149,
+    "p4_gvi": -3.822,
     "p5_friction": -0.555,
-    "adj_raa": 47.6
+    "adj_raa": 45.927
    }
   },
   {
