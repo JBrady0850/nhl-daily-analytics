@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-08",
-"count": 792,
+"count": 794,
 "players": [
 {
 "team": "ANA",
@@ -3183,6 +3183,13 @@
 },
 {
 "team": "NYR",
+"name": "Marc Del Gaizo",
+"player_id": "8481743",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NYR",
 "name": "Marcus Pettersson",
 "player_id": "8477969",
 "position": "D",
@@ -3850,6 +3857,13 @@
 "team": "SEA",
 "name": "Jake O'Brien",
 "player_id": "8485383",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SEA",
+"name": "Logan Morrison",
+"player_id": "8483012",
 "position": "C",
 "role": "skater"
 },
