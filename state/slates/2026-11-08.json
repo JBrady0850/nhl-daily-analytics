@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "NJD @ TOR",
-   "home_win_prob": 0.3925,
+   "home_win_prob": 0.3899,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.4135,
-    "away_prob": 0.5865,
+    "home_prob": 0.4083,
+    "away_prob": 0.5917,
     "books": 6
    },
    "model_home_win_prob": 0.3715,
@@ -31,12 +31,12 @@
   },
   {
    "matchup": "TBL @ WPG",
-   "home_win_prob": 0.4315,
+   "home_win_prob": 0.4324,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4192,
-    "away_prob": 0.5808,
+    "home_prob": 0.421,
+    "away_prob": 0.579,
     "books": 6
    },
    "model_home_win_prob": 0.4438,
@@ -59,12 +59,12 @@
   },
   {
    "matchup": "PIT @ ANA",
-   "home_win_prob": 0.5563,
+   "home_win_prob": 0.5565,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5217,
-    "away_prob": 0.4783,
+    "home_prob": 0.5221,
+    "away_prob": 0.4779,
     "books": 6
    },
    "model_home_win_prob": 0.5908,
