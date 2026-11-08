@@ -119,8 +119,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.6651,
-    "away_prob": 0.3349,
+    "home_prob": 0.6609,
+    "away_prob": 0.3391,
     "books": 6
    },
    "model_home_win_prob": null,
@@ -147,8 +147,8 @@
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5251,
-    "away_prob": 0.4749,
+    "home_prob": 0.5255,
+    "away_prob": 0.4745,
     "books": 6
    },
    "model_home_win_prob": null,
