@@ -87,12 +87,12 @@
   },
   {
    "matchup": "FLA @ BOS",
-   "home_win_prob": 0.5397,
-   "tier": "LOW",
+   "home_win_prob": 0.5431,
+   "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5716,
-    "away_prob": 0.4284,
+    "home_prob": 0.5783,
+    "away_prob": 0.4217,
     "books": 6
    },
    "model_home_win_prob": 0.5078,
