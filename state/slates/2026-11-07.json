@@ -7,8 +7,8 @@
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.7885,
-    "away_prob": 0.2115,
+    "home_prob": 0.7881,
+    "away_prob": 0.2119,
     "books": 6
    },
    "model_home_win_prob": null,
