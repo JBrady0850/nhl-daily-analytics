@@ -31,12 +31,12 @@
   },
   {
    "matchup": "TBL @ WPG",
-   "home_win_prob": 0.4324,
+   "home_win_prob": 0.431,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.421,
-    "away_prob": 0.579,
+    "home_prob": 0.4183,
+    "away_prob": 0.5817,
     "books": 6
    },
    "model_home_win_prob": 0.4438,
