@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-08",
-"count": 796,
+"count": 792,
 "players": [
 {
 "team": "ANA",
@@ -1580,13 +1580,6 @@
 },
 {
 "team": "DET",
-"name": "Nate Danielson",
-"player_id": "8484160",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "DET",
 "name": "Sheldon Dries",
 "player_id": "8480326",
 "position": "C",
@@ -1664,13 +1657,6 @@
 },
 {
 "team": "DET",
-"name": "Michal Postava",
-"player_id": "8485545",
-"position": "G",
-"role": "goalie"
-},
-{
-"team": "DET",
 "name": "Carter Mazur",
 "player_id": "8482802",
 "position": "L",
@@ -1680,13 +1666,6 @@
 "team": "DET",
 "name": "J.T. Compher",
 "player_id": "8477456",
-"position": "L",
-"role": "skater"
-},
-{
-"team": "DET",
-"name": "John Leonard",
-"player_id": "8481077",
 "position": "L",
 "role": "skater"
 },
@@ -4571,13 +4550,6 @@
 "team": "TOR",
 "name": "Teddy Blueger",
 "player_id": "8476927",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "TOR",
-"name": "Vinni Lettieri",
-"player_id": "8479968",
 "position": "C",
 "role": "skater"
 },
