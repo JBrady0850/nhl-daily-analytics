@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-08",
-"count": 792,
+"count": 793,
 "players": [
 {
 "team": "ANA",
@@ -918,6 +918,13 @@
 "name": "Yegor Sharangovich",
 "player_id": "8481068",
 "position": "C",
+"role": "skater"
+},
+{
+"team": "CGY",
+"name": "Brayden Pachal",
+"player_id": "8481167",
+"position": "D",
 "role": "skater"
 },
 {
