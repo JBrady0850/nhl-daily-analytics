@@ -1846,13 +1846,6 @@
 },
 {
 "team": "EDM",
-"name": "Matt Tomkins",
-"player_id": "8477035",
-"position": "G",
-"role": "goalie"
-},
-{
-"team": "EDM",
 "name": "Tristan Jarry",
 "player_id": "8477465",
 "position": "G",
@@ -3801,6 +3794,13 @@
 "team": "PIT",
 "name": "Rickard Rakell",
 "player_id": "8476483",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Rutger McGroarty",
+"player_id": "8483487",
 "position": "R",
 "role": "skater"
 },
