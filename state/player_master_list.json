@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-08",
-"count": 793,
+"count": 792,
 "players": [
 {
 "team": "ANA",
@@ -2247,13 +2247,6 @@
 "team": "LAK",
 "name": "Joel Armia",
 "player_id": "8476469",
-"position": "R",
-"role": "skater"
-},
-{
-"team": "LAK",
-"name": "Martin Chromiak",
-"player_id": "8482160",
 "position": "R",
 "role": "skater"
 },

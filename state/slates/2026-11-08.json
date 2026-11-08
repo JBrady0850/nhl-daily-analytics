@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "NJD @ TOR",
-   "home_win_prob": 0.3993,
+   "home_win_prob": 0.3986,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.4193,
-    "away_prob": 0.5807,
+    "home_prob": 0.4179,
+    "away_prob": 0.5821,
     "books": 6
    },
    "model_home_win_prob": 0.3793,
@@ -31,12 +31,12 @@
   },
   {
    "matchup": "TBL @ WPG",
-   "home_win_prob": 0.4358,
+   "home_win_prob": 0.4351,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4278,
-    "away_prob": 0.5722,
+    "home_prob": 0.4265,
+    "away_prob": 0.5735,
     "books": 6
    },
    "model_home_win_prob": 0.4438,
@@ -87,12 +87,12 @@
   },
   {
    "matchup": "FLA @ BOS",
-   "home_win_prob": 0.536,
+   "home_win_prob": 0.5397,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5642,
-    "away_prob": 0.4358,
+    "home_prob": 0.5716,
+    "away_prob": 0.4284,
     "books": 6
    },
    "model_home_win_prob": 0.5078,
@@ -115,12 +115,12 @@
   },
   {
    "matchup": "PHI @ CGY",
-   "home_win_prob": 0.4803,
+   "home_win_prob": 0.4801,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4822,
-    "away_prob": 0.5178,
+    "home_prob": 0.4817,
+    "away_prob": 0.5183,
     "books": 6
    },
    "model_home_win_prob": 0.4785,
@@ -143,12 +143,12 @@
   },
   {
    "matchup": "VGK @ BUF",
-   "home_win_prob": 0.4958,
+   "home_win_prob": 0.4955,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4997,
-    "away_prob": 0.5003,
+    "home_prob": 0.4991,
+    "away_prob": 0.5009,
     "books": 6
    },
    "model_home_win_prob": 0.4918,
