@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-08",
-"count": 795,
+"count": 796,
 "players": [
 {
 "team": "ANA",
@@ -2104,6 +2104,13 @@
 "role": "skater"
 },
 {
+"team": "FLA",
+"name": "Jack Devine",
+"player_id": "8483433",
+"position": "R",
+"role": "skater"
+},
+{
 "team": "LAK",
 "name": "Alex Turcotte",
 "player_id": "8481532",
@@ -3404,13 +3411,6 @@
 "player_id": "8482095",
 "position": "D",
 "role": "skater"
-},
-{
-"team": "OTT",
-"name": "Jonas Johansson",
-"player_id": "8477992",
-"position": "G",
-"role": "goalie"
 },
 {
 "team": "OTT",
@@ -5306,6 +5306,13 @@
 "team": "WPG",
 "name": "Haydn Fleury",
 "player_id": "8477938",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Henry Thrun",
+"player_id": "8481567",
 "position": "D",
 "role": "skater"
 },

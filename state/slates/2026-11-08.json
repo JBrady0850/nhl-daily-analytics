@@ -7,8 +7,8 @@
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.4184,
-    "away_prob": 0.5816,
+    "home_prob": 0.4185,
+    "away_prob": 0.5815,
     "books": 6
    },
    "model_home_win_prob": 0.3795,
@@ -31,12 +31,12 @@
   },
   {
    "matchup": "TBL @ WPG",
-   "home_win_prob": 0.438,
+   "home_win_prob": 0.4393,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4322,
-    "away_prob": 0.5678,
+    "home_prob": 0.4348,
+    "away_prob": 0.5652,
     "books": 6
    },
    "model_home_win_prob": 0.4438,
@@ -59,12 +59,12 @@
   },
   {
    "matchup": "PIT @ ANA",
-   "home_win_prob": 0.548,
+   "home_win_prob": 0.5485,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5217,
-    "away_prob": 0.4783,
+    "home_prob": 0.5227,
+    "away_prob": 0.4773,
     "books": 6
    },
    "model_home_win_prob": 0.5742,
@@ -87,12 +87,12 @@
   },
   {
    "matchup": "FLA @ BOS",
-   "home_win_prob": 0.5287,
+   "home_win_prob": 0.5288,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5615,
-    "away_prob": 0.4385,
+    "home_prob": 0.5618,
+    "away_prob": 0.4382,
     "books": 6
    },
    "model_home_win_prob": 0.4958,
