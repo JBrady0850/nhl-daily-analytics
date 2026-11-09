@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-09",
-"count": 795,
+"count": 794,
 "players": [
 {
 "team": "ANA",
@@ -1164,13 +1164,6 @@
 "player_id": "8482176",
 "position": "D",
 "role": "skater"
-},
-{
-"team": "CHI",
-"name": "Arvid Soderblom",
-"player_id": "8482821",
-"position": "G",
-"role": "goalie"
 },
 {
 "team": "CHI",
@@ -4226,15 +4219,15 @@
 },
 {
 "team": "STL",
-"name": "Adam Jiricek",
-"player_id": "8484790",
+"name": "Brandon Carlo",
+"player_id": "8478443",
 "position": "D",
 "role": "skater"
 },
 {
 "team": "STL",
-"name": "Brandon Carlo",
-"player_id": "8478443",
+"name": "Calle Rosen",
+"player_id": "8480157",
 "position": "D",
 "role": "skater"
 },
@@ -4270,13 +4263,6 @@
 "team": "STL",
 "name": "Philip Broberg",
 "player_id": "8481598",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "STL",
-"name": "Theo Lindstein",
-"player_id": "8484188",
 "position": "D",
 "role": "skater"
 },
@@ -5446,6 +5432,13 @@
 "team": "WSH",
 "name": "Jakob Chychrun",
 "player_id": "8479345",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WSH",
+"name": "Justin Holl",
+"player_id": "8475718",
 "position": "D",
 "role": "skater"
 },
