@@ -1524,6 +1524,13 @@
 },
 {
 "team": "DAL",
+"name": "R\u00e9mi Poirier",
+"player_id": "8482465",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "DAL",
 "name": "David Perron",
 "player_id": "8474102",
 "position": "L",
@@ -5488,13 +5495,6 @@
 "team": "WSH",
 "name": "Logan Thompson",
 "player_id": "8480313",
-"position": "G",
-"role": "goalie"
-},
-{
-"team": "WSH",
-"name": "R\u00e9mi Poirier",
-"player_id": "8482465",
 "position": "G",
 "role": "goalie"
 },
