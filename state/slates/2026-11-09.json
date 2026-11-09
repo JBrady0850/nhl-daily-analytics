@@ -67,14 +67,14 @@
     "away_prob": 0.5601,
     "books": 6
    },
-   "model_home_win_prob": 0.5269,
+   "model_home_win_prob": 0.5268,
    "home_pillars": {
     "p1_form": -8.329,
-    "p2_absence": -4.471,
+    "p2_absence": -4.494,
     "p3_motivation": 0.0,
     "p4_gvi": -2.826,
     "p5_friction": 0.0,
-    "adj_raa": 34.374
+    "adj_raa": 34.351
    },
    "away_pillars": {
     "p1_form": -11.814,

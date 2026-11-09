@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-09",
-"count": 796,
+"count": 795,
 "players": [
 {
 "team": "ANA",
@@ -4032,13 +4032,6 @@
 "team": "SJS",
 "name": "Barclay Goodrow",
 "player_id": "8476624",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "SJS",
-"name": "Filip Bystedt",
-"player_id": "8483428",
 "position": "C",
 "role": "skater"
 },
