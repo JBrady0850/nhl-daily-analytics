@@ -50,6 +50,8 @@ HIST_NAME = "gamescore_history.json"
 HISTORY_GAMES = 10       # 1.19.0: each team's last ten games feed the players' trends
 BACKFILL_MAX = 200       # older games scored per run to fill the history (the first run scores the season)
 DRAG_MIN_GAMES = 5       # games he must have played of the last ten before he can be flagged
+NAMES_FETCH_MAX = 80     # 1.20.0: players looked up on the NHL's player pages per run when no saved game or roster names them
+MASTER_NAME = "player_master_list.json"   # the file core.MASTER_LIST_NAME writes: today's NHL rosters
 LOOKBACK_DAYS = 3        # finished games of today and the three days before
 WAIT_DAYS = 2            # inputs still missing this long after the game: the production score is final
 DEFAULT_RATES = {"xg": 2.5, "g": 2.4, "pp": 6.5, "shot": 0.063}   # per 60 (shot: xG per unblocked 5-on-5 shot), used only when MoneyPuck is unreachable
@@ -548,13 +550,19 @@ def _load_hist(state_dir, season_year):
             return h
     except (OSError, ValueError, AttributeError):
         pass
-    return {"season": season_year, "teams": {}}
+    return {"season": season_year, "teams": {}, "names": {}}
 
 
 def hist_add(hist, gid, game):
     """Put one scored game into each of its teams' history, replacing an earlier score
-    of the same game, and keep each team's last HISTORY_GAMES games."""
+    of the same game, and keep each team's last HISTORY_GAMES games. 1.20.0: also keep
+    every skater's name and position (hist["names"]), so a player who missed his team's
+    latest game can still be named beside his trend."""
+    names = hist.setdefault("names", {})
     for ab, entry in (game.get("teams") or {}).items():
+        for p in entry.get("skaters") or []:
+            if p.get("name"):
+                names[str(p["id"])] = [p["name"], p.get("pos") or ""]
         rows = [r for r in hist["teams"].get(ab, []) if r["game"] != int(gid)]
         rows.append({"game": int(gid), "date": game.get("date"), "opp": entry.get("opp"),
                      "home": bool(entry.get("home")), "result": entry.get("result"),
@@ -587,9 +595,58 @@ def dragging(n, avg, slope):
     return bool(n >= DRAG_MIN_GAMES and avg is not None and avg < 0 and (slope is None or slope <= 0))
 
 
-def add_trends(latest, hist):
+def _trend(vals):
+    n, avg, slope = series_stats(vals)
+    return {"g": vals, "n": n, "avg": None if avg is None else round(avg, 2),
+            "slope": None if slope is None else round(slope, 3), "drag": dragging(n, avg, slope)}
+
+
+def load_roster(state_dir):
+    """{player id: team} from today's NHL rosters (state/player_master_list.json, written
+    earlier in the same build), or None when the list cannot be read."""
+    try:
+        players = json.load(open(os.path.join(state_dir, MASTER_NAME), encoding="utf-8")).get("players") or []
+    except (OSError, ValueError, AttributeError):
+        return None
+    out = {str(p.get("player_id")): p for p in players if p.get("player_id")}
+    return out or None
+
+
+async def fill_names(f, hist, roster, limit=NAMES_FETCH_MAX):
+    """Name every skater in the teams' last ten games: from the games already scored
+    (hist_add), then today's rosters, then the NHL's player page (api-web, a few a run,
+    kept in the history so each player is looked up once)."""
+    names = hist.setdefault("names", {})
+    want = sorted({pid for rows in (hist.get("teams") or {}).values() for r in rows for pid in r.get("gs") or {}
+                   if pid not in names})
+    for pid in list(want):
+        r = (roster or {}).get(pid)
+        if r and r.get("name"):
+            names[pid] = [r["name"], r.get("position") or ""]
+            want.remove(pid)
+    want = want[:limit]
+    for i in range(0, len(want), 4):
+        chunk = want[i:i + 4]
+        got = await asyncio.gather(*[f.get(f"{NHL_BASE}player/{pid}/landing") for pid in chunk])
+        for pid, d in zip(chunk, got):
+            if not isinstance(d, dict):
+                continue
+            name = f"{(d.get('firstName') or {}).get('default', '')} {(d.get('lastName') or {}).get('default', '')}".strip()
+            if name:
+                names[pid] = [name, d.get("position") or ""]
+    return names
+
+
+def add_trends(latest, hist, roster=None):
     """Give every skater of each team's latest game his trend over the team's last ten
-    games (oldest first), and the team its list of those games."""
+    games (oldest first), and the team its list of those games.
+    1.20.0 (John, 2026-11-09: "Update the Dragging the team down over its last 10 games
+    graph to include all players for My Team not just the one that played the last
+    game"): every other skater who played for the team in those games gets the same
+    trend in trend_others, forwards first, most games first. on_roster says whether he
+    is on the team's NHL roster today (None when the rosters could not be read) and
+    now_team names the team whose roster he is on instead."""
+    names = hist.get("names") or {}
     for ab, t in latest.items():
         rows = (hist.get("teams") or {}).get(ab) or []
         if not rows:
@@ -597,11 +654,21 @@ def add_trends(latest, hist):
         t["trend_games"] = [{"game": r["game"], "date": r["date"], "opp": r["opp"], "home": r["home"],
                              "result": r.get("result")} for r in rows]
         for p in t.get("skaters") or []:
-            vals = [r["gs"].get(str(p["id"])) for r in rows]
-            n, avg, slope = series_stats(vals)
-            p["trend"] = {"g": vals, "n": n, "avg": None if avg is None else round(avg, 2),
-                          "slope": None if slope is None else round(slope, 3),
-                          "drag": dragging(n, avg, slope)}
+            p["trend"] = _trend([r["gs"].get(str(p["id"])) for r in rows])
+        here = {str(p["id"]) for p in t.get("skaters") or []} | {str(g["id"]) for g in t.get("goalies") or []}
+        others = []
+        for pid in sorted({pid for r in rows for pid in r["gs"]} - here):
+            name, pos = (names.get(pid) or [None, ""])[:2]
+            if not name:
+                log.warning("game score trend: no name for player %s (%s)", pid, ab)
+                continue
+            on = (roster or {}).get(pid)
+            others.append({"id": int(pid), "name": name, "pos": pos,
+                           "trend": _trend([r["gs"].get(pid) for r in rows]),
+                           "on_roster": None if roster is None else bool(on and on.get("team") == ab),
+                           "now_team": on.get("team") if on and on.get("team") and on.get("team") != ab else None})
+        others.sort(key=lambda o: (o["pos"] == "D", -o["trend"]["n"], o["trend"]["avg"], o["name"]))
+        t["trend_others"] = others
     return latest
 
 
@@ -726,8 +793,13 @@ async def update(f, session, state_dir, target_date, season_year, game_type_ok=(
     cache["games"] = {gid: g for gid, g in games.items() if gid in keep}
     with open(os.path.join(state_dir, CACHE_NAME), "w", encoding="utf-8") as fh:
         json.dump(cache, fh, separators=(",", ":"))
+    roster = load_roster(state_dir)
+    try:
+        await fill_names(f, hist, roster)
+    except Exception as exc:  # noqa: BLE001 - a missing name only leaves that player out
+        log.warning("game score names: %s", exc)
     with open(os.path.join(state_dir, HIST_NAME), "w", encoding="utf-8") as fh:
         json.dump(hist, fh, separators=(",", ":"))
-    add_trends(latest, hist)
+    add_trends(latest, hist, roster)
     return {"teams": latest,
             "credit": "NHL play-by-play and shift charts; expected goals and season rates from MoneyPuck.com"}

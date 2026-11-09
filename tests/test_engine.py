@@ -1266,6 +1266,82 @@ def test_history_keeps_each_teams_last_ten_games_and_replaces_a_rescore():
     check_public({"gamescore": {"teams": latest}})
 
 
+# ---------- 1.20.0: every skater of the last ten games, not only the latest game's ----------
+# John, 2026-11-09: "Update the Dragging the team down over its last 10 games graph to
+# include all players for My Team not just the one that played the last game"
+
+def _hist_ten(extra):
+    """Ten FLA games; players 1 and 2 play all ten, the others where extra says so."""
+    hist = {"season": 2026, "teams": {"FLA": []}, "names": {"1": ["Al One", "C"], "2": ["Bo Two", "D"],
+            "3": ["Cy Three", "D"], "4": ["Di Four", "L"], "5": ["Ed Five", "R"]}}
+    for k in range(10):
+        gs = {"1": 0.3, "2": 0.1}
+        for pid, vals in extra.items():
+            if vals[k] is not None:
+                gs[pid] = vals[k]
+        hist["teams"]["FLA"].append({"game": 2026020100 + k, "date": f"2026-10-{k + 10:02d}", "opp": "BOS",
+                                     "home": True, "result": "L", "inputs": "full", "gs": gs})
+    return hist
+
+
+def test_trend_others_name_every_skater_of_the_last_ten_games():
+    """Kulikov played 9 of Florida's last 10 at -0.32 a game and was DRAGGING, but missed
+    the 2026-11-08 game, so 1.19.0 never showed him."""
+    from nhlda import gamescore as G
+    extra = {"3": [0.1, 0.0, -0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, None],      # 9 games, falling, below 0
+             "4": [None] * 7 + [0.4, -0.2, None],                                   # 2 games, now off the roster
+             "5": [0.6, 0.5, 0.4, None, None, None, None, None, None, None],        # 3 games, now on another team
+             "6": [0.2] + [None] * 9}                                               # nobody can name him
+    hist = _hist_ten(extra)
+    roster = {"1": {"team": "FLA"}, "2": {"team": "FLA"}, "3": {"team": "FLA"}, "5": {"team": "SEA"}}
+    latest = {"FLA": {"skaters": [{"id": 1, "gs": 0.3}, {"id": 2, "gs": 0.1}], "goalies": [{"id": 9}]}}
+    G.add_trends(latest, hist, roster)
+    others = latest["FLA"]["trend_others"]
+    assert [o["name"] for o in others] == ["Ed Five", "Di Four", "Cy Three"]           # forwards first, most games first
+    five, four, three = others
+    assert three == {"id": 3, "name": "Cy Three", "pos": "D", "on_roster": True, "now_team": None,
+                     "trend": {"g": extra["3"], "n": 9, "avg": -0.3, "slope": -0.1, "drag": True}}
+    assert four["on_roster"] is False and four["now_team"] is None and four["trend"]["n"] == 2 and not four["trend"]["drag"]
+    assert five["on_roster"] is False and five["now_team"] == "SEA" and five["trend"]["n"] == 3
+    assert all(p["trend"]["n"] == 10 for p in latest["FLA"]["skaters"])
+    # rosters that could not be read: no roster verdict at all
+    latest = {"FLA": {"skaters": [{"id": 1, "gs": 0.3}, {"id": 2, "gs": 0.1}]}}
+    G.add_trends(latest, hist)
+    assert [(o["on_roster"], o["now_team"]) for o in latest["FLA"]["trend_others"]] == [(None, None)] * 3
+    check_public({"gamescore": {"teams": latest}})
+
+
+def test_names_for_the_trend_come_from_games_rosters_then_the_nhl(tmp_path):
+    import asyncio
+    from nhlda import gamescore as G
+    hist = {"season": 2026, "teams": {}}
+    G.hist_add(hist, 2026020100, {"date": "2026-10-10", "inputs": "full", "teams": {"FLA": {
+        "opp": "BOS", "home": True, "result": "W",
+        "skaters": [{"id": 8477493, "name": "Aleksander Barkov", "pos": "C", "gs": 0.5}, {"id": 11, "gs": 0.1},
+                    {"id": 12, "gs": 0.0}, {"id": 13, "gs": -0.1}]}}})
+    assert hist["names"] == {"8477493": ["Aleksander Barkov", "C"]}
+    master = {"season": "20262027", "players": [{"team": "FLA", "name": "Roster Name", "player_id": "11",
+                                                 "position": "D", "role": "skater"}]}
+    json.dump(master, open(tmp_path / "player_master_list.json", "w", encoding="utf-8"))
+    roster = G.load_roster(str(tmp_path))
+    assert roster["11"]["team"] == "FLA" and G.load_roster(str(tmp_path / "none")) is None
+
+    class Landing:
+        asked = []
+        async def get(self, url, **kw):
+            self.asked.append(url)
+            if url.endswith("/player/12/landing"):
+                return {"firstName": {"default": "Page"}, "lastName": {"default": "Name"}, "position": "R"}
+            return None                                                 # the NHL did not answer for 13
+    f = Landing()
+    asyncio.run(G.fill_names(f, hist, roster))
+    assert hist["names"]["11"] == ["Roster Name", "D"] and hist["names"]["12"] == ["Page Name", "R"]
+    assert "13" not in hist["names"] and len(f.asked) == 2                  # only the two nobody had named
+    f.asked.clear()
+    asyncio.run(G.fill_names(f, hist, roster, limit=0))
+    assert f.asked == []
+
+
 TOI_HTML = """<table>
 <tr><td class="playerHeading + border" colspan="8">13 BARKOV, ALEKSANDER</td></tr>
 <tr><td>Shift #</td><td>Per</td><td>Start of Shift</td><td>End of Shift</td><td>Duration</td></tr>
@@ -1322,3 +1398,4 @@ def test_update_scores_missing_older_games_from_the_schedule(tmp_path):
     t = out["teams"]["FLA"]
     assert t["game_id"] == 2026020180 and t["trend_games"][0]["opp"] == "CHI"
     assert all(p["trend"]["g"] == [p["gs"]] and p["trend"]["n"] == 1 for p in t["skaters"])
+    assert t["trend_others"] == [] and hist["names"]                   # 1.20.0: one game, nobody else; names kept

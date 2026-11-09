@@ -180,6 +180,7 @@ runs, so each name is looked up once.
 | `goalies` | `id`, `name`, `shots` faced and `ga` (the NHL boxscore's), `xga` (MoneyPuck's expected goals of the unblocked shots he faced, its own figure for him) and `gsax` (`xga` minus `ga`). |
 | `trend_games` | Since 1.19.0: the team's last games (up to ten), oldest first, each `game`, `date`, `opp`, `home` and `result`; the last one is this game. |
 | `skaters[].trend` | Since 1.19.0: `g` (his Game Score in each of `trend_games`, null where he did not play), `n` (games he played), `avg` (his average over them), `slope` (his least-squares trend, Game Score per game, null under two games) and `drag` (true when he played at least five, `avg` is below zero and `slope` is zero or less: he is dragging the team down). |
+| `trend_others` | Since 1.20.0: every other skater who played for the team in `trend_games` but not in this game, forwards first, then most games played: `id`, `name`, `pos`, `trend` (as above), `on_roster` (true when he is on the team's NHL roster today, false when he is not, null when the rosters could not be read) and `now_team` (the team whose roster he is on today, when it is another team, else null). Goalies are not included. |
 
 The model is this app's own, in the units of the public Game Score (Dom Luszczyszyn,
 Hockey Graphs, 2016):

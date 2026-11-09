@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.19.0";
+  const APP_VERSION = "1.20.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -732,6 +732,21 @@
       <div class="gs-bars" role="img" aria-label="${esc(p.name)}: ${signed(p.gs)}. ${esc(say("Offense", p.o))}. ${esc(say("Defense", p.d))}.">
       <div class="gs-plot" style="--z:${((0 - lo) / span * 100).toFixed(2)}%"><span class="gs-trk o">${gsTrack(p.o, "offense", lo, span)}</span><span class="gs-trk d">${gsTrack(p.d, "defense", lo, span)}</span></div></div>${games ? gsTrend(p, sc, games) : ""}</div>`;
   }
+  // 1.20.0 (John, 2026-11-09: "Update the Dragging the team down over its last 10 games
+  // graph to include all players for My Team not just the one that played the last
+  // game"): a skater who played in some of the team's last ten games but not the latest
+  // one has no bars, so his row says why he was out of it (injured, now on another
+  // team, off the roster, or simply not in it), then the same trend as everyone else
+  function outWhy(p, ab) {
+    const inj = ((D.injuries || {}).players || []).find(x => String(x.player_id) === String(p.id) && (!x.team || x.team === ab));
+    if (inj) return `${injPill(inj.status)} <span>${esc(inj.injury || "Injured")}</span>`;
+    if (p.now_team) return `<span data-tip="He is on the ${esc(teamName(p.now_team))} roster today." tabindex="0">Now with the ${esc(teamName(p.now_team))}</span>`;
+    if (p.on_roster === false) return `<span data-tip="He played for the ${esc(teamName(ab))} in these games but is not on its NHL roster today: sent to the minors, waived, traded or on long-term injured reserve." tabindex="0">Not on the roster today</span>`;
+    return `<span>Did not play the last game</span>`;
+  }
+  function gsOutRow(p, ab, sc, games) {
+    return `<div class="gs-row out${p.trend.drag ? " drag" : ""}"><span class="gs-name">${pname(p.name, p.id)}</span><b class="gs-val" data-tip="He did not play the team's last game, so he has no Game Score or bars for it. His trend beside it covers the games he did play.">-</b><span class="gs-out-txt small">${outWhy(p, ab)}</span>${gsTrend(p, sc, games)}</div>`;
+  }
   // the goalie is measured in goals saved, not Game Score, so he gets a plain sentence
   // instead of a bar on the skaters' scale
   function gsGoalie(g, waiting) {
@@ -758,16 +773,22 @@
     const strip = `<div class="finalbar team ${t.result === "W" ? "won" : "lost"}"><span class="fs-lab">Final${esc(per)}</span>${t.home ? them + us : us + them}<span class="pill ${t.result === "W" ? "win" : "loss"}">${GS_RESULT[t.result] || esc(t.result)}</span></div>`;
     const group = (lab, rows) => rows ? `<p class="gs-grp">${lab}</p>${rows}` : "";
     const games = Array.isArray(t.trend_games) && t.trend_games.length && sk.some(p => p.trend) ? t.trend_games : null;
-    const sc = games ? trendScale(sk) : null, nG = games ? games.length : 0;
-    const drag = games ? sk.filter(p => p.trend && p.trend.drag).sort((a, b) => a.trend.avg - b.trend.avg) : [];
+    const others = games && Array.isArray(t.trend_others) ? t.trend_others.filter(p => p.trend && p.trend.n) : [];
+    const notIn = new Set(others);
+    const sc = games ? trendScale(sk.concat(others)) : null, nG = games ? games.length : 0;
+    const drag = games ? sk.concat(others).filter(p => p.trend && p.trend.drag).sort((a, b) => a.trend.avg - b.trend.avg) : [];
     const dragLine = !games ? "" : `<p class="small gs-dragline">${drag.length
-      ? `<b>Dragging the team down over its last ${nG} games:</b> ${drag.map(p => `${pname(p.name, p.id)} (${signed(p.trend.avg)} a game)`).join(", ")}.`
-      : `No skater from this game is dragging the team down over its last ${nG} games.`}</p>`;
+      ? `<b>Dragging the team down over its last ${nG} games:</b> ${drag.map(p => `${pname(p.name, p.id)} (${signed(p.trend.avg)} a game${notIn.has(p) ? ", not in the last game" : ""})`).join(", ")}.`
+      : `No skater is dragging the team down over its last ${nG} games.`}</p>`;
+    const othersBox = !others.length ? "" : `<div class="gs-others"><p class="gs-grp">Not in the last game</p>
+      <p class="small muted gs-others-how">They played for the ${esc(teamName(ab))} in some of its last ${nG} games but not in the last one, so they have no bars. Their trend covers the same ${nG} games as above.</p>
+      ${others.map(p => gsOutRow(p, ab, sc, games)).join("")}</div>`;
     const fw = sk.filter(p => p.pos !== "D"), dm = sk.filter(p => p.pos === "D");
     const key = GS_PARTS.map(([k, n]) => `<span class="gs-key" data-tip="${esc((TIPS.gs || {})[n] || n)}"><i class="gs-sw gs-${k}"></i>${esc(n)}</span>`).join("");
     const cells = v => v.map(x => td(signed(x), "n")).join("");
     const tcells = p => !games ? "" : td(p.trend ? signed(p.trend.avg) : "-", "n") + td(p.trend ? esc(p.trend.n) : "-", "n") + td(p.trend && typeof p.trend.slope === "number" ? signed(p.trend.slope) : "-", "n");
-    const rows = sk.map(p => `<tr>${td(esc(p.name))}${td(esc(p.pos))}${td(p.toi == null ? "-" : num(p.toi, 1), "n hm")}${td(`<b>${signed(p.gs)}</b>`, "n")}${cells(p.o)}${cells(p.d)}${tcells(p)}</tr>`).join("");
+    const rows = sk.map(p => `<tr>${td(esc(p.name))}${td(esc(p.pos))}${td(p.toi == null ? "-" : num(p.toi, 1), "n hm")}${td(`<b>${signed(p.gs)}</b>`, "n")}${cells(p.o)}${cells(p.d)}${tcells(p)}</tr>`).join("")
+      + (others.length ? `<tr class="grp"><td colspan="15">Not in the last game</td></tr>` + others.map(p => `<tr class="out">${td(esc(p.name))}${td(esc(p.pos))}${td("-", "n hm")}${td("-", "n")}${"<td class=\"n\">-</td>".repeat(8)}${tcells(p)}</tr>`).join("") : "");
     const hd = thT("Player", "The player. His name in the chart above opens his NHL.com page.") + thT("Pos", TIPS.heads.Pos) + thT("TOI", "Time on ice in the game, minutes.", "n hm") + thT("Game Score", TIPS.gs["Game Score"], "n") +
       ["Production", "Play driving", "Special teams", "Usage"].map(n => thT("O " + n.split(" ")[0], `Offense, ${n.toLowerCase()}: ${TIPS.gs[n]}`, "n")).join("") +
       ["Production", "Play driving", "Special teams", "Usage"].map(n => thT("D " + n.split(" ")[0], `Defense, ${n.toLowerCase()}: ${TIPS.gs[n]}`, "n")).join("") +
@@ -790,6 +811,7 @@
       ${group("Forwards", fw.map(p => gsRow(p, lo, span, sc, games)).join(""))}${group("Defense", dm.map(p => gsRow(p, lo, span, sc, games)).join(""))}</div>
       ${gk.length ? `<div class="gs-goalies"><div class="gs-head"><span class="gs-name">Goalie</span><span class="gs-val" data-tip="${esc(TIPS.gs.Goalie)}">Goals saved</span><span></span></div>${gk.map(g => gsGoalie(g, t.pending)).join("")}</div>` : ""}
       ${note}
+      ${othersBox}
       <details class="more"><summary>Numbers</summary>${tbl(hd, rows, "gs-table")}</details>
       <p class="tiny muted">This app's own Game Score, built on the public Game Score formula (Dom Luszczyszyn, Hockey Graphs, 2016). Data: NHL play-by-play and shift charts; expected goals and season rates from <a href="https://moneypuck.com" target="_blank" rel="noopener">MoneyPuck.com</a>.</p></details>`;
   }

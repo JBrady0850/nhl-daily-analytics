@@ -280,10 +280,22 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
 .gs-trend .tr-avg { font: 600 .82rem/1 var(--mono); font-variant-numeric: tabular-nums; min-width: 3.1em; text-align: right; }
 .gs-trend .pill { font-size: .78rem; padding: 2px 6px 0; letter-spacing: .05em; }
 .gs-row.drag { background: color-mix(in srgb, var(--bad) 7%, transparent); }
+/* 1.20.0: skaters who played in the team's last ten games but not its latest one; the
+   same columns as the chart, with the reason in place of the bars */
+.gs-others { margin-top: 14px; }
+.gs-others .gs-grp { margin-top: 0; }
+.gs-others-how { margin: 0 0 4px; }
+.gs-others .gs-row { grid-template-columns: minmax(6.5rem, 10.5rem) 4.6rem minmax(0, 1fr) 12.5rem; }
+.gs-out-txt { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 6px; color: var(--muted); line-height: 1.35; min-width: 0; }
+.gs-out-txt [data-tip] { cursor: help; }
+.gs-out-txt .pill { font-size: .78rem; padding: 2px 6px 0; letter-spacing: .05em; }
+table.gs-table tr.grp td { font: 600 .98rem/1 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-top: 10px; }
 /* tablets and narrow windows: the trend sits under the bars, so the plot keeps its width */
 @media (max-width: 960px) {
   .gs-chart.trended .gs-head, .gs-chart.trended .gs-row { grid-template-columns: minmax(6.5rem, 10.5rem) 4.6rem minmax(0, 1fr); row-gap: 3px; }
   .gs-chart.trended .gs-trend { grid-column: 3; }
+  .gs-others .gs-row { grid-template-columns: minmax(6.5rem, 10.5rem) 4.6rem minmax(0, 1fr); row-gap: 3px; }
+  .gs-others .gs-trend { grid-column: 3; }
   .gs-trend-h { display: none; }
   .gs-trend .tr-lab { display: inline; }
 }
@@ -294,7 +306,8 @@ table.gs-table td:first-child { min-width: 10em; }
 /* phones: the name and value on one line, the bars across the full width below */
 @media (max-width: 640px) {
   .gs-head, .gs-row, .gs-chart.trended .gs-head, .gs-chart.trended .gs-row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 3px; }
-  .gs-bars, .gs-sides, .gs-gk-txt, .gs-trend, .gs-trend-h, .gs-chart.trended .gs-trend { grid-column: 1 / -1; }
+  .gs-others .gs-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .gs-bars, .gs-sides, .gs-gk-txt, .gs-out-txt, .gs-trend, .gs-trend-h, .gs-chart.trended .gs-trend, .gs-others .gs-trend { grid-column: 1 / -1; }
   .gs-trend-h { display: none; }
   .gs-trend svg { width: 110px; }
   .gs-trend .tr-lab { display: inline; }

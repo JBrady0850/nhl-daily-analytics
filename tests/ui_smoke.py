@@ -482,8 +482,53 @@ LAST_GAME_JS = """(ab) => {
     dragLine: (() => { const d = lg.querySelector('.gs-dragline'); if (!d) return '';
       const c = d.cloneNode(true); c.querySelectorAll('a.plink').forEach(a => a.replaceWith(a.childNodes[0].textContent));
       return c.textContent.replace(/\\s+/g, ' ').trim(); })(),
-    dragRows: [...lg.querySelectorAll('.gs-chart .gs-row.drag')].length};
+    dragRows: [...lg.querySelectorAll('.gs-chart .gs-row.drag')].length,
+    // 1.20.0: skaters of the last ten games who missed the last one, under the chart
+    others: [...lg.querySelectorAll('.gs-others .gs-row')].map(r => { const a = r.querySelector('.gs-name a.plink'), t = r.querySelector('.gs-trend'), v = r.querySelector('.gs-val');
+      return [a ? a.childNodes[0].textContent.trim() : null, v.textContent.trim(), !!v.dataset.tip, (r.querySelector('.gs-out-txt') || {textContent: ''}).textContent.replace(/\\s+/g, ' ').trim(),
+        t ? (t.querySelector('.tr-avg') || {textContent: ''}).textContent.trim() : null, t ? !!t.querySelector('polyline.tr-line') : false,
+        !!(t && t.querySelector('.pill.bad')), r.classList.contains('drag'), !r.querySelector('.gs-bars'),
+        (() => { const q = r.getBoundingClientRect(), w = t ? t.getBoundingClientRect() : q; return w.right <= q.right + 0.5 && w.left >= q.left - 0.5; })()]; }),
+    othersHead: (() => { const g = lg.querySelector('.gs-others > .gs-grp'); return g ? g.textContent.trim() : null; })(),
+    othersHow: (lg.querySelector('.gs-others-how') || {textContent: ''}).textContent.trim(),
+    tableOut: [lg.querySelectorAll('table.gs-table tbody tr.grp').length, lg.querySelectorAll('table.gs-table tbody tr.out').length,
+      [...lg.querySelectorAll('table.gs-table tbody tr.out')].every(r => r.children.length === lg.querySelectorAll('table.gs-table thead th').length)]};
 }"""
+
+
+def check_now_team(b, site_dir, sample):
+    """1.20.0: a skater who missed the last game and is on another team's roster today
+    says which team, and a file without trend_others (1.19.0 data) still draws the
+    chart without the group. A fresh page each time, no reload."""
+    out = []
+    for label, change, want in (("now on another team", "now", "Now with the Seattle Kraken"), ("1.19.0 file", "old", None)):
+        alt = json.loads(json.dumps(sample))
+        t = alt["gamescore"]["teams"]["FLA"]
+        if change == "now":
+            t["trend_others"][-1].update(on_roster=False, now_team="SEA")
+        else:
+            for tt in alt["gamescore"]["teams"].values():
+                tt.pop("trend_others", None)
+        with open(os.path.join(site_dir, "data", "latest.js"), "w", encoding="utf-8") as fh:
+            fh.write("window.NDA_DATA=" + json.dumps(alt) + ";\n")
+        ctx = new_ctx(b, viewport={"width": 1280, "height": 900})
+        ctx.add_init_script("try { localStorage.setItem('nda:v1', JSON.stringify({teams: ['FLA'], tab: 'myteams'})); } catch (e) {}")
+        pg = ctx.new_page()
+        errs = []
+        pg.on("pageerror", lambda e: errs.append(str(e)))
+        pg.goto("file://" + os.path.join(site_dir, "index.html"))
+        pg.wait_for_selector("main details.lastgame .gs-chart")
+        rows = pg.evaluate("[...document.querySelectorAll('main details.lastgame .gs-others .gs-row')].map(r => [r.querySelector('.gs-name a').childNodes[0].textContent.trim(), r.querySelector('.gs-out-txt').textContent.trim(), !!r.querySelector('.gs-out-txt [data-tip]')])")
+        if want:
+            last = t["trend_others"][-1]["name"]
+            if not rows or rows[-1] != [last, want, True]:
+                out.append(f"{label}: {rows[-1] if rows else rows} (want {[last, want, True]})")
+        elif rows or pg.locator("main details.lastgame .gs-row .gs-trend").count() == 0:
+            out.append(f"{label}: {len(rows)} rows in Not in the last game, or the trend is gone")
+        if errs:
+            out.append(f"{label}: script errors {errs[:2]}")
+        ctx.close()
+    return out
 
 
 def check_last_game(pg, sample, ab):
@@ -501,12 +546,13 @@ def check_last_game(pg, sample, ab):
     nseg = sum(1 for p in t["skaters"] for v in p["o"] + p["d"] if abs(v) >= 0.005)
     away, home = (t["opp"], ab) if t["home"] else (ab, t["opp"])
     sc = {ab: t["for"], t["opp"]: t["against"]}
+    others = [p for p in t.get("trend_others") or [] if p["trend"]["n"]] if t.get("trend_games") else []
     want = {"names": [p["name"] for p in order] + [g["name"] for g in t["goalies"]],
             "vals": [sign(p["gs"]) for p in order] + [sign(g["gsax"]) for g in t["goalies"]],
             "segs": nseg, "segTips": True,
             "keys": [["Production", True], ["Play driving", True], ["Special teams", True], ["Usage", True]],
             "result": [{"W": "Won", "L": "Lost", "OTL": "OT loss"}[t["result"]], True],
-            "scores": [f"{away} {sc[away]}", f"{home} {sc[home]}"], "tableRows": len(t["skaters"]), "heads": True, "credit": True, "labels": True,
+            "scores": [f"{away} {sc[away]}", f"{home} {sc[home]}"], "tableRows": len(t["skaters"]) + (len(others) + 1 if others else 0), "heads": True, "credit": True, "labels": True,
             # the number beside each name is labeled and defined (John, 2026-10-26)
             "head": ["Player", "Game Score", True, "Hurt", "Helped"], "sides": True,
             "ticks": 0, "goalieBars": 0, "odLabels": True, "zeroAligned": True,
@@ -514,17 +560,32 @@ def check_last_game(pg, sample, ab):
     # 1.19.0 (John, 2026-11-05: a trend line to identify players dragging the team down)
     if t.get("trend_games"):
         n = len(t["trend_games"])
-        drag = sorted([p for p in order if p["trend"]["drag"]], key=lambda p: p["trend"]["avg"])
+        drag = sorted([p for p in order + others if p["trend"]["drag"]], key=lambda p: p["trend"]["avg"])
         want["trends"] = [[sign(p["trend"]["avg"]), p["trend"]["drag"], True, True, True, True, True, True]
                           if p["trend"]["n"] else None for p in order]
         for i, p in enumerate(order):
             if not p["trend"]["n"]:
                 want["trends"][i] = got.get("trends", [None] * len(order))[i]   # a dash, no line
         want["trendHead"] = [f"Last {n}", True]
-        want["dragRows"] = len(drag)
+        want["dragRows"] = sum(1 for p in order if p["trend"]["drag"])
         want["dragLine"] = (f"Dragging the team down over its last {n} games: "
-                            + ", ".join(f"{p['name']} ({sign(p['trend']['avg'])} a game)" for p in drag) + "."
-                            if drag else f"No skater from this game is dragging the team down over its last {n} games.")
+                            + ", ".join(f"{p['name']} ({sign(p['trend']['avg'])} a game{', not in the last game' if p in others else ''})" for p in drag) + "."
+                            if drag else f"No skater is dragging the team down over its last {n} games.")
+        # 1.20.0 (John, 2026-11-09: "Update the Dragging the team down over its last 10
+        # games graph to include all players for My Team not just the one that played the
+        # last game"): every other skater of the ten games, with the reason he was out
+        inj = {str(x["player_id"]): x for x in sample["injuries"]["players"] if x.get("team") in (None, ab)}
+        def why(p):
+            if str(p["id"]) in inj:
+                return f"{inj[str(p['id'])]['status']} {inj[str(p['id'])]['injury']}"
+            if p.get("now_team"):
+                return f"Now with the {sample['teams'][p['now_team']]['name']}"
+            return "Not on the roster today" if p.get("on_roster") is False else "Did not play the last game"
+        want["others"] = [[p["name"], "-", True, why(p), sign(p["trend"]["avg"]), True, p["trend"]["drag"], p["trend"]["drag"], True, True] for p in others]
+        want["othersHead"] = "Not in the last game" if others else None
+        want["tableOut"] = [1 if others else 0, len(others), True]
+        want["othersHow"] = (f"They played for the {sample['teams'][ab]['name']} in some of its last {n} games but not in the last "
+                             f"one, so they have no bars. Their trend covers the same {n} games as above.") if others else ""
     out = [f"my teams {ab} last game {k}: {got.get(k)} (want {v})" for k, v in want.items() if got.get(k) != v]
     if not got.get("how", "").startswith("Two bars per player"):
         out.append(f"my teams {ab} last game: the text above the chart does not open by explaining the two bars ({got.get('how', '')[:60]!r})")
@@ -1391,6 +1452,8 @@ def main():
                 lg = sample["gamescore"]["teams"]["FLA"]
                 want += len(lg["skaters"]) + len(lg["goalies"])        # the last game's chart links each player once
                 want += sum(1 for p in lg["skaters"] if (p.get("trend") or {}).get("drag"))   # 1.19.0: and the dragging summary
+                outs = [p for p in lg.get("trend_others") or [] if p["trend"]["n"]]
+                want += len(outs) + sum(1 for p in outs if p["trend"]["drag"])                 # 1.20.0: players not in the last game
                 if len(links) != want or want < 15:
                     fails.append(f"{name}: {len(links)} player links on My Teams, expected {want}")
                 bad = [l for l in links if not re.match(r"^https://www\.nhl\.com/player/\d{6,8}$", l[0] or "") or l[1] != "_blank" or "noopener" not in (l[2] or "")]
@@ -1598,6 +1661,7 @@ def main():
         if pg.locator("main .splaces").count() or pg.locator("main section.teamcard").count() != 1:
             fails.append("My Teams without standings: places shown or card missing")
         ctx.close()
+        fails.extend(check_now_team(b, noted, sample))
         b.close()
     httpd.shutdown()
     shutil.rmtree(tmp, ignore_errors=True)
