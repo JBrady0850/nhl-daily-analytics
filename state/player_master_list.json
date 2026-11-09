@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-09",
-"count": 794,
+"count": 795,
 "players": [
 {
 "team": "ANA",
@@ -1169,6 +1169,13 @@
 "team": "CHI",
 "name": "Arvid Soderblom",
 "player_id": "8482821",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "CHI",
+"name": "Drew Commesso",
+"player_id": "8482123",
 "position": "G",
 "role": "goalie"
 },
