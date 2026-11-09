@@ -59,12 +59,12 @@
   },
   {
    "matchup": "PIT @ ANA",
-   "home_win_prob": 0.5618,
+   "home_win_prob": 0.5625,
    "tier": "MODERATE",
-   "gate_cleared": true,
+   "gate_cleared": false,
    "market": {
-    "home_prob": 0.5221,
-    "away_prob": 0.4779,
+    "home_prob": 0.5235,
+    "away_prob": 0.4765,
     "books": 6
    },
    "model_home_win_prob": 0.6016,
