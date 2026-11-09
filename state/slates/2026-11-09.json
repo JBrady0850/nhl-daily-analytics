@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "PHI @ VAN",
-   "home_win_prob": 0.4365,
+   "home_win_prob": 0.4366,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4466,
-    "away_prob": 0.5534,
+    "home_prob": 0.447,
+    "away_prob": 0.553,
     "books": 6
    },
    "model_home_win_prob": 0.4263,
@@ -31,12 +31,12 @@
   },
   {
    "matchup": "NYR @ EDM",
-   "home_win_prob": 0.5591,
+   "home_win_prob": 0.5616,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.585,
-    "away_prob": 0.415,
+    "home_prob": 0.5901,
+    "away_prob": 0.4099,
     "books": 6
    },
    "model_home_win_prob": 0.5331,
@@ -59,12 +59,12 @@
   },
   {
    "matchup": "NYI @ SJS",
-   "home_win_prob": 0.4841,
+   "home_win_prob": 0.4832,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4399,
-    "away_prob": 0.5601,
+    "home_prob": 0.4381,
+    "away_prob": 0.5619,
     "books": 6
    },
    "model_home_win_prob": 0.5284,

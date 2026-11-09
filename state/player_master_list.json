@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-09",
-"count": 795,
+"count": 796,
 "players": [
 {
 "team": "ANA",
@@ -1282,6 +1282,13 @@
 "name": "Parker Kelly",
 "player_id": "8480448",
 "position": "C",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Alex Gagne",
+"player_id": "8482942",
+"position": "D",
 "role": "skater"
 },
 {
