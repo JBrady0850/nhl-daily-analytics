@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-10",
-"count": 794,
+"count": 796,
 "players": [
 {
 "team": "ANA",
@@ -4513,6 +4513,13 @@
 },
 {
 "team": "TBL",
+"name": "Sam O'Reilly",
+"player_id": "8484770",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "TBL",
 "name": "Scott Sabourin",
 "player_id": "8477149",
 "position": "R",
@@ -4557,6 +4564,13 @@
 "team": "TOR",
 "name": "John Tavares",
 "player_id": "8475166",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Ryan Tverberg",
+"player_id": "8482525",
 "position": "C",
 "role": "skater"
 },
