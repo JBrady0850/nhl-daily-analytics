@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "COL @ TOR",
-   "home_win_prob": 0.3439,
+   "home_win_prob": 0.3448,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.3953,
-    "away_prob": 0.6047,
+    "home_prob": 0.397,
+    "away_prob": 0.603,
     "books": 6
    },
    "model_home_win_prob": 0.2925,
@@ -115,12 +115,12 @@
   },
   {
    "matchup": "NSH @ LAK",
-   "home_win_prob": 0.5311,
+   "home_win_prob": 0.5306,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5491,
-    "away_prob": 0.4509,
+    "home_prob": 0.5481,
+    "away_prob": 0.4519,
     "books": 6
    },
    "model_home_win_prob": 0.5131,
