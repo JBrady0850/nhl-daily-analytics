@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "COL @ TOR",
-   "home_win_prob": 0.3482,
+   "home_win_prob": 0.3478,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.4039,
-    "away_prob": 0.5961,
+    "home_prob": 0.4031,
+    "away_prob": 0.5969,
     "books": 6
    },
    "model_home_win_prob": 0.2925,
@@ -31,12 +31,12 @@
   },
   {
    "matchup": "NJD @ WPG",
-   "home_win_prob": 0.3892,
+   "home_win_prob": 0.39,
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4228,
-    "away_prob": 0.5772,
+    "home_prob": 0.4242,
+    "away_prob": 0.5758,
     "books": 6
    },
    "model_home_win_prob": 0.3557,
@@ -143,22 +143,22 @@
   },
   {
    "matchup": "WSH @ OTT",
-   "home_win_prob": 0.4895,
+   "home_win_prob": 0.4881,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5237,
-    "away_prob": 0.4763,
+    "home_prob": 0.5064,
+    "away_prob": 0.4936,
     "books": 6
    },
-   "model_home_win_prob": 0.4552,
+   "model_home_win_prob": 0.4698,
    "home_pillars": {
     "p1_form": -4.613,
     "p2_absence": -4.703,
     "p3_motivation": 0.0,
-    "p4_gvi": 0.511,
+    "p4_gvi": 2.763,
     "p5_friction": 0.0,
-    "adj_raa": 41.195
+    "adj_raa": 43.447
    },
    "away_pillars": {
     "p1_form": 1.959,
