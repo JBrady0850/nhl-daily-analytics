@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "COL @ TOR",
-   "home_win_prob": 0.3434,
+   "home_win_prob": 0.3417,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.3944,
-    "away_prob": 0.6056,
+    "home_prob": 0.391,
+    "away_prob": 0.609,
     "books": 6
    },
    "model_home_win_prob": 0.2925,
@@ -31,12 +31,12 @@
   },
   {
    "matchup": "NJD @ WPG",
-   "home_win_prob": 0.3932,
+   "home_win_prob": 0.3946,
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4308,
-    "away_prob": 0.5692,
+    "home_prob": 0.4335,
+    "away_prob": 0.5665,
     "books": 6
    },
    "model_home_win_prob": 0.3557,
@@ -59,12 +59,12 @@
   },
   {
    "matchup": "DET @ STL",
-   "home_win_prob": 0.5428,
+   "home_win_prob": 0.5422,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5636,
-    "away_prob": 0.4364,
+    "home_prob": 0.5624,
+    "away_prob": 0.4376,
     "books": 6
    },
    "model_home_win_prob": 0.522,
@@ -87,12 +87,12 @@
   },
   {
    "matchup": "MIN @ MTL",
-   "home_win_prob": 0.4607,
+   "home_win_prob": 0.4613,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4637,
-    "away_prob": 0.5363,
+    "home_prob": 0.4648,
+    "away_prob": 0.5352,
     "books": 6
    },
    "model_home_win_prob": 0.4578,
@@ -115,12 +115,12 @@
   },
   {
    "matchup": "NSH @ LAK",
-   "home_win_prob": 0.5364,
+   "home_win_prob": 0.5336,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5477,
-    "away_prob": 0.4523,
+    "home_prob": 0.5421,
+    "away_prob": 0.4579,
     "books": 6
    },
    "model_home_win_prob": 0.5251,
@@ -143,12 +143,12 @@
   },
   {
    "matchup": "WSH @ OTT",
-   "home_win_prob": 0.4831,
+   "home_win_prob": 0.4811,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4965,
-    "away_prob": 0.5035,
+    "home_prob": 0.4924,
+    "away_prob": 0.5076,
     "books": 6
    },
    "model_home_win_prob": 0.4698,
@@ -171,12 +171,12 @@
   },
   {
    "matchup": "FLA @ CBJ",
-   "home_win_prob": 0.4878,
+   "home_win_prob": 0.4877,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4701,
-    "away_prob": 0.5299,
+    "home_prob": 0.47,
+    "away_prob": 0.53,
     "books": 6
    },
    "model_home_win_prob": 0.5054,
