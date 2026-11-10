@@ -31,12 +31,12 @@
   },
   {
    "matchup": "NJD @ WPG",
-   "home_win_prob": 0.39,
+   "home_win_prob": 0.3919,
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4242,
-    "away_prob": 0.5758,
+    "home_prob": 0.4281,
+    "away_prob": 0.5719,
     "books": 6
    },
    "model_home_win_prob": 0.3557,
@@ -87,12 +87,12 @@
   },
   {
    "matchup": "MIN @ MTL",
-   "home_win_prob": 0.4634,
+   "home_win_prob": 0.4627,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4668,
-    "away_prob": 0.5332,
+    "home_prob": 0.4654,
+    "away_prob": 0.5346,
     "books": 6
    },
    "model_home_win_prob": 0.46,
