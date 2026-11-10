@@ -2315,13 +2315,6 @@
 },
 {
 "team": "MIN",
-"name": "Cameron Crotty",
-"player_id": "8480075",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "MIN",
 "name": "David Spacek",
 "player_id": "8483766",
 "position": "D",
@@ -4929,6 +4922,13 @@
 "name": "Max Sasson",
 "player_id": "8484136",
 "position": "C",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Cameron Crotty",
+"player_id": "8480075",
+"position": "D",
 "role": "skater"
 },
 {
