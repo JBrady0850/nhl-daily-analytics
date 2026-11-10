@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "COL @ TOR",
-   "home_win_prob": 0.3592,
+   "home_win_prob": 0.3581,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.416,
-    "away_prob": 0.584,
+    "home_prob": 0.4138,
+    "away_prob": 0.5862,
     "books": 6
    },
    "model_home_win_prob": 0.3024,
@@ -31,12 +31,12 @@
   },
   {
    "matchup": "NJD @ WPG",
-   "home_win_prob": 0.39,
+   "home_win_prob": 0.3884,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.4243,
-    "away_prob": 0.5757,
+    "home_prob": 0.4211,
+    "away_prob": 0.5789,
     "books": 6
    },
    "model_home_win_prob": 0.3557,
@@ -143,12 +143,12 @@
   },
   {
    "matchup": "FLA @ CBJ",
-   "home_win_prob": 0.4893,
+   "home_win_prob": 0.4908,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4733,
-    "away_prob": 0.5267,
+    "home_prob": 0.4761,
+    "away_prob": 0.5239,
     "books": 6
    },
    "model_home_win_prob": 0.5054,

@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-10",
-"count": 796,
+"count": 795,
 "players": [
 {
 "team": "ANA",
@@ -4368,13 +4368,6 @@
 "team": "TBL",
 "name": "Conor Geekie",
 "player_id": "8483447",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "TBL",
-"name": "Dominic James",
-"player_id": "8483752",
 "position": "C",
 "role": "skater"
 },
