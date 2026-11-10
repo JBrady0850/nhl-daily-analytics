@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "COL @ TOR",
-   "home_win_prob": 0.3473,
+   "home_win_prob": 0.3448,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.402,
-    "away_prob": 0.598,
+    "home_prob": 0.397,
+    "away_prob": 0.603,
     "books": 6
    },
    "model_home_win_prob": 0.2925,
@@ -59,12 +59,12 @@
   },
   {
    "matchup": "DET @ STL",
-   "home_win_prob": 0.5436,
+   "home_win_prob": 0.5431,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5652,
-    "away_prob": 0.4348,
+    "home_prob": 0.5642,
+    "away_prob": 0.4358,
     "books": 6
    },
    "model_home_win_prob": 0.522,
@@ -115,12 +115,12 @@
   },
   {
    "matchup": "NSH @ LAK",
-   "home_win_prob": 0.5317,
+   "home_win_prob": 0.5315,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5503,
-    "away_prob": 0.4497,
+    "home_prob": 0.5499,
+    "away_prob": 0.4501,
     "books": 6
    },
    "model_home_win_prob": 0.5131,
