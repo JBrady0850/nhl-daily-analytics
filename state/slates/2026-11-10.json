@@ -87,12 +87,12 @@
   },
   {
    "matchup": "MIN @ MTL",
-   "home_win_prob": 0.4598,
-   "tier": "MODERATE",
+   "home_win_prob": 0.4607,
+   "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4619,
-    "away_prob": 0.5381,
+    "home_prob": 0.4637,
+    "away_prob": 0.5363,
     "books": 6
    },
    "model_home_win_prob": 0.4578,
