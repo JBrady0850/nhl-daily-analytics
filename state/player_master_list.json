@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-10",
-"count": 795,
+"count": 793,
 "players": [
 {
 "team": "ANA",
@@ -4975,13 +4975,6 @@
 },
 {
 "team": "VAN",
-"name": "Victor Mancini",
-"player_id": "8483768",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "VAN",
 "name": "Zeev Buium",
 "player_id": "8484798",
 "position": "D",
@@ -5299,13 +5292,6 @@
 "team": "WPG",
 "name": "Haydn Fleury",
 "player_id": "8477938",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "WPG",
-"name": "Henry Thrun",
-"player_id": "8481567",
 "position": "D",
 "role": "skater"
 },
