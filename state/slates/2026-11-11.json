@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "PHI @ EDM",
-   "home_win_prob": 0.6156,
+   "home_win_prob": 0.6139,
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.6481,
-    "away_prob": 0.3519,
+    "home_prob": 0.6448,
+    "away_prob": 0.3552,
     "books": 6
    },
    "model_home_win_prob": 0.583,
@@ -115,12 +115,12 @@
   },
   {
    "matchup": "PIT @ SJS",
-   "home_win_prob": 0.4766,
+   "home_win_prob": 0.4763,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.438,
-    "away_prob": 0.562,
+    "home_prob": 0.4376,
+    "away_prob": 0.5624,
     "books": 6
    },
    "model_home_win_prob": 0.5151,
