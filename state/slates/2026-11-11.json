@@ -87,12 +87,12 @@
   },
   {
    "matchup": "TBL @ BUF",
-   "home_win_prob": 0.4677,
+   "home_win_prob": 0.4696,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.458,
-    "away_prob": 0.542,
+    "home_prob": 0.4617,
+    "away_prob": 0.5383,
     "books": 6
    },
    "model_home_win_prob": 0.4774,
