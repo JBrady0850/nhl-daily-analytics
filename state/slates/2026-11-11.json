@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "PHI @ EDM",
-   "home_win_prob": 0.6139,
+   "home_win_prob": 0.6064,
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.6448,
-    "away_prob": 0.3552,
+    "home_prob": 0.6298,
+    "away_prob": 0.3702,
     "books": 6
    },
    "model_home_win_prob": 0.583,
@@ -143,12 +143,12 @@
   },
   {
    "matchup": "UTA @ VGK",
-   "home_win_prob": 0.5142,
+   "home_win_prob": 0.5151,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5325,
-    "away_prob": 0.4675,
+    "home_prob": 0.5342,
+    "away_prob": 0.4658,
     "books": 5
    },
    "model_home_win_prob": 0.4959,
