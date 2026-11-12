@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "CAR @ SEA",
-   "home_win_prob": 0.3031,
+   "home_win_prob": 0.3039,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.2808,
-    "away_prob": 0.7192,
+    "home_prob": 0.2824,
+    "away_prob": 0.7176,
     "books": 6
    },
    "model_home_win_prob": 0.3254,
@@ -59,12 +59,12 @@
   },
   {
    "matchup": "MIN @ TOR",
-   "home_win_prob": 0.396,
+   "home_win_prob": 0.3967,
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.3926,
-    "away_prob": 0.6074,
+    "home_prob": 0.394,
+    "away_prob": 0.606,
     "books": 6
    },
    "model_home_win_prob": 0.3994,
@@ -255,12 +255,12 @@
   },
   {
    "matchup": "MTL @ BOS",
-   "home_win_prob": 0.5269,
+   "home_win_prob": 0.5272,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5312,
-    "away_prob": 0.4688,
+    "home_prob": 0.5319,
+    "away_prob": 0.4681,
     "books": 6
    },
    "model_home_win_prob": 0.5225,
