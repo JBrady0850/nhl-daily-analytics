@@ -31,12 +31,12 @@
   },
   {
    "matchup": "NSH @ ANA",
-   "home_win_prob": 0.5627,
+   "home_win_prob": 0.5631,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5652,
-    "away_prob": 0.4348,
+    "home_prob": 0.5661,
+    "away_prob": 0.4339,
     "books": 6
    },
    "model_home_win_prob": 0.5601,
@@ -114,6 +114,34 @@
    }
   },
   {
+   "matchup": "UTA @ VGK",
+   "home_win_prob": 0.5309,
+   "tier": "LOW",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.5427,
+    "away_prob": 0.4573,
+    "books": 5
+   },
+   "model_home_win_prob": 0.5191,
+   "home_pillars": {
+    "p1_form": 1.002,
+    "p2_absence": -1.071,
+    "p3_motivation": 0.0,
+    "p4_gvi": -1.673,
+    "p5_friction": -0.555,
+    "adj_raa": 47.704
+   },
+   "away_pillars": {
+    "p1_form": 5.205,
+    "p2_absence": -8.176,
+    "p3_motivation": 0.0,
+    "p4_gvi": -1.74,
+    "p5_friction": 0.555,
+    "adj_raa": 45.843
+   }
+  },
+  {
    "matchup": "PIT @ SJS",
    "home_win_prob": 0.4719,
    "tier": "LOW",
@@ -139,34 +167,6 @@
     "p4_gvi": -6.417,
     "p5_friction": 0.555,
     "adj_raa": 39.464
-   }
-  },
-  {
-   "matchup": "UTA @ VGK",
-   "home_win_prob": 0.52,
-   "tier": "LOW",
-   "gate_cleared": false,
-   "market": {
-    "home_prob": 0.5381,
-    "away_prob": 0.4619,
-    "books": 5
-   },
-   "model_home_win_prob": 0.5019,
-   "home_pillars": {
-    "p1_form": 1.002,
-    "p2_absence": -1.071,
-    "p3_motivation": 0.0,
-    "p4_gvi": -1.673,
-    "p5_friction": -0.555,
-    "adj_raa": 47.704
-   },
-   "away_pillars": {
-    "p1_form": 5.205,
-    "p2_absence": -5.536,
-    "p3_motivation": 0.0,
-    "p4_gvi": -1.74,
-    "p5_friction": 0.555,
-    "adj_raa": 48.483
    }
   }
  ]
