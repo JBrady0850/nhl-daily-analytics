@@ -30,13 +30,41 @@
    }
   },
   {
+   "matchup": "DET @ FLA",
+   "home_win_prob": 0.6094,
+   "tier": "HIGH",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.6309,
+    "away_prob": 0.3691,
+    "books": 6
+   },
+   "model_home_win_prob": 0.5878,
+   "home_pillars": {
+    "p1_form": 3.32,
+    "p2_absence": -2.382,
+    "p3_motivation": 0.0,
+    "p4_gvi": -0.512,
+    "p5_friction": 0.0,
+    "adj_raa": 50.426
+   },
+   "away_pillars": {
+    "p1_form": -2.275,
+    "p2_absence": -1.975,
+    "p3_motivation": 0.0,
+    "p4_gvi": -7.842,
+    "p5_friction": 0.0,
+    "adj_raa": 37.908
+   }
+  },
+  {
    "matchup": "WSH @ NJD",
-   "home_win_prob": 0.6096,
+   "home_win_prob": 0.608,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.5831,
-    "away_prob": 0.4169,
+    "home_prob": 0.5799,
+    "away_prob": 0.4201,
     "books": 6
    },
    "model_home_win_prob": 0.6361,
@@ -59,12 +87,12 @@
   },
   {
    "matchup": "MIN @ TOR",
-   "home_win_prob": 0.3959,
+   "home_win_prob": 0.3951,
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.3924,
-    "away_prob": 0.6076,
+    "home_prob": 0.3908,
+    "away_prob": 0.6092,
     "books": 6
    },
    "model_home_win_prob": 0.3994,
@@ -86,51 +114,23 @@
    }
   },
   {
-   "matchup": "DET @ FLA",
-   "home_win_prob": 0.6034,
-   "tier": "HIGH",
-   "gate_cleared": false,
-   "market": {
-    "home_prob": 0.619,
-    "away_prob": 0.381,
-    "books": 6
-   },
-   "model_home_win_prob": 0.5878,
-   "home_pillars": {
-    "p1_form": 3.32,
-    "p2_absence": -2.382,
-    "p3_motivation": 0.0,
-    "p4_gvi": -0.512,
-    "p5_friction": 0.0,
-    "adj_raa": 50.426
-   },
-   "away_pillars": {
-    "p1_form": -2.275,
-    "p2_absence": -1.975,
-    "p3_motivation": 0.0,
-    "p4_gvi": -7.842,
-    "p5_friction": 0.0,
-    "adj_raa": 37.908
-   }
-  },
-  {
    "matchup": "STL @ UTA",
-   "home_win_prob": 0.4305,
+   "home_win_prob": 0.4202,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4596,
-    "away_prob": 0.5404,
+    "home_prob": 0.4573,
+    "away_prob": 0.5427,
     "books": 5
    },
-   "model_home_win_prob": 0.4014,
+   "model_home_win_prob": 0.3831,
    "home_pillars": {
     "p1_form": 1.615,
-    "p2_absence": -9.065,
+    "p2_absence": -12.0,
     "p3_motivation": 0.0,
     "p4_gvi": -6.297,
     "p5_friction": -2.841,
-    "adj_raa": 33.412
+    "adj_raa": 30.477
    },
    "away_pillars": {
     "p1_form": -4.945,
@@ -171,12 +171,12 @@
   },
   {
    "matchup": "BUF @ CHI",
-   "home_win_prob": 0.4353,
+   "home_win_prob": 0.436,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4172,
-    "away_prob": 0.5828,
+    "home_prob": 0.4186,
+    "away_prob": 0.5814,
     "books": 6
    },
    "model_home_win_prob": 0.4533,
@@ -199,12 +199,12 @@
   },
   {
    "matchup": "WPG @ DAL",
-   "home_win_prob": 0.5532,
+   "home_win_prob": 0.5521,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5945,
-    "away_prob": 0.4055,
+    "home_prob": 0.5923,
+    "away_prob": 0.4077,
     "books": 6
    },
    "model_home_win_prob": 0.5118,
@@ -231,8 +231,8 @@
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5299,
-    "away_prob": 0.4701,
+    "home_prob": 0.53,
+    "away_prob": 0.47,
     "books": 6
    },
    "model_home_win_prob": 0.5225,
@@ -255,12 +255,12 @@
   },
   {
    "matchup": "COL @ OTT",
-   "home_win_prob": 0.4849,
+   "home_win_prob": 0.4899,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5075,
-    "away_prob": 0.4925,
+    "home_prob": 0.5174,
+    "away_prob": 0.4826,
     "books": 6
    },
    "model_home_win_prob": 0.4624,
@@ -283,12 +283,12 @@
   },
   {
    "matchup": "TBL @ CBJ",
-   "home_win_prob": 0.5049,
+   "home_win_prob": 0.5066,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5031,
-    "away_prob": 0.4969,
+    "home_prob": 0.5065,
+    "away_prob": 0.4935,
     "books": 6
    },
    "model_home_win_prob": 0.5067,
