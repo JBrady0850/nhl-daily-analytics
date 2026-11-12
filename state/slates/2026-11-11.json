@@ -31,12 +31,12 @@
   },
   {
    "matchup": "NSH @ ANA",
-   "home_win_prob": 0.5628,
+   "home_win_prob": 0.5633,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5655,
-    "away_prob": 0.4345,
+    "home_prob": 0.5665,
+    "away_prob": 0.4335,
     "books": 6
    },
    "model_home_win_prob": 0.5601,
@@ -59,12 +59,12 @@
   },
   {
    "matchup": "UTA @ VGK",
-   "home_win_prob": 0.5556,
+   "home_win_prob": 0.554,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5681,
-    "away_prob": 0.4319,
+    "home_prob": 0.5649,
+    "away_prob": 0.4351,
     "books": 5
    },
    "model_home_win_prob": 0.5432,
