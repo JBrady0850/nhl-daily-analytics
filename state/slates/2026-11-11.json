@@ -7,8 +7,8 @@
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.6287,
-    "away_prob": 0.3713,
+    "home_prob": 0.6285,
+    "away_prob": 0.3715,
     "books": 6
    },
    "model_home_win_prob": 0.583,
@@ -59,12 +59,12 @@
   },
   {
    "matchup": "NYR @ CGY",
-   "home_win_prob": 0.4553,
+   "home_win_prob": 0.4555,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4367,
-    "away_prob": 0.5633,
+    "home_prob": 0.437,
+    "away_prob": 0.563,
     "books": 6
    },
    "model_home_win_prob": 0.474,
@@ -115,12 +115,12 @@
   },
   {
    "matchup": "PIT @ SJS",
-   "home_win_prob": 0.4728,
+   "home_win_prob": 0.4708,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4305,
-    "away_prob": 0.5695,
+    "home_prob": 0.4266,
+    "away_prob": 0.5734,
     "books": 6
    },
    "model_home_win_prob": 0.5151,
@@ -143,15 +143,15 @@
   },
   {
    "matchup": "UTA @ VGK",
-   "home_win_prob": 0.5151,
+   "home_win_prob": 0.518,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5342,
-    "away_prob": 0.4658,
+    "home_prob": 0.534,
+    "away_prob": 0.466,
     "books": 5
    },
-   "model_home_win_prob": 0.4959,
+   "model_home_win_prob": 0.5019,
    "home_pillars": {
     "p1_form": 1.002,
     "p2_absence": -1.071,
@@ -162,11 +162,11 @@
    },
    "away_pillars": {
     "p1_form": 5.205,
-    "p2_absence": -4.622,
+    "p2_absence": -5.536,
     "p3_motivation": 0.0,
     "p4_gvi": -1.74,
     "p5_friction": 0.555,
-    "adj_raa": 49.398
+    "adj_raa": 48.483
    }
   }
  ]
