@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-12",
-"count": 794,
+"count": 793,
 "players": [
 {
 "team": "ANA",
@@ -2086,13 +2086,6 @@
 "team": "FLA",
 "name": "Garnet Hathaway",
 "player_id": "8477903",
-"position": "R",
-"role": "skater"
-},
-{
-"team": "FLA",
-"name": "Jack Devine",
-"player_id": "8483433",
 "position": "R",
 "role": "skater"
 },
