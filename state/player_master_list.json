@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-12",
-"count": 793,
+"count": 794,
 "players": [
 {
 "team": "ANA",
@@ -4515,6 +4515,13 @@
 "team": "TOR",
 "name": "Bo Groulx",
 "player_id": "8480870",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Brendan Brisson",
+"player_id": "8482153",
 "position": "C",
 "role": "skater"
 },
