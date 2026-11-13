@@ -1,0 +1,61 @@
+{
+ "date": "2026-11-13",
+ "games": [
+  {
+   "matchup": "NYR @ VAN",
+   "home_win_prob": 0.3696,
+   "tier": "HIGH",
+   "gate_cleared": true,
+   "market": {
+    "home_prob": 0.34,
+    "away_prob": 0.66,
+    "books": 6
+   },
+   "model_home_win_prob": 0.3992,
+   "home_pillars": {
+    "p1_form": -12.359,
+    "p2_absence": -2.471,
+    "p3_motivation": 0.0,
+    "p4_gvi": -4.356,
+    "p5_friction": 1.11,
+    "adj_raa": 31.923
+   },
+   "away_pillars": {
+    "p1_form": 1.475,
+    "p2_absence": -2.684,
+    "p3_motivation": 0.0,
+    "p4_gvi": 0.975,
+    "p5_friction": -1.11,
+    "adj_raa": 48.656
+   }
+  },
+  {
+   "matchup": "NSH @ VGK",
+   "home_win_prob": 0.5832,
+   "tier": "MODERATE",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.5874,
+    "away_prob": 0.4126,
+    "books": 6
+   },
+   "model_home_win_prob": 0.579,
+   "home_pillars": {
+    "p1_form": 6.753,
+    "p2_absence": -0.427,
+    "p3_motivation": 0.0,
+    "p4_gvi": 0.432,
+    "p5_friction": 0.0,
+    "adj_raa": 56.758
+   },
+   "away_pillars": {
+    "p1_form": -5.949,
+    "p2_absence": -2.482,
+    "p3_motivation": 0.0,
+    "p4_gvi": 4.05,
+    "p5_friction": 0.0,
+    "adj_raa": 45.619
+   }
+  }
+ ]
+}
