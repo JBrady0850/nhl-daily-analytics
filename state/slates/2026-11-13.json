@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "NYR @ VAN",
-   "home_win_prob": 0.3693,
+   "home_win_prob": 0.3729,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.3394,
-    "away_prob": 0.6606,
+    "home_prob": 0.3465,
+    "away_prob": 0.6535,
     "books": 6
    },
    "model_home_win_prob": 0.3992,
@@ -31,12 +31,12 @@
   },
   {
    "matchup": "NSH @ VGK",
-   "home_win_prob": 0.5833,
+   "home_win_prob": 0.5847,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5875,
-    "away_prob": 0.4125,
+    "home_prob": 0.5904,
+    "away_prob": 0.4096,
     "books": 6
    },
    "model_home_win_prob": 0.579,
