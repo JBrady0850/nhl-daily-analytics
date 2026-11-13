@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-13",
-"count": 793,
+"count": 794,
 "players": [
 {
 "team": "ANA",
@@ -2626,6 +2626,13 @@
 "name": "Nico Hischier",
 "player_id": "8480002",
 "position": "C",
+"role": "skater"
+},
+{
+"team": "NJD",
+"name": "Anton Silaev",
+"player_id": "8484987",
+"position": "D",
 "role": "skater"
 },
 {
