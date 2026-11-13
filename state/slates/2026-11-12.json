@@ -115,12 +115,12 @@
   },
   {
    "matchup": "STL @ UTA",
-   "home_win_prob": 0.4294,
+   "home_win_prob": 0.4287,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4573,
-    "away_prob": 0.5427,
+    "home_prob": 0.456,
+    "away_prob": 0.544,
     "books": 5
    },
    "model_home_win_prob": 0.4014,
@@ -143,12 +143,12 @@
   },
   {
    "matchup": "NYI @ LAK",
-   "home_win_prob": 0.5672,
+   "home_win_prob": 0.5666,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5276,
-    "away_prob": 0.4724,
+    "home_prob": 0.5265,
+    "away_prob": 0.4735,
     "books": 6
    },
    "model_home_win_prob": 0.6067,
