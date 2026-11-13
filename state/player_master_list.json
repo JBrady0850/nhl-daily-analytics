@@ -866,13 +866,6 @@
 },
 {
 "team": "CGY",
-"name": "Ben Jones",
-"player_id": "8480259",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "CGY",
 "name": "Jonathan Castagna",
 "player_id": "8484154",
 "position": "C",
@@ -1008,13 +1001,6 @@
 "team": "CGY",
 "name": "Jonathan Huberdeau",
 "player_id": "8476456",
-"position": "L",
-"role": "skater"
-},
-{
-"team": "CGY",
-"name": "Samuel Honzek",
-"player_id": "8484180",
 "position": "L",
 "role": "skater"
 },
@@ -1232,6 +1218,13 @@
 "team": "COL",
 "name": "Fedor Svechkov",
 "player_id": "8482768",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Gavin Brindley",
+"player_id": "8484149",
 "position": "C",
 "role": "skater"
 },
@@ -5292,6 +5285,13 @@
 "team": "WPG",
 "name": "Haydn Fleury",
 "player_id": "8477938",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Henry Thrun",
+"player_id": "8481567",
 "position": "D",
 "role": "skater"
 },
