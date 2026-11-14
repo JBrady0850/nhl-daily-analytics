@@ -87,12 +87,12 @@
   },
   {
    "matchup": "NJD @ WSH",
-   "home_win_prob": 0.4172,
+   "home_win_prob": 0.4165,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4584,
-    "away_prob": 0.5416,
+    "home_prob": 0.457,
+    "away_prob": 0.543,
     "books": 6
    },
    "model_home_win_prob": 0.376,
@@ -171,12 +171,12 @@
   },
   {
    "matchup": "OTT @ PIT",
-   "home_win_prob": 0.4506,
+   "home_win_prob": 0.4488,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4528,
-    "away_prob": 0.5472,
+    "home_prob": 0.4491,
+    "away_prob": 0.5509,
     "books": 6
    },
    "model_home_win_prob": 0.4485,
@@ -254,34 +254,6 @@
    }
   },
   {
-   "matchup": "FLA @ STL",
-   "home_win_prob": 0.4518,
-   "tier": "MODERATE",
-   "gate_cleared": false,
-   "market": {
-    "home_prob": 0.4843,
-    "away_prob": 0.5157,
-    "books": 6
-   },
-   "model_home_win_prob": 0.4193,
-   "home_pillars": {
-    "p1_form": -3.535,
-    "p2_absence": -0.706,
-    "p3_motivation": 0.0,
-    "p4_gvi": -5.949,
-    "p5_friction": 0.0,
-    "adj_raa": 39.81
-   },
-   "away_pillars": {
-    "p1_form": 3.062,
-    "p2_absence": 1.82,
-    "p3_motivation": 0.0,
-    "p4_gvi": -1.519,
-    "p5_friction": 0.0,
-    "adj_raa": 53.363
-   }
-  },
-  {
    "matchup": "EDM @ TOR",
    "home_win_prob": 0.4522,
    "tier": "MODERATE",
@@ -311,12 +283,12 @@
   },
   {
    "matchup": "MIN @ BOS",
-   "home_win_prob": 0.4576,
+   "home_win_prob": 0.4566,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4837,
-    "away_prob": 0.5163,
+    "home_prob": 0.4817,
+    "away_prob": 0.5183,
     "books": 6
    },
    "model_home_win_prob": 0.4314,
@@ -335,6 +307,34 @@
     "p4_gvi": 5.441,
     "p5_friction": 0.0,
     "adj_raa": 58.09
+   }
+  },
+  {
+   "matchup": "FLA @ STL",
+   "home_win_prob": 0.4825,
+   "tier": "LOW",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.4843,
+    "away_prob": 0.5157,
+    "books": 6
+   },
+   "model_home_win_prob": 0.4806,
+   "home_pillars": {
+    "p1_form": -3.535,
+    "p2_absence": -0.706,
+    "p3_motivation": 0.0,
+    "p4_gvi": 3.556,
+    "p5_friction": 0.0,
+    "adj_raa": 49.315
+   },
+   "away_pillars": {
+    "p1_form": 3.062,
+    "p2_absence": 1.82,
+    "p3_motivation": 0.0,
+    "p4_gvi": -1.519,
+    "p5_friction": 0.0,
+    "adj_raa": 53.363
    }
   },
   {
