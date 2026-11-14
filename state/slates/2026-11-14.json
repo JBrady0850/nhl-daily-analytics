@@ -59,12 +59,12 @@
   },
   {
    "matchup": "DET @ TBL",
-   "home_win_prob": 0.6095,
+   "home_win_prob": 0.6091,
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.6564,
-    "away_prob": 0.3436,
+    "home_prob": 0.6556,
+    "away_prob": 0.3444,
     "books": 6
    },
    "model_home_win_prob": 0.5626,
@@ -87,12 +87,12 @@
   },
   {
    "matchup": "NJD @ WSH",
-   "home_win_prob": 0.4149,
+   "home_win_prob": 0.4148,
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4538,
-    "away_prob": 0.5462,
+    "home_prob": 0.4536,
+    "away_prob": 0.5464,
     "books": 6
    },
    "model_home_win_prob": 0.376,
@@ -171,12 +171,12 @@
   },
   {
    "matchup": "SJS @ UTA",
-   "home_win_prob": 0.5538,
+   "home_win_prob": 0.5526,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.6215,
-    "away_prob": 0.3785,
+    "home_prob": 0.6192,
+    "away_prob": 0.3808,
     "books": 5
    },
    "model_home_win_prob": 0.4861,
@@ -199,12 +199,12 @@
   },
   {
    "matchup": "OTT @ PIT",
-   "home_win_prob": 0.4485,
+   "home_win_prob": 0.4488,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4485,
-    "away_prob": 0.5515,
+    "home_prob": 0.4491,
+    "away_prob": 0.5509,
     "books": 6
    },
    "model_home_win_prob": 0.4485,
@@ -227,12 +227,12 @@
   },
   {
    "matchup": "EDM @ TOR",
-   "home_win_prob": 0.4538,
+   "home_win_prob": 0.4535,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4263,
-    "away_prob": 0.5737,
+    "home_prob": 0.4255,
+    "away_prob": 0.5745,
     "books": 6
    },
    "model_home_win_prob": 0.4814,
@@ -367,12 +367,12 @@
   },
   {
    "matchup": "PHI @ CBJ",
-   "home_win_prob": 0.502,
+   "home_win_prob": 0.5017,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5509,
-    "away_prob": 0.4491,
+    "home_prob": 0.5501,
+    "away_prob": 0.4499,
     "books": 6
    },
    "model_home_win_prob": 0.4532,
