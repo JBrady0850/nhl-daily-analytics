@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-14",
-"count": 794,
+"count": 793,
 "players": [
 {
 "team": "ANA",
@@ -595,13 +595,6 @@
 "team": "CAR",
 "name": "K'Andre Miller",
 "player_id": "8480817",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "CAR",
-"name": "Mike Reilly",
-"player_id": "8476422",
 "position": "D",
 "role": "skater"
 },
