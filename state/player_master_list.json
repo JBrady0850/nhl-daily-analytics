@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-14",
-"count": 791,
+"count": 790,
 "players": [
 {
 "team": "ANA",
@@ -2947,13 +2947,6 @@
 "team": "NYI",
 "name": "Jean-Gabriel Pageau",
 "player_id": "8476419",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "NYI",
-"name": "Kyle MacLean",
-"player_id": "8481237",
 "position": "C",
 "role": "skater"
 },
