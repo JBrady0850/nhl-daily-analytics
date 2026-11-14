@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-14",
-"count": 790,
+"count": 791,
 "players": [
 {
 "team": "ANA",
@@ -2954,6 +2954,13 @@
 "team": "NYI",
 "name": "Kyle Palmieri",
 "player_id": "8475151",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Mathew Barzal",
+"player_id": "8478445",
 "position": "C",
 "role": "skater"
 },
