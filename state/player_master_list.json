@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-14",
-"count": 793,
+"count": 792,
 "players": [
 {
 "team": "ANA",
@@ -3675,13 +3675,6 @@
 "team": "PIT",
 "name": "Erik Karlsson",
 "player_id": "8474578",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "PIT",
-"name": "Ilya Solovyov",
-"player_id": "8482470",
 "position": "D",
 "role": "skater"
 },
