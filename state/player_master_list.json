@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-15",
-"count": 791,
+"count": 792,
 "players": [
 {
 "team": "ANA",
@@ -1440,6 +1440,13 @@
 },
 {
 "team": "DAL",
+"name": "Kyle Burroughs",
+"player_id": "8477335",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "DAL",
 "name": "Kyle Capobianco",
 "player_id": "8478476",
 "position": "D",
@@ -1475,6 +1482,13 @@
 },
 {
 "team": "DAL",
+"name": "Trey Taylor",
+"player_id": "8485468",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "DAL",
 "name": "Tyler Myers",
 "player_id": "8474574",
 "position": "D",
@@ -1491,13 +1505,6 @@
 "team": "DAL",
 "name": "Jake Oettinger",
 "player_id": "8479979",
-"position": "G",
-"role": "goalie"
-},
-{
-"team": "DAL",
-"name": "R\u00e9mi Poirier",
-"player_id": "8482465",
 "position": "G",
 "role": "goalie"
 },
