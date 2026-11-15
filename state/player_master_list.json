@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-15",
-"count": 794,
+"count": 796,
 "players": [
 {
 "team": "ANA",
@@ -1300,6 +1300,13 @@
 },
 {
 "team": "COL",
+"name": "Mike Reilly",
+"player_id": "8476422",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "COL",
 "name": "Noah Juulsen",
 "player_id": "8478454",
 "position": "D",
@@ -2541,6 +2548,13 @@
 "team": "MTL",
 "name": "Alexandre Texier",
 "player_id": "8480074",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Brett Berard",
+"player_id": "8482132",
 "position": "L",
 "role": "skater"
 },
