@@ -115,12 +115,12 @@
   },
   {
    "matchup": "CGY @ LAK",
-   "home_win_prob": 0.571,
+   "home_win_prob": 0.5705,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.6049,
-    "away_prob": 0.3951,
+    "home_prob": 0.604,
+    "away_prob": 0.396,
     "books": 6
    },
    "model_home_win_prob": 0.537,
@@ -283,12 +283,12 @@
   },
   {
    "matchup": "NYI @ ANA",
-   "home_win_prob": 0.5271,
+   "home_win_prob": 0.529,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4939,
-    "away_prob": 0.5061,
+    "home_prob": 0.4978,
+    "away_prob": 0.5022,
     "books": 6
    },
    "model_home_win_prob": 0.5602,
