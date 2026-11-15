@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "VAN @ VGK",
-   "home_win_prob": 0.722,
+   "home_win_prob": 0.7218,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.7768,
-    "away_prob": 0.2232,
+    "home_prob": 0.7766,
+    "away_prob": 0.2234,
     "books": 6
    },
    "model_home_win_prob": 0.6671,
@@ -27,34 +27,6 @@
     "p4_gvi": -5.36,
     "p5_friction": 0.0,
     "adj_raa": 29.32
-   }
-  },
-  {
-   "matchup": "EDM @ PHI",
-   "home_win_prob": 0.3982,
-   "tier": "HIGH",
-   "gate_cleared": true,
-   "market": {
-    "home_prob": 0.4301,
-    "away_prob": 0.5699,
-    "books": 6
-   },
-   "model_home_win_prob": 0.3663,
-   "home_pillars": {
-    "p1_form": -5.158,
-    "p2_absence": -4.812,
-    "p3_motivation": 0.0,
-    "p4_gvi": -8.003,
-    "p5_friction": 0.0,
-    "adj_raa": 32.027
-   },
-   "away_pillars": {
-    "p1_form": 0.644,
-    "p2_absence": -2.05,
-    "p3_motivation": 0.0,
-    "p4_gvi": 5.497,
-    "p5_friction": 0.0,
-    "adj_raa": 54.091
    }
   },
   {
@@ -86,13 +58,41 @@
    }
   },
   {
+   "matchup": "EDM @ PHI",
+   "home_win_prob": 0.4055,
+   "tier": "HIGH",
+   "gate_cleared": true,
+   "market": {
+    "home_prob": 0.4339,
+    "away_prob": 0.5661,
+    "books": 6
+   },
+   "model_home_win_prob": 0.3772,
+   "home_pillars": {
+    "p1_form": -5.158,
+    "p2_absence": -4.812,
+    "p3_motivation": 0.0,
+    "p4_gvi": -8.003,
+    "p5_friction": 0.0,
+    "adj_raa": 32.027
+   },
+   "away_pillars": {
+    "p1_form": 0.644,
+    "p2_absence": -3.829,
+    "p3_motivation": 0.0,
+    "p4_gvi": 5.497,
+    "p5_friction": 0.0,
+    "adj_raa": 52.313
+   }
+  },
+  {
    "matchup": "CGY @ ANA",
-   "home_win_prob": 0.5452,
+   "home_win_prob": 0.5427,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5793,
-    "away_prob": 0.4207,
+    "home_prob": 0.5743,
+    "away_prob": 0.4257,
     "books": 6
    },
    "model_home_win_prob": 0.5111,
@@ -115,12 +115,12 @@
   },
   {
    "matchup": "FLA @ DAL",
-   "home_win_prob": 0.5205,
+   "home_win_prob": 0.5211,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.546,
-    "away_prob": 0.454,
+    "home_prob": 0.5473,
+    "away_prob": 0.4527,
     "books": 6
    },
    "model_home_win_prob": 0.4949,
