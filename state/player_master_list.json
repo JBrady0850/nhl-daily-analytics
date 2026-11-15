@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-15",
-"count": 792,
+"count": 794,
 "players": [
 {
 "team": "ANA",
@@ -2478,6 +2478,13 @@
 "team": "MTL",
 "name": "Arber Xhekaj",
 "player_id": "8482964",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "David Reinbacher",
+"player_id": "8484220",
 "position": "D",
 "role": "skater"
 },
@@ -4977,6 +4984,13 @@
 "team": "VAN",
 "name": "Leevi Meril\u00e4inen",
 "player_id": "8482447",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "VAN",
+"name": "Nikita Tolopilo",
+"player_id": "8484268",
 "position": "G",
 "role": "goalie"
 },
