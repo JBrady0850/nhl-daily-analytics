@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "VAN @ VGK",
-   "home_win_prob": 0.7218,
+   "home_win_prob": 0.7221,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.7766,
-    "away_prob": 0.2234,
+    "home_prob": 0.777,
+    "away_prob": 0.223,
     "books": 6
    },
    "model_home_win_prob": 0.6671,
@@ -115,12 +115,12 @@
   },
   {
    "matchup": "FLA @ DAL",
-   "home_win_prob": 0.5212,
+   "home_win_prob": 0.5183,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5475,
-    "away_prob": 0.4525,
+    "home_prob": 0.5417,
+    "away_prob": 0.4583,
     "books": 6
    },
    "model_home_win_prob": 0.4949,
