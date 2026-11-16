@@ -3,7 +3,7 @@
  "games": [
   {
    "matchup": "VAN @ UTA",
-   "home_win_prob": 0.6815,
+   "home_win_prob": 0.6821,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
@@ -11,14 +11,14 @@
     "away_prob": 0.257,
     "books": 5
    },
-   "model_home_win_prob": 0.62,
+   "model_home_win_prob": 0.6211,
    "home_pillars": {
     "p1_form": 4.1,
-    "p2_absence": -11.978,
+    "p2_absence": -11.798,
     "p3_motivation": 0.0,
     "p4_gvi": -4.701,
     "p5_friction": 2.841,
-    "adj_raa": 40.263
+    "adj_raa": 40.442
    },
    "away_pillars": {
     "p1_form": -14.641,
@@ -31,12 +31,12 @@
   },
   {
    "matchup": "MTL @ NYR",
-   "home_win_prob": 0.5081,
+   "home_win_prob": 0.5069,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4962,
-    "away_prob": 0.5038,
+    "home_prob": 0.4937,
+    "away_prob": 0.5063,
     "books": 6
    },
    "model_home_win_prob": 0.5201,

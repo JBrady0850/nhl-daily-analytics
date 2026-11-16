@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-16",
-"count": 795,
+"count": 797,
 "players": [
 {
 "team": "ANA",
@@ -4765,15 +4765,15 @@
 },
 {
 "team": "UTA",
-"name": "Dmitri Simashev",
-"player_id": "8484386",
+"name": "Artem Duda",
+"player_id": "8483436",
 "position": "D",
 "role": "skater"
 },
 {
 "team": "UTA",
-"name": "Gregor Biber",
-"player_id": "8485010",
+"name": "Dmitri Simashev",
+"player_id": "8484386",
 "position": "D",
 "role": "skater"
 },
@@ -4821,6 +4821,13 @@
 },
 {
 "team": "UTA",
+"name": "Zac Jones",
+"player_id": "8481708",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "UTA",
 "name": "Karel Vejmelka",
 "player_id": "8478872",
 "position": "G",
@@ -4837,6 +4844,13 @@
 "team": "UTA",
 "name": "Anders Lee",
 "player_id": "8475314",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Ben McCartney",
+"player_id": "8481827",
 "position": "L",
 "role": "skater"
 },
