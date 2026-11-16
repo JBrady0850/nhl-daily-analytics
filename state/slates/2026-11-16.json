@@ -31,12 +31,12 @@
   },
   {
    "matchup": "MTL @ NYR",
-   "home_win_prob": 0.5052,
+   "home_win_prob": 0.5081,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4903,
-    "away_prob": 0.5097,
+    "home_prob": 0.4962,
+    "away_prob": 0.5038,
     "books": 6
    },
    "model_home_win_prob": 0.5201,
