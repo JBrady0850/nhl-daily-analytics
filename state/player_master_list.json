@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-16",
-"count": 797,
+"count": 796,
 "players": [
 {
 "team": "ANA",
@@ -994,13 +994,6 @@
 "team": "CGY",
 "name": "Jonathan Huberdeau",
 "player_id": "8476456",
-"position": "L",
-"role": "skater"
-},
-{
-"team": "CGY",
-"name": "William Stromgren",
-"player_id": "8482766",
 "position": "L",
 "role": "skater"
 },
