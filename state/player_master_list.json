@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-16",
-"count": 796,
+"count": 795,
 "players": [
 {
 "team": "ANA",
@@ -1862,13 +1862,6 @@
 "team": "EDM",
 "name": "Alex Formenton",
 "player_id": "8480029",
-"position": "L",
-"role": "skater"
-},
-{
-"team": "EDM",
-"name": "Isaac Howard",
-"player_id": "8483455",
 "position": "L",
 "role": "skater"
 },
