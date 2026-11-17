@@ -3176,13 +3176,6 @@
 },
 {
 "team": "NYR",
-"name": "Marc Del Gaizo",
-"player_id": "8481743",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "NYR",
 "name": "Marcus Pettersson",
 "player_id": "8477969",
 "position": "D",
@@ -4149,6 +4142,13 @@
 },
 {
 "team": "SJS",
+"name": "Brett Leason",
+"player_id": "8481517",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "SJS",
 "name": "Collin Graf",
 "player_id": "8484911",
 "position": "R",
@@ -5010,13 +5010,6 @@
 },
 {
 "team": "VAN",
-"name": "Nikita Tolopilo",
-"player_id": "8484268",
-"position": "G",
-"role": "goalie"
-},
-{
-"team": "VAN",
 "name": "Thatcher Demko",
 "player_id": "8477967",
 "position": "G",
@@ -5250,6 +5243,13 @@
 "team": "WPG",
 "name": "Cole Perfetti",
 "player_id": "8482149",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "WPG",
+"name": "Danil Zhilkin",
+"player_id": "8483526",
 "position": "C",
 "role": "skater"
 },
