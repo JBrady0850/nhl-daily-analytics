@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "VAN @ UTA",
-   "home_win_prob": 0.6744,
+   "home_win_prob": 0.6734,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.7342,
-    "away_prob": 0.2658,
+    "home_prob": 0.732,
+    "away_prob": 0.268,
     "books": 5
    },
    "model_home_win_prob": 0.6147,
