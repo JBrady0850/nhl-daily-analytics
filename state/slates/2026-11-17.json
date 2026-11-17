@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "LAK @ BOS",
-   "home_win_prob": 0.5993,
+   "home_win_prob": 0.6048,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.5842,
-    "away_prob": 0.4158,
+    "home_prob": 0.5953,
+    "away_prob": 0.4047,
     "books": 6
    },
    "model_home_win_prob": 0.6144,
@@ -31,12 +31,12 @@
   },
   {
    "matchup": "NSH @ MIN",
-   "home_win_prob": 0.589,
+   "home_win_prob": 0.5898,
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.6448,
-    "away_prob": 0.3552,
+    "home_prob": 0.6464,
+    "away_prob": 0.3536,
     "books": 6
    },
    "model_home_win_prob": 0.5332,
@@ -59,12 +59,12 @@
   },
   {
    "matchup": "WSH @ TBL",
-   "home_win_prob": 0.57,
+   "home_win_prob": 0.5708,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5926,
-    "away_prob": 0.4074,
+    "home_prob": 0.5942,
+    "away_prob": 0.4058,
     "books": 6
    },
    "model_home_win_prob": 0.5475,
@@ -87,15 +87,15 @@
   },
   {
    "matchup": "DAL @ VGK",
-   "home_win_prob": 0.5663,
+   "home_win_prob": 0.5635,
    "tier": "MODERATE",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.5465,
-    "away_prob": 0.4535,
+    "home_prob": 0.5312,
+    "away_prob": 0.4688,
     "books": 6
    },
-   "model_home_win_prob": 0.5861,
+   "model_home_win_prob": 0.5957,
    "home_pillars": {
     "p1_form": 11.416,
     "p2_absence": -0.439,
@@ -106,21 +106,21 @@
    },
    "away_pillars": {
     "p1_form": 6.561,
-    "p2_absence": -2.622,
+    "p2_absence": -4.149,
     "p3_motivation": 0.0,
     "p4_gvi": -1.562,
     "p5_friction": 0.0,
-    "adj_raa": 52.376
+    "adj_raa": 50.849
    }
   },
   {
    "matchup": "EDM @ FLA",
-   "home_win_prob": 0.5585,
+   "home_win_prob": 0.5567,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5346,
-    "away_prob": 0.4654,
+    "home_prob": 0.531,
+    "away_prob": 0.469,
     "books": 6
    },
    "model_home_win_prob": 0.5823,
@@ -143,12 +143,12 @@
   },
   {
    "matchup": "TOR @ CHI",
-   "home_win_prob": 0.4444,
+   "home_win_prob": 0.4448,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4375,
-    "away_prob": 0.5625,
+    "home_prob": 0.4384,
+    "away_prob": 0.5616,
     "books": 6
    },
    "model_home_win_prob": 0.4513,
@@ -171,12 +171,12 @@
   },
   {
    "matchup": "OTT @ WPG",
-   "home_win_prob": 0.4497,
+   "home_win_prob": 0.4486,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4551,
-    "away_prob": 0.5449,
+    "home_prob": 0.4529,
+    "away_prob": 0.5471,
     "books": 6
    },
    "model_home_win_prob": 0.4444,
@@ -199,12 +199,12 @@
   },
   {
    "matchup": "BUF @ PHI",
-   "home_win_prob": 0.4671,
+   "home_win_prob": 0.4683,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4612,
-    "away_prob": 0.5388,
+    "home_prob": 0.4637,
+    "away_prob": 0.5363,
     "books": 6
    },
    "model_home_win_prob": 0.473,
@@ -227,12 +227,12 @@
   },
   {
    "matchup": "CBJ @ NYI",
-   "home_win_prob": 0.4831,
+   "home_win_prob": 0.4786,
    "tier": "LOW",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.5612,
-    "away_prob": 0.4388,
+    "home_prob": 0.5522,
+    "away_prob": 0.4478,
     "books": 6
    },
    "model_home_win_prob": 0.405,
@@ -255,12 +255,12 @@
   },
   {
    "matchup": "ANA @ STL",
-   "home_win_prob": 0.4841,
+   "home_win_prob": 0.4793,
    "tier": "LOW",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.553,
-    "away_prob": 0.447,
+    "home_prob": 0.5436,
+    "away_prob": 0.4564,
     "books": 6
    },
    "model_home_win_prob": 0.4151,
@@ -283,12 +283,12 @@
   },
   {
    "matchup": "CGY @ SJS",
-   "home_win_prob": 0.5049,
+   "home_win_prob": 0.5051,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5436,
-    "away_prob": 0.4564,
+    "home_prob": 0.5442,
+    "away_prob": 0.4558,
     "books": 6
    },
    "model_home_win_prob": 0.4661,
