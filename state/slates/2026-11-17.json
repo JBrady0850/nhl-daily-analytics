@@ -86,6 +86,34 @@
    }
   },
   {
+   "matchup": "LAK @ BOS",
+   "home_win_prob": 0.5672,
+   "tier": "MODERATE",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.5842,
+    "away_prob": 0.4158,
+    "books": 6
+   },
+   "model_home_win_prob": 0.5502,
+   "home_pillars": {
+    "p1_form": 4.659,
+    "p2_absence": -4.389,
+    "p3_motivation": 0.0,
+    "p4_gvi": 3.596,
+    "p5_friction": 0.0,
+    "adj_raa": 53.867
+   },
+   "away_pillars": {
+    "p1_form": 2.201,
+    "p2_absence": -7.04,
+    "p3_motivation": 0.0,
+    "p4_gvi": 2.064,
+    "p5_friction": 0.0,
+    "adj_raa": 47.224
+   }
+  },
+  {
    "matchup": "TOR @ CHI",
    "home_win_prob": 0.436,
    "tier": "MODERATE",
@@ -142,41 +170,13 @@
    }
   },
   {
-   "matchup": "LAK @ BOS",
-   "home_win_prob": 0.5514,
-   "tier": "MODERATE",
-   "gate_cleared": false,
-   "market": {
-    "home_prob": 0.5939,
-    "away_prob": 0.4061,
-    "books": 6
-   },
-   "model_home_win_prob": 0.509,
-   "home_pillars": {
-    "p1_form": 4.659,
-    "p2_absence": -4.389,
-    "p3_motivation": 0.0,
-    "p4_gvi": -2.743,
-    "p5_friction": 0.0,
-    "adj_raa": 47.527
-   },
-   "away_pillars": {
-    "p1_form": 2.201,
-    "p2_absence": -7.04,
-    "p3_motivation": 0.0,
-    "p4_gvi": 2.064,
-    "p5_friction": 0.0,
-    "adj_raa": 47.224
-   }
-  },
-  {
    "matchup": "OTT @ WPG",
-   "home_win_prob": 0.4507,
+   "home_win_prob": 0.4502,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.457,
-    "away_prob": 0.543,
+    "home_prob": 0.456,
+    "away_prob": 0.544,
     "books": 6
    },
    "model_home_win_prob": 0.4444,
@@ -199,12 +199,12 @@
   },
   {
    "matchup": "BUF @ PHI",
-   "home_win_prob": 0.4694,
+   "home_win_prob": 0.4689,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4658,
-    "away_prob": 0.5342,
+    "home_prob": 0.4649,
+    "away_prob": 0.5351,
     "books": 6
    },
    "model_home_win_prob": 0.473,
@@ -227,12 +227,12 @@
   },
   {
    "matchup": "CBJ @ NYI",
-   "home_win_prob": 0.4843,
+   "home_win_prob": 0.4848,
    "tier": "LOW",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.5636,
-    "away_prob": 0.4364,
+    "home_prob": 0.5645,
+    "away_prob": 0.4355,
     "books": 6
    },
    "model_home_win_prob": 0.405,
