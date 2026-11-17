@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "LAK @ BOS",
-   "home_win_prob": 0.5993,
+   "home_win_prob": 0.5995,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.5842,
-    "away_prob": 0.4158,
+    "home_prob": 0.5845,
+    "away_prob": 0.4155,
     "books": 6
    },
    "model_home_win_prob": 0.6144,
@@ -87,12 +87,12 @@
   },
   {
    "matchup": "DAL @ VGK",
-   "home_win_prob": 0.5676,
+   "home_win_prob": 0.5675,
    "tier": "MODERATE",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.5491,
-    "away_prob": 0.4509,
+    "home_prob": 0.5488,
+    "away_prob": 0.4512,
     "books": 6
    },
    "model_home_win_prob": 0.5861,
@@ -171,12 +171,12 @@
   },
   {
    "matchup": "OTT @ WPG",
-   "home_win_prob": 0.4503,
+   "home_win_prob": 0.4497,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4562,
-    "away_prob": 0.5438,
+    "home_prob": 0.4551,
+    "away_prob": 0.5449,
     "books": 6
    },
    "model_home_win_prob": 0.4444,
