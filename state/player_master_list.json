@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-18",
-"count": 797,
+"count": 798,
 "players": [
 {
 "team": "ANA",
@@ -4774,6 +4774,13 @@
 "team": "UTA",
 "name": "Dmitri Simashev",
 "player_id": "8484386",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Gregor Biber",
+"player_id": "8485010",
 "position": "D",
 "role": "skater"
 },
