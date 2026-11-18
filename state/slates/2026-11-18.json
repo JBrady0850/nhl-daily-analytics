@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "MTL @ NJD",
-   "home_win_prob": 0.6051,
+   "home_win_prob": 0.6042,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.6045,
-    "away_prob": 0.3955,
+    "home_prob": 0.6028,
+    "away_prob": 0.3972,
     "books": 6
    },
    "model_home_win_prob": 0.6057,
@@ -31,12 +31,12 @@
   },
   {
    "matchup": "BOS @ DET",
-   "home_win_prob": 0.5267,
+   "home_win_prob": 0.5261,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5011,
-    "away_prob": 0.4989,
+    "home_prob": 0.5,
+    "away_prob": 0.5,
     "books": 6
    },
    "model_home_win_prob": 0.5522,
@@ -59,12 +59,12 @@
   },
   {
    "matchup": "COL @ UTA",
-   "home_win_prob": 0.4758,
+   "home_win_prob": 0.4759,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5075,
-    "away_prob": 0.4925,
+    "home_prob": 0.5078,
+    "away_prob": 0.4922,
     "books": 5
    },
    "model_home_win_prob": 0.4441,
