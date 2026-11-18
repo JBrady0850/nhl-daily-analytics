@@ -22,7 +22,14 @@ Daily Faceoff is the social-media route: its goalie entries relay the beat write
 own posts (mostly on X) within minutes, with the writer's name, the time and a link.
 X cannot be read directly (see nhlda.dfo).
 
-    python -m nhlda.watch app/data/latest.json state    # prints build=true or build=false
+    python -m nhlda.watch app/data/latest.json state    # prints build= and deploy= (true or false)
+
+2026-11-18 (run 944): the build pushed its data at 00:16 UTC, but the Pages deploy
+found no "github-pages" artifact two seconds after the upload had succeeded, and the
+next run had nothing new to build, so the site kept serving the 00:01 file. Now, when
+no build is needed, the guard also compares the published data file with the
+repository's and prints deploy=true when the site is behind, so the workflow
+publishes the app again without building.
 
 Standard library only, so it runs before the build's requirements are installed.
 """
@@ -156,14 +163,50 @@ def check(data_path, state_dir, now=None):
     return True, reasons
 
 
-def main(argv=None):
+def pages_url(repo=None):
+    """The data file on this repository's GitHub Pages site, from GITHUB_REPOSITORY
+    (owner/name, set on GitHub's runners); None anywhere else."""
+    repo = os.environ.get("GITHUB_REPOSITORY", "") if repo is None else repo
+    if repo.count("/") != 1:
+        return None
+    owner, name = repo.split("/")
+    return f"https://{owner.lower()}.github.io/{name}/data/latest.json"
+
+
+def live_behind(data, url, now, get=None):
+    """True when the site serves an older data file than the repository holds (a
+    build pushed its data but the deploy failed), False when it is current, None when
+    it cannot tell (no address, no answer, or no readable time on either side)."""
+    if not url:
+        return None
+    raw = (get or _get)(f"{url}?t={int(now.timestamp())}")    # a new address each time: past the cache
+    try:
+        live = json.loads(raw) if raw else None
+    except ValueError:
+        return None
+    if not isinstance(live, dict):
+        return None
+    seen, have = _t(live.get("generated_utc")), _t((data or {}).get("generated_utc"))
+    if not seen or not have:
+        return None
+    return seen < have
+
+
+def main(argv=None, now=None, get=None):
     argv = sys.argv[1:] if argv is None else argv
     data_path = argv[0] if argv else "app/data/latest.json"
     state_dir = argv[1] if len(argv) > 1 else "state"
-    build, reasons = check(data_path, state_dir)
+    now = now or dt.datetime.now(UTC)
+    build, reasons = check(data_path, state_dir, now)
+    behind = None if build else live_behind(_load(data_path), pages_url(), now, get)
     print(f"build={'true' if build else 'false'}")
+    print(f"deploy={'true' if behind else 'false'}")
     for r in reasons:
         print(("Build: " if build else "Skip: ") + r, file=sys.stderr)
+    if behind:
+        print("Deploy: the published site has an older data file than the repository: publishing it again", file=sys.stderr)
+    elif behind is None and not build and pages_url():
+        print("Deploy: could not compare the published data file with the repository's", file=sys.stderr)
     return 0
 
 

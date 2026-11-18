@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-24.04
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.again.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/configure-pages@v6
@@ -43,4 +43,10 @@ jobs:
         with:
           path: app
       - id: deployment
+        continue-on-error: true      # 2026-11-18: retried once after a minute (see daily.yml)
+        uses: actions/deploy-pages@v5
+      - if: steps.deployment.outcome == 'failure'
+        run: sleep 60
+      - if: steps.deployment.outcome == 'failure'
+        id: again
         uses: actions/deploy-pages@v5

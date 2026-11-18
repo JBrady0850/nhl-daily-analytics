@@ -18,6 +18,12 @@ name: Daily data
 # the 7- and 37-minute cron lines below as a backup. The guard (nhlda/watch.py) then
 # reads Daily Faceoff's starting goalies and, within 90 minutes of a game, its
 # lineups, and builds only when a goalie or a lineup changed since the last build.
+# Publish again (2026-11-18, run 944): the deploy step found no "github-pages" artifact
+# two seconds after the upload had succeeded, and the next run had nothing new to
+# build, so the site kept the older data. The deploy now waits a minute and tries once
+# more when it fails, and when no build is needed the guard compares the published data
+# file with the repository's and publishes the app again (deploy=true) when the site is
+# behind.
 # To send the event yourself: POST /repos/<owner>/<repo>/dispatches with
 # {"event_type": "daily-data"} (or "lineup-watch"), using a token with Contents:
 # write on this repository.
@@ -48,6 +54,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       build: ${{ steps.due.outputs.build }}
+      deploy: ${{ steps.due.outputs.deploy }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -83,11 +90,13 @@ jobs:
           git pull -q --rebase
           git push -q
   pages:
-    needs: build
+    needs: [when, build]
+    # after a build, or with no build when the site is behind the repository (the guard's deploy=true)
+    if: ${{ !cancelled() && (needs.build.result == 'success' || needs.when.outputs.deploy == 'true') }}
     runs-on: ubuntu-24.04
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.again.outputs.page_url }}
     steps:
       - id: enabled
         env:
@@ -111,4 +120,10 @@ jobs:
           path: app
       - if: steps.enabled.outputs.on == 'true'
         id: deployment
+        continue-on-error: true      # a lost artifact lookup is retried below
+        uses: actions/deploy-pages@v5
+      - if: steps.enabled.outputs.on == 'true' && steps.deployment.outcome == 'failure'
+        run: sleep 60
+      - if: steps.enabled.outputs.on == 'true' && steps.deployment.outcome == 'failure'
+        id: again
         uses: actions/deploy-pages@v5

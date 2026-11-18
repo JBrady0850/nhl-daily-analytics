@@ -1142,6 +1142,59 @@ def test_watch_check_builds_a_due_main_update_without_reading_daily_faceoff(tmp_
     assert build and why[0].startswith("FLA goalie:") and calls == ["2026-11-02"]
 
 
+def test_watch_publishes_again_when_the_site_lags_the_data(tmp_path, monkeypatch, capsys):
+    """2026-11-18, run 944: the 00:16 UTC build pushed its data, the Pages deploy found
+    no artifact, and the next run had nothing to build, so the site kept the 00:01 file.
+    The guard now compares the published file with the repository's."""
+    import datetime as dt
+    from nhlda import watch as W
+    assert W.pages_url("JBrady0850/nhl-daily-analytics") == "https://jbrady0850.github.io/nhl-daily-analytics/data/latest.json"
+    assert W.pages_url("") is None and W.pages_url("no-slash") is None
+    now = dt.datetime(2026, 11, 18, 0, 30, 6, tzinfo=dt.timezone.utc)
+    repo = {"generated_utc": "2026-11-18T00:16:28Z"}
+    asked = []
+    def site(stamp):
+        return lambda url: asked.append(url) or (None if stamp is None else json.dumps({"generated_utc": stamp}))
+    url = W.pages_url("JBrady0850/nhl-daily-analytics")
+    assert W.live_behind(repo, url, now, site("2026-11-18T00:01:17Z")) is True
+    assert asked[-1] == url + "?t=" + str(int(now.timestamp()))           # past the Pages cache
+    assert W.live_behind(repo, url, now, site("2026-11-18T00:16:28Z")) is False
+    assert W.live_behind(repo, url, now, site("2026-11-18T00:31:00Z")) is False
+    assert W.live_behind(repo, url, now, site(None)) is None              # no answer: cannot tell
+    assert W.live_behind(repo, url, now, lambda u: "<html>") is None
+    assert W.live_behind({}, url, now, site("2026-11-18T00:01:17Z")) is None
+    assert W.live_behind(repo, None, now, site("2026-11-18T00:01:17Z")) is None
+    # the workflow reads build= and deploy= from the guard's output
+    p = tmp_path / "latest.json"
+    p.write_text(json.dumps(repo))
+    monkeypatch.setenv("GITHUB_REPOSITORY", "JBrady0850/nhl-daily-analytics")
+    monkeypatch.setattr(W, "check", lambda d, s, n=None: (False, ["no change"]))
+    W.main([str(p), str(tmp_path)], now=now, get=site("2026-11-18T00:01:17Z"))
+    out = capsys.readouterr()
+    assert out.out.splitlines() == ["build=false", "deploy=true"] and "publishing it again" in out.err
+    W.main([str(p), str(tmp_path)], now=now, get=site("2026-11-18T00:16:28Z"))
+    assert capsys.readouterr().out.splitlines() == ["build=false", "deploy=false"]
+    # a build publishes anyway, so the site is not even asked
+    monkeypatch.setattr(W, "check", lambda d, s, n=None: (True, ["WSH lineup changed"]))
+    asked.clear()
+    W.main([str(p), str(tmp_path)], now=now, get=site("2026-11-18T00:01:17Z"))
+    assert capsys.readouterr().out.splitlines() == ["build=true", "deploy=false"] and asked == []
+
+
+def test_pages_deploy_is_retried_and_runs_without_a_build_when_the_site_lags():
+    for name in ("daily.yml", "pages.yml"):
+        wf = open(os.path.join(ROOT, ".github", "workflows", name), encoding="utf-8").read()
+        steps = wf.split("uses: actions/deploy-pages@v5")
+        assert len(steps) == 3, f"{name}: one deploy and one retry"
+        assert "continue-on-error: true" in steps[0].rsplit("- ", 1)[-1], f"{name}: the first deploy may fail"
+        assert "steps.deployment.outcome == 'failure'" in steps[1] and "sleep 60" in steps[1], f"{name}: retry after a minute"
+        assert "steps.deployment.outputs.page_url || steps.again.outputs.page_url" in wf
+    wf = open(os.path.join(ROOT, ".github", "workflows", "daily.yml"), encoding="utf-8").read()
+    assert "deploy: ${{ steps.due.outputs.deploy }}" in wf
+    assert "needs: [when, build]" in wf
+    assert "if: ${{ !cancelled() && (needs.build.result == 'success' || needs.when.outputs.deploy == 'true') }}" in wf
+
+
 def test_watch_runs_on_the_standard_library_alone():
     """The workflow's guard job runs it before pip installs anything."""
     import ast
