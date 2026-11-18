@@ -1,0 +1,89 @@
+{
+ "date": "2026-11-18",
+ "games": [
+  {
+   "matchup": "MTL @ NJD",
+   "home_win_prob": 0.6013,
+   "tier": "HIGH",
+   "gate_cleared": true,
+   "market": {
+    "home_prob": 0.5968,
+    "away_prob": 0.4032,
+    "books": 6
+   },
+   "model_home_win_prob": 0.6057,
+   "home_pillars": {
+    "p1_form": 10.741,
+    "p2_absence": -3.586,
+    "p3_motivation": 0.0,
+    "p4_gvi": 1.462,
+    "p5_friction": 1.11,
+    "adj_raa": 59.727
+   },
+   "away_pillars": {
+    "p1_form": -0.365,
+    "p2_absence": -5.482,
+    "p3_motivation": 0.0,
+    "p4_gvi": 1.301,
+    "p5_friction": -1.11,
+    "adj_raa": 44.344
+   }
+  },
+  {
+   "matchup": "BOS @ DET",
+   "home_win_prob": 0.5267,
+   "tier": "LOW",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.5011,
+    "away_prob": 0.4989,
+    "books": 6
+   },
+   "model_home_win_prob": 0.5522,
+   "home_pillars": {
+    "p1_form": -4.031,
+    "p2_absence": -2.708,
+    "p3_motivation": 0.0,
+    "p4_gvi": 2.409,
+    "p5_friction": 3.951,
+    "adj_raa": 49.621
+   },
+   "away_pillars": {
+    "p1_form": 4.332,
+    "p2_absence": -4.98,
+    "p3_motivation": 0.0,
+    "p4_gvi": -2.743,
+    "p5_friction": -3.951,
+    "adj_raa": 42.658
+   }
+  },
+  {
+   "matchup": "COL @ UTA",
+   "home_win_prob": 0.4758,
+   "tier": "LOW",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.5075,
+    "away_prob": 0.4925,
+    "books": 5
+   },
+   "model_home_win_prob": 0.4441,
+   "home_pillars": {
+    "p1_form": 10.892,
+    "p2_absence": -7.837,
+    "p3_motivation": 0.0,
+    "p4_gvi": -6.376,
+    "p5_friction": -1.11,
+    "adj_raa": 45.569
+   },
+   "away_pillars": {
+    "p1_form": 6.96,
+    "p2_absence": -5.0,
+    "p3_motivation": 0.0,
+    "p4_gvi": 2.175,
+    "p5_friction": 1.11,
+    "adj_raa": 55.245
+   }
+  }
+ ]
+}
