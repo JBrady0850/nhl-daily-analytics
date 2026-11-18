@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-18",
-"count": 797,
+"count": 798,
 "players": [
 {
 "team": "ANA",
@@ -714,6 +714,13 @@
 "team": "CBJ",
 "name": "Cole Sillinger",
 "player_id": "8482705",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CBJ",
+"name": "Isac Lundestr\u00f6m",
+"player_id": "8480806",
 "position": "C",
 "role": "skater"
 },
