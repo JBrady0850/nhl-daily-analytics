@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-19",
-"count": 799,
+"count": 800,
 "players": [
 {
 "team": "ANA",
@@ -1332,6 +1332,13 @@
 "player_id": "8475809",
 "position": "G",
 "role": "goalie"
+},
+{
+"team": "COL",
+"name": "Adam Beckman",
+"player_id": "8481550",
+"position": "L",
+"role": "skater"
 },
 {
 "team": "COL",
