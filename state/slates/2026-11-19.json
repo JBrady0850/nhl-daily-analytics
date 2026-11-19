@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "MTL @ CAR",
-   "home_win_prob": 0.7405,
+   "home_win_prob": 0.7408,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.7246,
-    "away_prob": 0.2754,
+    "home_prob": 0.7253,
+    "away_prob": 0.2747,
     "books": 6
    },
    "model_home_win_prob": 0.7563,
@@ -59,12 +59,12 @@
   },
   {
    "matchup": "CBJ @ CHI",
-   "home_win_prob": 0.3879,
+   "home_win_prob": 0.3883,
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4045,
-    "away_prob": 0.5955,
+    "home_prob": 0.4055,
+    "away_prob": 0.5945,
     "books": 6
    },
    "model_home_win_prob": 0.3712,
@@ -87,12 +87,12 @@
   },
   {
    "matchup": "PHI @ OTT",
-   "home_win_prob": 0.5711,
+   "home_win_prob": 0.5714,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5935,
-    "away_prob": 0.4065,
+    "home_prob": 0.5942,
+    "away_prob": 0.4058,
     "books": 6
    },
    "model_home_win_prob": 0.5486,
@@ -171,12 +171,12 @@
   },
   {
    "matchup": "BUF @ WSH",
-   "home_win_prob": 0.5563,
+   "home_win_prob": 0.5565,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5569,
-    "away_prob": 0.4431,
+    "home_prob": 0.5571,
+    "away_prob": 0.4429,
     "books": 6
    },
    "model_home_win_prob": 0.5558,
@@ -283,12 +283,12 @@
   },
   {
    "matchup": "ANA @ COL",
-   "home_win_prob": 0.5402,
-   "tier": "MODERATE",
+   "home_win_prob": 0.5397,
+   "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5442,
-    "away_prob": 0.4558,
+    "home_prob": 0.5434,
+    "away_prob": 0.4566,
     "books": 6
    },
    "model_home_win_prob": 0.5361,
@@ -311,12 +311,12 @@
   },
   {
    "matchup": "LAK @ TOR",
-   "home_win_prob": 0.5265,
+   "home_win_prob": 0.527,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5119,
-    "away_prob": 0.4881,
+    "home_prob": 0.5128,
+    "away_prob": 0.4872,
     "books": 6
    },
    "model_home_win_prob": 0.5411,
