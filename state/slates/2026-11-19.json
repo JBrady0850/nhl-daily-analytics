@@ -115,12 +115,12 @@
   },
   {
    "matchup": "EDM @ TBL",
-   "home_win_prob": 0.5658,
+   "home_win_prob": 0.5676,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5651,
-    "away_prob": 0.4349,
+    "home_prob": 0.5687,
+    "away_prob": 0.4313,
     "books": 6
    },
    "model_home_win_prob": 0.5666,
