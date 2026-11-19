@@ -1,0 +1,341 @@
+{
+ "date": "2026-11-19",
+ "games": [
+  {
+   "matchup": "MTL @ CAR",
+   "home_win_prob": 0.7335,
+   "tier": "HIGH",
+   "gate_cleared": true,
+   "market": {
+    "home_prob": 0.7083,
+    "away_prob": 0.2917,
+    "books": 6
+   },
+   "model_home_win_prob": 0.7587,
+   "home_pillars": {
+    "p1_form": 20.0,
+    "p2_absence": -0.65,
+    "p3_motivation": 0.0,
+    "p4_gvi": 2.021,
+    "p5_friction": 4.506,
+    "adj_raa": 75.877
+   },
+   "away_pillars": {
+    "p1_form": -0.744,
+    "p2_absence": -5.24,
+    "p3_motivation": 0.0,
+    "p4_gvi": -6.447,
+    "p5_friction": -4.506,
+    "adj_raa": 33.063
+   }
+  },
+  {
+   "matchup": "MIN @ CGY",
+   "home_win_prob": 0.3782,
+   "tier": "HIGH",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.3348,
+    "away_prob": 0.6652,
+    "books": 6
+   },
+   "model_home_win_prob": 0.4217,
+   "home_pillars": {
+    "p1_form": -7.977,
+    "p2_absence": -1.535,
+    "p3_motivation": 0.0,
+    "p4_gvi": 2.242,
+    "p5_friction": 0.0,
+    "adj_raa": 42.73
+   },
+   "away_pillars": {
+    "p1_form": 2.149,
+    "p2_absence": -0.478,
+    "p3_motivation": 0.0,
+    "p4_gvi": 4.224,
+    "p5_friction": 0.0,
+    "adj_raa": 55.895
+   }
+  },
+  {
+   "matchup": "CBJ @ CHI",
+   "home_win_prob": 0.3883,
+   "tier": "HIGH",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.4055,
+    "away_prob": 0.5945,
+    "books": 6
+   },
+   "model_home_win_prob": 0.3712,
+   "home_pillars": {
+    "p1_form": -17.21,
+    "p2_absence": -5.273,
+    "p3_motivation": 0.0,
+    "p4_gvi": -4.779,
+    "p5_friction": 0.0,
+    "adj_raa": 22.738
+   },
+   "away_pillars": {
+    "p1_form": -4.456,
+    "p2_absence": -3.836,
+    "p3_motivation": 0.0,
+    "p4_gvi": 2.287,
+    "p5_friction": 0.0,
+    "adj_raa": 43.996
+   }
+  },
+  {
+   "matchup": "PHI @ OTT",
+   "home_win_prob": 0.6016,
+   "tier": "HIGH",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.6181,
+    "away_prob": 0.3819,
+    "books": 6
+   },
+   "model_home_win_prob": 0.5851,
+   "home_pillars": {
+    "p1_form": 5.807,
+    "p2_absence": -3.324,
+    "p3_motivation": 0.0,
+    "p4_gvi": 3.559,
+    "p5_friction": 0.0,
+    "adj_raa": 56.042
+   },
+   "away_pillars": {
+    "p1_form": 1.466,
+    "p2_absence": -2.153,
+    "p3_motivation": 0.0,
+    "p4_gvi": -5.365,
+    "p5_friction": 0.0,
+    "adj_raa": 43.949
+   }
+  },
+  {
+   "matchup": "EDM @ TBL",
+   "home_win_prob": 0.5655,
+   "tier": "MODERATE",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.5645,
+    "away_prob": 0.4355,
+    "books": 6
+   },
+   "model_home_win_prob": 0.5666,
+   "home_pillars": {
+    "p1_form": 4.411,
+    "p2_absence": -5.0,
+    "p3_motivation": 0.0,
+    "p4_gvi": 1.909,
+    "p5_friction": 0.0,
+    "adj_raa": 51.32
+   },
+   "away_pillars": {
+    "p1_form": -7.782,
+    "p2_absence": -2.251,
+    "p3_motivation": 0.0,
+    "p4_gvi": 2.157,
+    "p5_friction": 0.0,
+    "adj_raa": 42.124
+   }
+  },
+  {
+   "matchup": "ANA @ COL",
+   "home_win_prob": 0.5603,
+   "tier": "MODERATE",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.5486,
+    "away_prob": 0.4514,
+    "books": 6
+   },
+   "model_home_win_prob": 0.572,
+   "home_pillars": {
+    "p1_form": 5.851,
+    "p2_absence": -5.0,
+    "p3_motivation": 0.0,
+    "p4_gvi": 3.089,
+    "p5_friction": -2.841,
+    "adj_raa": 51.099
+   },
+   "away_pillars": {
+    "p1_form": 2.989,
+    "p2_absence": -6.153,
+    "p3_motivation": 0.0,
+    "p4_gvi": -8.62,
+    "p5_friction": 2.841,
+    "adj_raa": 41.056
+   }
+  },
+  {
+   "matchup": "VAN @ SEA",
+   "home_win_prob": 0.559,
+   "tier": "MODERATE",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.6021,
+    "away_prob": 0.3979,
+    "books": 6
+   },
+   "model_home_win_prob": 0.5158,
+   "home_pillars": {
+    "p1_form": -15.532,
+    "p2_absence": -3.639,
+    "p3_motivation": 0.0,
+    "p4_gvi": -4.821,
+    "p5_friction": 1.11,
+    "adj_raa": 27.117
+   },
+   "away_pillars": {
+    "p1_form": -16.809,
+    "p2_absence": -1.711,
+    "p3_motivation": 0.0,
+    "p4_gvi": -4.611,
+    "p5_friction": -1.11,
+    "adj_raa": 25.76
+   }
+  },
+  {
+   "matchup": "BUF @ WSH",
+   "home_win_prob": 0.5572,
+   "tier": "MODERATE",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.5585,
+    "away_prob": 0.4415,
+    "books": 6
+   },
+   "model_home_win_prob": 0.5558,
+   "home_pillars": {
+    "p1_form": 0.978,
+    "p2_absence": -1.06,
+    "p3_motivation": 0.0,
+    "p4_gvi": -3.372,
+    "p5_friction": 0.0,
+    "adj_raa": 46.545
+   },
+   "away_pillars": {
+    "p1_form": -5.115,
+    "p2_absence": -1.785,
+    "p3_motivation": 0.0,
+    "p4_gvi": -4.073,
+    "p5_friction": 0.0,
+    "adj_raa": 39.027
+   }
+  },
+  {
+   "matchup": "STL @ PIT",
+   "home_win_prob": 0.4534,
+   "tier": "MODERATE",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.5,
+    "away_prob": 0.5,
+    "books": 6
+   },
+   "model_home_win_prob": 0.4067,
+   "home_pillars": {
+    "p1_form": -7.52,
+    "p2_absence": -3.672,
+    "p3_motivation": 0.0,
+    "p4_gvi": -9.266,
+    "p5_friction": 1.665,
+    "adj_raa": 31.207
+   },
+   "away_pillars": {
+    "p1_form": -4.733,
+    "p2_absence": -0.533,
+    "p3_motivation": 0.0,
+    "p4_gvi": 3.677,
+    "p5_friction": -1.665,
+    "adj_raa": 46.746
+   }
+  },
+  {
+   "matchup": "DAL @ VGK",
+   "home_win_prob": 0.5462,
+   "tier": "MODERATE",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.5299,
+    "away_prob": 0.4701,
+    "books": 6
+   },
+   "model_home_win_prob": 0.5624,
+   "home_pillars": {
+    "p1_form": 11.144,
+    "p2_absence": -0.312,
+    "p3_motivation": 0.0,
+    "p4_gvi": -2.043,
+    "p5_friction": 0.0,
+    "adj_raa": 58.789
+   },
+   "away_pillars": {
+    "p1_form": 4.727,
+    "p2_absence": -1.106,
+    "p3_motivation": 0.0,
+    "p4_gvi": -3.376,
+    "p5_friction": 0.0,
+    "adj_raa": 50.245
+   }
+  },
+  {
+   "matchup": "LAK @ TOR",
+   "home_win_prob": 0.5238,
+   "tier": "LOW",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.5065,
+    "away_prob": 0.4935,
+    "books": 6
+   },
+   "model_home_win_prob": 0.5411,
+   "home_pillars": {
+    "p1_form": -0.834,
+    "p2_absence": -3.741,
+    "p3_motivation": 0.0,
+    "p4_gvi": 1.213,
+    "p5_friction": 0.0,
+    "adj_raa": 46.638
+   },
+   "away_pillars": {
+    "p1_form": 2.266,
+    "p2_absence": -5.553,
+    "p3_motivation": 0.0,
+    "p4_gvi": -5.321,
+    "p5_friction": 0.0,
+    "adj_raa": 41.392
+   }
+  },
+  {
+   "matchup": "NYI @ WPG",
+   "home_win_prob": 0.5204,
+   "tier": "LOW",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.5069,
+    "away_prob": 0.4931,
+    "books": 6
+   },
+   "model_home_win_prob": 0.5338,
+   "home_pillars": {
+    "p1_form": 1.181,
+    "p2_absence": -4.761,
+    "p3_motivation": 0.0,
+    "p4_gvi": -1.87,
+    "p5_friction": 0.0,
+    "adj_raa": 44.55
+   },
+   "away_pillars": {
+    "p1_form": -8.198,
+    "p2_absence": -4.122,
+    "p3_motivation": 0.0,
+    "p4_gvi": 2.759,
+    "p5_friction": 0.0,
+    "adj_raa": 40.439
+   }
+  }
+ ]
+}
