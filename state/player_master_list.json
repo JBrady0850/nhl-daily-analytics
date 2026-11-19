@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-19",
-"count": 797,
+"count": 798,
 "players": [
 {
 "team": "ANA",
@@ -4361,6 +4361,13 @@
 "team": "TBL",
 "name": "Jake Guentzel",
 "player_id": "8477404",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "TBL",
+"name": "Jansen Harkins",
+"player_id": "8478424",
 "position": "C",
 "role": "skater"
 },
