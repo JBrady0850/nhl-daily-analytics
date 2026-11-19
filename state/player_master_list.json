@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-19",
-"count": 798,
+"count": 799,
 "players": [
 {
 "team": "ANA",
@@ -2261,6 +2261,13 @@
 "team": "MIN",
 "name": "Nico Sturm",
 "player_id": "8481477",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "MIN",
+"name": "Tyler Pitlick",
+"player_id": "8475752",
 "position": "C",
 "role": "skater"
 },
