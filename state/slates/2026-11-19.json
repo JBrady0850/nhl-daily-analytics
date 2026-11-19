@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "MTL @ CAR",
-   "home_win_prob": 0.7389,
+   "home_win_prob": 0.7406,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.7214,
-    "away_prob": 0.2786,
+    "home_prob": 0.7248,
+    "away_prob": 0.2752,
     "books": 6
    },
    "model_home_win_prob": 0.7563,
@@ -31,15 +31,15 @@
   },
   {
    "matchup": "MIN @ CGY",
-   "home_win_prob": 0.3795,
+   "home_win_prob": 0.3798,
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.3376,
-    "away_prob": 0.6624,
+    "home_prob": 0.3291,
+    "away_prob": 0.6709,
     "books": 6
    },
-   "model_home_win_prob": 0.4215,
+   "model_home_win_prob": 0.4304,
    "home_pillars": {
     "p1_form": -7.977,
     "p2_absence": -1.535,
@@ -50,21 +50,21 @@
    },
    "away_pillars": {
     "p1_form": 2.149,
-    "p2_absence": -0.446,
+    "p2_absence": -1.843,
     "p3_motivation": 0.0,
     "p4_gvi": 4.224,
     "p5_friction": 0.0,
-    "adj_raa": 55.927
+    "adj_raa": 54.53
    }
   },
   {
    "matchup": "CBJ @ CHI",
-   "home_win_prob": 0.3878,
+   "home_win_prob": 0.3879,
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4044,
-    "away_prob": 0.5956,
+    "home_prob": 0.4045,
+    "away_prob": 0.5955,
     "books": 6
    },
    "model_home_win_prob": 0.3712,
@@ -115,12 +115,12 @@
   },
   {
    "matchup": "EDM @ TBL",
-   "home_win_prob": 0.5649,
+   "home_win_prob": 0.5658,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5632,
-    "away_prob": 0.4368,
+    "home_prob": 0.5651,
+    "away_prob": 0.4349,
     "books": 6
    },
    "model_home_win_prob": 0.5666,
@@ -283,12 +283,12 @@
   },
   {
    "matchup": "ANA @ COL",
-   "home_win_prob": 0.542,
+   "home_win_prob": 0.5427,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5479,
-    "away_prob": 0.4521,
+    "home_prob": 0.5492,
+    "away_prob": 0.4508,
     "books": 6
    },
    "model_home_win_prob": 0.5361,
