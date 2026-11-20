@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-20",
-"count": 799,
+"count": 801,
 "players": [
 {
 "team": "ANA",
@@ -77,6 +77,13 @@
 "team": "ANA",
 "name": "Pavel Mintyukov",
 "player_id": "8483490",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "ANA",
+"name": "Stian Solberg",
+"player_id": "8484859",
 "position": "D",
 "role": "skater"
 },
@@ -1258,13 +1265,6 @@
 },
 {
 "team": "COL",
-"name": "Alex Gagne",
-"player_id": "8482942",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "COL",
 "name": "Brent Burns",
 "player_id": "8470613",
 "position": "D",
@@ -1332,13 +1332,6 @@
 "player_id": "8475809",
 "position": "G",
 "role": "goalie"
-},
-{
-"team": "COL",
-"name": "Adam Beckman",
-"player_id": "8481550",
-"position": "L",
-"role": "skater"
 },
 {
 "team": "COL",
@@ -2273,13 +2266,6 @@
 },
 {
 "team": "MIN",
-"name": "Tyler Pitlick",
-"player_id": "8475752",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "MIN",
 "name": "Yakov Trenin",
 "player_id": "8478508",
 "position": "C",
@@ -2654,13 +2640,6 @@
 "name": "Nico Hischier",
 "player_id": "8480002",
 "position": "C",
-"role": "skater"
-},
-{
-"team": "NJD",
-"name": "Anton Silaev",
-"player_id": "8484987",
-"position": "D",
 "role": "skater"
 },
 {
@@ -3428,6 +3407,13 @@
 },
 {
 "team": "OTT",
+"name": "Sammy Blais",
+"player_id": "8478104",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "OTT",
 "name": "Warren Foegele",
 "player_id": "8477998",
 "position": "L",
@@ -3465,6 +3451,20 @@
 "team": "OTT",
 "name": "Michael Amadio",
 "player_id": "8478020",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Philip Tomasino",
+"player_id": "8481577",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "OTT",
+"name": "Tyler Boucher",
+"player_id": "8482674",
 "position": "R",
 "role": "skater"
 },
@@ -3767,6 +3767,13 @@
 "name": "Nick Robertson",
 "player_id": "8481582",
 "position": "L",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Avery Hayes",
+"player_id": "8482993",
+"position": "R",
 "role": "skater"
 },
 {
@@ -5152,6 +5159,13 @@
 "team": "VGK",
 "name": "Jeremy Lauzon",
 "player_id": "8478468",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "VGK",
+"name": "Lukas Cormier",
+"player_id": "8482141",
 "position": "D",
 "role": "skater"
 },
