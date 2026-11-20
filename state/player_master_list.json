@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-20",
-"count": 800,
+"count": 799,
 "players": [
 {
 "team": "ANA",
@@ -3962,13 +3962,6 @@
 "team": "SEA",
 "name": "Jagger Firkus",
 "player_id": "8483442",
-"position": "R",
-"role": "skater"
-},
-{
-"team": "SEA",
-"name": "Jani Nyman",
-"player_id": "8483497",
 "position": "R",
 "role": "skater"
 },
