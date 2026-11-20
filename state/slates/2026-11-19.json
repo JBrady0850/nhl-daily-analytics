@@ -35,8 +35,8 @@
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.323,
-    "away_prob": 0.677,
+    "home_prob": 0.3229,
+    "away_prob": 0.6771,
     "books": 6
    },
    "model_home_win_prob": 0.4304,
@@ -59,12 +59,12 @@
   },
   {
    "matchup": "CBJ @ CHI",
-   "home_win_prob": 0.3886,
+   "home_win_prob": 0.3889,
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4061,
-    "away_prob": 0.5939,
+    "home_prob": 0.4066,
+    "away_prob": 0.5934,
     "books": 6
    },
    "model_home_win_prob": 0.3712,
@@ -115,12 +115,12 @@
   },
   {
    "matchup": "EDM @ TBL",
-   "home_win_prob": 0.5665,
+   "home_win_prob": 0.5658,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5665,
-    "away_prob": 0.4335,
+    "home_prob": 0.565,
+    "away_prob": 0.435,
     "books": 6
    },
    "model_home_win_prob": 0.5666,
@@ -143,12 +143,12 @@
   },
   {
    "matchup": "VAN @ SEA",
-   "home_win_prob": 0.5593,
+   "home_win_prob": 0.5584,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.6028,
-    "away_prob": 0.3972,
+    "home_prob": 0.6009,
+    "away_prob": 0.3991,
     "books": 6
    },
    "model_home_win_prob": 0.5158,
