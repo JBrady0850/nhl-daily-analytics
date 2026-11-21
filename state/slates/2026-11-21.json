@@ -87,12 +87,12 @@
   },
   {
    "matchup": "CHI @ CGY",
-   "home_win_prob": 0.6082,
+   "home_win_prob": 0.6074,
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5923,
-    "away_prob": 0.4077,
+    "home_prob": 0.5907,
+    "away_prob": 0.4093,
     "books": 6
    },
    "model_home_win_prob": 0.6241,
@@ -171,12 +171,12 @@
   },
   {
    "matchup": "ANA @ UTA",
-   "home_win_prob": 0.5817,
+   "home_win_prob": 0.5849,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5934,
-    "away_prob": 0.4066,
+    "home_prob": 0.5996,
+    "away_prob": 0.4004,
     "books": 5
    },
    "model_home_win_prob": 0.5701,
@@ -367,12 +367,12 @@
   },
   {
    "matchup": "CBJ @ TOR",
-   "home_win_prob": 0.5048,
+   "home_win_prob": 0.5056,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5174,
-    "away_prob": 0.4826,
+    "home_prob": 0.5191,
+    "away_prob": 0.4809,
     "books": 6
    },
    "model_home_win_prob": 0.4921,
