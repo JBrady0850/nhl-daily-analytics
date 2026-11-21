@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-21",
-"count": 802,
+"count": 804,
 "players": [
 {
 "team": "ANA",
@@ -4968,6 +4968,13 @@
 },
 {
 "team": "VAN",
+"name": "Ty Mueller",
+"player_id": "8484406",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "VAN",
 "name": "Cameron Crotty",
 "player_id": "8480075",
 "position": "D",
@@ -5033,6 +5040,13 @@
 "team": "VAN",
 "name": "Leevi Meril\u00e4inen",
 "player_id": "8482447",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "VAN",
+"name": "Nikita Tolopilo",
+"player_id": "8484268",
 "position": "G",
 "role": "goalie"
 },
