@@ -367,12 +367,12 @@
   },
   {
    "matchup": "CBJ @ TOR",
-   "home_win_prob": 0.5042,
+   "home_win_prob": 0.5048,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5164,
-    "away_prob": 0.4836,
+    "home_prob": 0.5174,
+    "away_prob": 0.4826,
     "books": 6
    },
    "model_home_win_prob": 0.4921,
