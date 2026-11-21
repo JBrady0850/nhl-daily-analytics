@@ -1,7 +1,7 @@
 {
 "season": "20262027",
-"generated": "2026-11-20",
-"count": 801,
+"generated": "2026-11-21",
+"count": 802,
 "players": [
 {
 "team": "ANA",
@@ -3283,6 +3283,13 @@
 "team": "NYR",
 "name": "Pavel Dorofeyev",
 "player_id": "8481604",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "NYR",
+"name": "Taylor Raddysh",
+"player_id": "8479390",
 "position": "R",
 "role": "skater"
 },
