@@ -159,6 +159,13 @@
 },
 {
 "team": "ANA",
+"name": "Nico Myatovic",
+"player_id": "8484201",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "ANA",
 "name": "Beckett Sennecke",
 "player_id": "8484762",
 "position": "R",
@@ -3976,13 +3983,6 @@
 "team": "SEA",
 "name": "Jacob Melanson",
 "player_id": "8482874",
-"position": "R",
-"role": "skater"
-},
-{
-"team": "SEA",
-"name": "Jagger Firkus",
-"player_id": "8483442",
 "position": "R",
 "role": "skater"
 },
