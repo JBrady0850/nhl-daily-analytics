@@ -3134,6 +3134,13 @@
 },
 {
 "team": "NYR",
+"name": "Max Sasson",
+"player_id": "8484136",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NYR",
 "name": "Mika Zibanejad",
 "player_id": "8476459",
 "position": "C",
@@ -4956,13 +4963,6 @@
 "team": "VAN",
 "name": "Marco Rossi",
 "player_id": "8482079",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "VAN",
-"name": "Max Sasson",
-"player_id": "8484136",
 "position": "C",
 "role": "skater"
 },
