@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-22",
-"count": 805,
+"count": 804,
 "players": [
 {
 "team": "ANA",
@@ -2490,13 +2490,6 @@
 },
 {
 "team": "MTL",
-"name": "David Reinbacher",
-"player_id": "8484220",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "MTL",
 "name": "Kaiden Guhle",
 "player_id": "8482087",
 "position": "D",
@@ -2548,13 +2541,6 @@
 "team": "MTL",
 "name": "Alexandre Texier",
 "player_id": "8480074",
-"position": "L",
-"role": "skater"
-},
-{
-"team": "MTL",
-"name": "Brett Berard",
-"player_id": "8482132",
 "position": "L",
 "role": "skater"
 },
@@ -4530,6 +4516,13 @@
 "name": "Scott Sabourin",
 "player_id": "8477149",
 "position": "R",
+"role": "skater"
+},
+{
+"team": "TOR",
+"name": "Aatu R\u00e4ty",
+"player_id": "8482691",
+"position": "C",
 "role": "skater"
 },
 {
