@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-22",
-"count": 804,
+"count": 802,
 "players": [
 {
 "team": "ANA",
@@ -768,13 +768,6 @@
 },
 {
 "team": "CBJ",
-"name": "Steven Lorentz",
-"player_id": "8478904",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "CBJ",
 "name": "Damon Severson",
 "player_id": "8476923",
 "position": "D",
@@ -1069,6 +1062,13 @@
 },
 {
 "team": "CHI",
+"name": "Luke Glendening",
+"player_id": "8476822",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CHI",
 "name": "Oliver Moore",
 "player_id": "8484197",
 "position": "C",
@@ -1169,13 +1169,6 @@
 "team": "CHI",
 "name": "Andrew Mangiapane",
 "player_id": "8478233",
-"position": "L",
-"role": "skater"
-},
-{
-"team": "CHI",
-"name": "Dillon Boucher",
-"player_id": "8485554",
 "position": "L",
 "role": "skater"
 },
@@ -3108,13 +3101,6 @@
 "team": "NYR",
 "name": "Joseph Veleno",
 "player_id": "8480813",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "NYR",
-"name": "Luke Glendening",
-"player_id": "8476822",
 "position": "C",
 "role": "skater"
 },

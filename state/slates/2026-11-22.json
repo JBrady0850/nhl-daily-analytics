@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "BUF @ TBL",
-   "home_win_prob": 0.6712,
+   "home_win_prob": 0.6738,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.6514,
-    "away_prob": 0.3486,
+    "home_prob": 0.6566,
+    "away_prob": 0.3434,
     "books": 6
    },
    "model_home_win_prob": 0.691,
@@ -31,12 +31,12 @@
   },
   {
    "matchup": "PIT @ DAL",
-   "home_win_prob": 0.6672,
+   "home_win_prob": 0.6683,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.6683,
-    "away_prob": 0.3317,
+    "home_prob": 0.6705,
+    "away_prob": 0.3295,
     "books": 6
    },
    "model_home_win_prob": 0.666,
@@ -106,21 +106,21 @@
    },
    "away_pillars": {
     "p1_form": -14.349,
-    "p2_absence": -4.763,
+    "p2_absence": -4.77,
     "p3_motivation": 0.0,
     "p4_gvi": -3.195,
     "p5_friction": 0.0,
-    "adj_raa": 27.693
+    "adj_raa": 27.686
    }
   },
   {
    "matchup": "EDM @ STL",
-   "home_win_prob": 0.5139,
+   "home_win_prob": 0.5131,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5338,
-    "away_prob": 0.4662,
+    "home_prob": 0.5323,
+    "away_prob": 0.4677,
     "books": 6
    },
    "model_home_win_prob": 0.4939,
