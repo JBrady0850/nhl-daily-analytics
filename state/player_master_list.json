@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-22",
-"count": 802,
+"count": 803,
 "players": [
 {
 "team": "ANA",
@@ -1050,6 +1050,13 @@
 "team": "CHI",
 "name": "Connor Bedard",
 "player_id": "8484144",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "CHI",
+"name": "Dominic Toninato",
+"player_id": "8476952",
 "position": "C",
 "role": "skater"
 },
