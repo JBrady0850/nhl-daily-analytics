@@ -2,34 +2,6 @@
  "date": "2026-11-22",
  "games": [
   {
-   "matchup": "BUF @ TBL",
-   "home_win_prob": 0.6738,
-   "tier": "HIGH",
-   "gate_cleared": true,
-   "market": {
-    "home_prob": 0.6566,
-    "away_prob": 0.3434,
-    "books": 6
-   },
-   "model_home_win_prob": 0.691,
-   "home_pillars": {
-    "p1_form": 4.753,
-    "p2_absence": -4.986,
-    "p3_motivation": 0.0,
-    "p4_gvi": 1.755,
-    "p5_friction": 3.396,
-    "adj_raa": 54.919
-   },
-   "away_pillars": {
-    "p1_form": -15.18,
-    "p2_absence": -2.982,
-    "p3_motivation": 0.0,
-    "p4_gvi": -3.292,
-    "p5_friction": -3.396,
-    "adj_raa": 25.15
-   }
-  },
-  {
    "matchup": "PIT @ DAL",
    "home_win_prob": 0.6683,
    "tier": "HIGH",
@@ -55,6 +27,34 @@
     "p4_gvi": -7.014,
     "p5_friction": -3.396,
     "adj_raa": 27.863
+   }
+  },
+  {
+   "matchup": "BUF @ TBL",
+   "home_win_prob": 0.6546,
+   "tier": "HIGH",
+   "gate_cleared": true,
+   "market": {
+    "home_prob": 0.6566,
+    "away_prob": 0.3434,
+    "books": 6
+   },
+   "model_home_win_prob": 0.6527,
+   "home_pillars": {
+    "p1_form": 4.753,
+    "p2_absence": -4.986,
+    "p3_motivation": 0.0,
+    "p4_gvi": -4.915,
+    "p5_friction": 3.396,
+    "adj_raa": 48.248
+   },
+   "away_pillars": {
+    "p1_form": -15.18,
+    "p2_absence": -2.982,
+    "p3_motivation": 0.0,
+    "p4_gvi": -3.292,
+    "p5_friction": -3.396,
+    "adj_raa": 25.15
    }
   },
   {
@@ -87,12 +87,12 @@
   },
   {
    "matchup": "CHI @ VAN",
-   "home_win_prob": 0.4735,
+   "home_win_prob": 0.4738,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4894,
-    "away_prob": 0.5106,
+    "home_prob": 0.4899,
+    "away_prob": 0.5101,
     "books": 6
    },
    "model_home_win_prob": 0.4576,
@@ -115,12 +115,12 @@
   },
   {
    "matchup": "EDM @ STL",
-   "home_win_prob": 0.5131,
+   "home_win_prob": 0.5125,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5323,
-    "away_prob": 0.4677,
+    "home_prob": 0.5311,
+    "away_prob": 0.4689,
     "books": 6
    },
    "model_home_win_prob": 0.4939,
