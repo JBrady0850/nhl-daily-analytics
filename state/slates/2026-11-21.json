@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "MIN @ VAN",
-   "home_win_prob": 0.2884,
+   "home_win_prob": 0.2856,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.2795,
-    "away_prob": 0.7205,
+    "home_prob": 0.2739,
+    "away_prob": 0.7261,
     "books": 6
    },
    "model_home_win_prob": 0.2973,
@@ -170,34 +170,6 @@
    }
   },
   {
-   "matchup": "ANA @ UTA",
-   "home_win_prob": 0.5849,
-   "tier": "MODERATE",
-   "gate_cleared": false,
-   "market": {
-    "home_prob": 0.5996,
-    "away_prob": 0.4004,
-    "books": 5
-   },
-   "model_home_win_prob": 0.5701,
-   "home_pillars": {
-    "p1_form": 7.609,
-    "p2_absence": -7.473,
-    "p3_motivation": 0.0,
-    "p4_gvi": -0.454,
-    "p5_friction": 0.555,
-    "adj_raa": 50.237
-   },
-   "away_pillars": {
-    "p1_form": 4.542,
-    "p2_absence": -8.704,
-    "p3_motivation": 0.0,
-    "p4_gvi": -4.783,
-    "p5_friction": -0.555,
-    "adj_raa": 40.5
-   }
-  },
-  {
    "matchup": "VGK @ WPG",
    "home_win_prob": 0.418,
    "tier": "MODERATE",
@@ -223,6 +195,34 @@
     "p4_gvi": -2.043,
     "p5_friction": 0.0,
     "adj_raa": 60.674
+   }
+  },
+  {
+   "matchup": "ANA @ UTA",
+   "home_win_prob": 0.5687,
+   "tier": "MODERATE",
+   "gate_cleared": false,
+   "market": {
+    "home_prob": 0.5934,
+    "away_prob": 0.4066,
+    "books": 5
+   },
+   "model_home_win_prob": 0.544,
+   "home_pillars": {
+    "p1_form": 7.609,
+    "p2_absence": -11.518,
+    "p3_motivation": 0.0,
+    "p4_gvi": -0.454,
+    "p5_friction": 0.555,
+    "adj_raa": 46.193
+   },
+   "away_pillars": {
+    "p1_form": 4.542,
+    "p2_absence": -8.704,
+    "p3_motivation": 0.0,
+    "p4_gvi": -4.783,
+    "p5_friction": -0.555,
+    "adj_raa": 40.5
    }
   },
   {
@@ -339,12 +339,12 @@
   },
   {
    "matchup": "SEA @ SJS",
-   "home_win_prob": 0.5204,
+   "home_win_prob": 0.5219,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5088,
-    "away_prob": 0.4912,
+    "home_prob": 0.5119,
+    "away_prob": 0.4881,
     "books": 6
    },
    "model_home_win_prob": 0.5319,
