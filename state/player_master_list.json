@@ -2070,13 +2070,6 @@
 },
 {
 "team": "FLA",
-"name": "Cole Reinhardt",
-"player_id": "8481133",
-"position": "L",
-"role": "skater"
-},
-{
-"team": "FLA",
 "name": "Jonah Gadjovich",
 "player_id": "8479981",
 "position": "L",
@@ -5061,6 +5054,13 @@
 "team": "VAN",
 "name": "Arshdeep Bains",
 "player_id": "8483395",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "VAN",
+"name": "Cole Reinhardt",
+"player_id": "8481133",
 "position": "L",
 "role": "skater"
 },
