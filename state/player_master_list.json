@@ -845,6 +845,13 @@
 },
 {
 "team": "CBJ",
+"name": "Mikael Pyyhtia",
+"player_id": "8482451",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "CBJ",
 "name": "Ryan Lomberg",
 "player_id": "8479066",
 "position": "L",
@@ -4368,13 +4375,6 @@
 "team": "TBL",
 "name": "Jake Guentzel",
 "player_id": "8477404",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "TBL",
-"name": "Jansen Harkins",
-"player_id": "8478424",
 "position": "C",
 "role": "skater"
 },
