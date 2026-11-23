@@ -1580,6 +1580,13 @@
 },
 {
 "team": "DET",
+"name": "Kirby Dach",
+"player_id": "8481523",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "DET",
 "name": "Marco Kasper",
 "player_id": "8483464",
 "position": "C",
@@ -1596,13 +1603,6 @@
 "team": "DET",
 "name": "Michael Rasmussen",
 "player_id": "8479992",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "DET",
-"name": "Sheldon Dries",
-"player_id": "8480326",
 "position": "C",
 "role": "skater"
 },
@@ -1673,6 +1673,13 @@
 "team": "DET",
 "name": "John Gibson",
 "player_id": "8476434",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "DET",
+"name": "Samuel Montembeault",
+"player_id": "8478470",
 "position": "G",
 "role": "goalie"
 },
@@ -2427,15 +2434,15 @@
 },
 {
 "team": "MTL",
-"name": "Jake Evans",
-"player_id": "8478133",
+"name": "Dylan Larkin",
+"player_id": "8477946",
 "position": "C",
 "role": "skater"
 },
 {
 "team": "MTL",
-"name": "Kirby Dach",
-"player_id": "8481523",
+"name": "Jake Evans",
+"player_id": "8478133",
 "position": "C",
 "role": "skater"
 },
@@ -2527,13 +2534,6 @@
 "team": "MTL",
 "name": "Jakub Dobes",
 "player_id": "8482487",
-"position": "G",
-"role": "goalie"
-},
-{
-"team": "MTL",
-"name": "Samuel Montembeault",
-"player_id": "8478470",
 "position": "G",
 "role": "goalie"
 },
