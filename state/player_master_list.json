@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-23",
-"count": 803,
+"count": 802,
 "players": [
 {
 "team": "ANA",
@@ -5033,13 +5033,6 @@
 "team": "VAN",
 "name": "Leevi Meril\u00e4inen",
 "player_id": "8482447",
-"position": "G",
-"role": "goalie"
-},
-{
-"team": "VAN",
-"name": "Nikita Tolopilo",
-"player_id": "8484268",
 "position": "G",
 "role": "goalie"
 },

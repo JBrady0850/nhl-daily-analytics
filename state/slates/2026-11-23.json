@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "CGY @ OTT",
-   "home_win_prob": 0.6509,
+   "home_win_prob": 0.6514,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.6827,
-    "away_prob": 0.3173,
+    "home_prob": 0.6836,
+    "away_prob": 0.3164,
     "books": 6
    },
    "model_home_win_prob": 0.6192,
@@ -31,12 +31,12 @@
   },
   {
    "matchup": "MIN @ SJS",
-   "home_win_prob": 0.3746,
+   "home_win_prob": 0.3757,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.3741,
-    "away_prob": 0.6259,
+    "home_prob": 0.3763,
+    "away_prob": 0.6237,
     "books": 6
    },
    "model_home_win_prob": 0.3751,
@@ -115,12 +115,12 @@
   },
   {
    "matchup": "LAK @ MTL",
-   "home_win_prob": 0.5504,
+   "home_win_prob": 0.5499,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5866,
-    "away_prob": 0.4134,
+    "home_prob": 0.5858,
+    "away_prob": 0.4142,
     "books": 6
    },
    "model_home_win_prob": 0.5141,
