@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-23",
-"count": 803,
+"count": 804,
 "players": [
 {
 "team": "ANA",
@@ -4088,6 +4088,13 @@
 "team": "SJS",
 "name": "Jacob Trouba",
 "player_id": "8476885",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "SJS",
+"name": "Libor Hajek",
+"player_id": "8479333",
 "position": "D",
 "role": "skater"
 },
