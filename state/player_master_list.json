@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-23",
-"count": 804,
+"count": 803,
 "players": [
 {
 "team": "ANA",
@@ -4529,13 +4529,6 @@
 "team": "TOR",
 "name": "Auston Matthews",
 "player_id": "8479318",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "TOR",
-"name": "Bo Groulx",
-"player_id": "8480870",
 "position": "C",
 "role": "skater"
 },
