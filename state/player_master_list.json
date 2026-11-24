@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-24",
-"count": 803,
+"count": 802,
 "players": [
 {
 "team": "ANA",
@@ -2504,6 +2504,13 @@
 },
 {
 "team": "MTL",
+"name": "David Reinbacher",
+"player_id": "8484220",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "MTL",
 "name": "Kaiden Guhle",
 "player_id": "8482087",
 "position": "D",
@@ -2548,6 +2555,13 @@
 "team": "MTL",
 "name": "Alexandre Texier",
 "player_id": "8480074",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "MTL",
+"name": "Brett Berard",
+"player_id": "8482132",
 "position": "L",
 "role": "skater"
 },
@@ -3339,13 +3353,6 @@
 "team": "OTT",
 "name": "Artem Zub",
 "player_id": "8482245",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "OTT",
-"name": "Carter Yakemchuk",
-"player_id": "8484759",
 "position": "D",
 "role": "skater"
 },
@@ -4569,13 +4576,6 @@
 },
 {
 "team": "TOR",
-"name": "Ryan Tverberg",
-"player_id": "8482525",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "TOR",
 "name": "Teddy Blueger",
 "player_id": "8476927",
 "position": "C",
@@ -5285,13 +5285,6 @@
 "team": "WPG",
 "name": "Cole Perfetti",
 "player_id": "8482149",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "WPG",
-"name": "Danil Zhilkin",
-"player_id": "8483526",
 "position": "C",
 "role": "skater"
 },
