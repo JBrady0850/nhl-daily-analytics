@@ -59,12 +59,12 @@
   },
   {
    "matchup": "MIN @ SJS",
-   "home_win_prob": 0.4178,
+   "home_win_prob": 0.4162,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.3865,
-    "away_prob": 0.6135,
+    "home_prob": 0.3831,
+    "away_prob": 0.6169,
     "books": 6
    },
    "model_home_win_prob": 0.4492,
@@ -143,12 +143,12 @@
   },
   {
    "matchup": "ANA @ SEA",
-   "home_win_prob": 0.5066,
+   "home_win_prob": 0.5046,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5203,
-    "away_prob": 0.4797,
+    "home_prob": 0.5163,
+    "away_prob": 0.4837,
     "books": 6
    },
    "model_home_win_prob": 0.4929,
