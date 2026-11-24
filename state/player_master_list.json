@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-24",
-"count": 802,
+"count": 803,
 "players": [
 {
 "team": "ANA",
@@ -5544,6 +5544,13 @@
 "team": "WSH",
 "name": "Logan Thompson",
 "player_id": "8480313",
+"position": "G",
+"role": "goalie"
+},
+{
+"team": "WSH",
+"name": "R\u00e9mi Poirier",
+"player_id": "8482465",
 "position": "G",
 "role": "goalie"
 },
