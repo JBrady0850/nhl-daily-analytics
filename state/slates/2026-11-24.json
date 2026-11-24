@@ -3,12 +3,12 @@
  "games": [
   {
    "matchup": "VGK @ EDM",
-   "home_win_prob": 0.4298,
+   "home_win_prob": 0.4296,
    "tier": "MODERATE",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.4826,
-    "away_prob": 0.5174,
+    "home_prob": 0.4822,
+    "away_prob": 0.5178,
     "books": 6
    },
    "model_home_win_prob": 0.377,
