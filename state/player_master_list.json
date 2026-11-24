@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-24",
-"count": 802,
+"count": 803,
 "players": [
 {
 "team": "ANA",
@@ -63,13 +63,6 @@
 "team": "ANA",
 "name": "Jackson LaCombe",
 "player_id": "8481605",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "ANA",
-"name": "Noah Warren",
-"player_id": "8483521",
 "position": "D",
 "role": "skater"
 },
@@ -4205,6 +4198,13 @@
 },
 {
 "team": "STL",
+"name": "Otto Stenberg",
+"player_id": "8484230",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "STL",
 "name": "Pius Suter",
 "player_id": "8480459",
 "position": "C",
@@ -4215,6 +4215,13 @@
 "name": "Robert Thomas",
 "player_id": "8480023",
 "position": "C",
+"role": "skater"
+},
+{
+"team": "STL",
+"name": "Adam Jiricek",
+"player_id": "8484790",
+"position": "D",
 "role": "skater"
 },
 {
