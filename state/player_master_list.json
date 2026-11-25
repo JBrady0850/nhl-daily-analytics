@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-25",
-"count": 803,
+"count": 804,
 "players": [
 {
 "team": "ANA",
@@ -2947,6 +2947,13 @@
 "team": "NYI",
 "name": "Brayden Schenn",
 "player_id": "8475170",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NYI",
+"name": "Calum Ritchie",
+"player_id": "8484221",
 "position": "C",
 "role": "skater"
 },
