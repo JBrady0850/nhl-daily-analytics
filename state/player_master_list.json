@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-25",
-"count": 804,
+"count": 803,
 "players": [
 {
 "team": "ANA",
@@ -903,13 +903,6 @@
 "team": "CGY",
 "name": "Ryan Strome",
 "player_id": "8476458",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "CGY",
-"name": "Sam Morton",
-"player_id": "8484821",
 "position": "C",
 "role": "skater"
 },
