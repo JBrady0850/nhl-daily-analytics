@@ -124,6 +124,27 @@
    "changes": [
     "Injury list: K'Andre Miller (CAR) DTD to OUT"
    ]
+  },
+  {
+   "id": "2026-11-25.11",
+   "date": "2026-11-25",
+   "n": 11,
+   "utc": "2026-11-25T23:49:06Z",
+   "why": "Game-day watch: NJD goalie: Connor Hellebuyck (Likely) -> Connor Hellebuyck (Confirmed), reported by Amanda Stein; STL goalie: Joel Hofer (no report) -> Joel Hofer (Confirmed), reported by Stefen Rosner; NYI lineup changed on Daily Faceoff (Stefen Rosner); WSH lineup changed on Daily Faceoff (Tom...",
+   "changes": [
+    "NJD goalie: Connor Hellebuyck (projected) to Connor Hellebuyck (confirmed)",
+    "STL goalie: Joel Hofer (projected) to Joel Hofer (confirmed)",
+    "CAR goalie: Brandon Bussi (projected) to Brandon Bussi (confirmed)",
+    "TBL goalie: Andrei Vasilevskiy (projected) to Andrei Vasilevskiy (confirmed)",
+    "BUF goalie: Ukko-Pekka Luukkonen (projected) to Ukko-Pekka Luukkonen (confirmed)",
+    "Injury list: added Conor Garland (CBJ, IR)",
+    "Injury list: added William Trudeau (NSH, IR)",
+    "Injury list: added Nicholas Robertson (PIT, IR)",
+    "Injury list: added Curtis Douglas (SEA, IR)",
+    "Injury list: added Victor Hedman (TBL, OUT)",
+    "Injury list: added Erik Cernak (TBL, OUT)",
+    "2 more changes"
+   ]
   }
  ]
 }
