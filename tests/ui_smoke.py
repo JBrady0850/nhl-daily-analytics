@@ -514,7 +514,17 @@ BOX_JS = """(ab) => {
     // 1.21.1: the explanation above the table
     how: [...c.querySelectorAll('.gs-boxwrap .gs-box-how > p')].map(p => p.textContent.replace(/\\s+/g, ' ').trim()),
     key: [...c.querySelectorAll('.gs-boxwrap .gs-box-key dt')].map(d => [d.textContent.trim(), (d.nextElementSibling && d.nextElementSibling.tagName === 'DD') ? d.nextElementSibling.textContent.trim().length > 20 : false]),
-    ex: (c.querySelector('.gs-boxwrap .gs-box-ex') || {textContent: ''}).textContent.trim()};
+    ex: (c.querySelector('.gs-boxwrap .gs-box-ex') || {textContent: ''}).textContent.trim(),
+    // 1.21.2: on a phone the Game Score column is on screen without scrolling, and the
+    // player's name stays on screen when the parts are scrolled to the end
+    view: (() => { const w = t.closest('.tablewrap'), inside = (el, r) => { const q = el.getBoundingClientRect(); return q.left >= r.left - 0.5 && q.right <= r.right + 0.5; };
+      const before = w.scrollLeft; w.scrollLeft = 0; const r = w.getBoundingClientRect();
+      const gs = [t.querySelector('thead th:last-child'), ...t.querySelectorAll('td.bx-gs')];
+      const first = gs.every(el => inside(el, r)) && r.right <= innerWidth + 0.5;
+      w.scrollLeft = w.scrollWidth; const r2 = w.getBoundingClientRect();
+      const names = [...t.querySelectorAll('tbody tr:not(.grp) td:first-child')].every(el => inside(el, r2));
+      const gsEnd = gs.every(el => inside(el, r2)); w.scrollLeft = before;
+      return {scrolls: w.scrollWidth > w.clientWidth + 1, gsAtStart: first, namesAtEnd: names, gsAtEnd: gsEnd}; })()};
 }"""
 
 
@@ -554,6 +564,9 @@ def check_box_table(pg, sample, ab):
         if len(how) != 2 or not how[0].startswith("What it shows: where each skater's Game Score") \
                 or not how[1].startswith("How to read it: read across a row.") or not how[1].endswith(ex):
             out.append(f"box table {ab} ({scheme}): explanation {[h[:70] for h in how]} (want what it shows, how to read it, ending {ex!r})")
+        v = got.get("view") or {}
+        if not (v.get("gsAtStart") and v.get("gsAtEnd") and v.get("namesAtEnd")):
+            out.append(f"box table {ab} ({scheme}): Game Score column or names not kept in view {v}")
         if got.get("key") != [[n, True] for n in names] or got.get("ex") != ex:
             out.append(f"box table {ab} ({scheme}): column key {got.get('key')} or example {got.get('ex')!r}")
     pg.emulate_media(color_scheme="light")

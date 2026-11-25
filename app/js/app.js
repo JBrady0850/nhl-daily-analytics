@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.21.1";
+  const APP_VERSION = "1.21.2";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -778,7 +778,7 @@
     const sk = (t.skaters || []).filter(p => p.cols);
     if (!sk.length) return "";
     const row = p => `<tr>${td(esc(p.name))}${BOX_COLS.map(([k]) => boxCell(p.cols[k])).join("")}${td(`<b>${signed(p.gs)}</b>`, "n bx-gs")}</tr>`;
-    const grp = (lab, rows) => rows.length ? `<tr class="grp"><td colspan="${BOX_COLS.length + 2}">${lab}</td></tr>` + rows.map(row).join("") : "";
+    const grp = (lab, rows) => rows.length ? `<tr class="grp"><td colspan="${BOX_COLS.length + 2}"><span class="grp-lab">${lab}</span></td></tr>` + rows.map(row).join("") : "";
     const hd = thT("Player", "The player.") + BOX_COLS.map(([k, n]) => thT(n, (TIPS.box || {})[n] || n, "n")).join("") + thT("Game Score", TIPS.gs["Game Score"], "n");
     return `<div class="gs-boxwrap"><p class="gs-grp">Game Score by part</p>
       <div class="small gs-box-how">

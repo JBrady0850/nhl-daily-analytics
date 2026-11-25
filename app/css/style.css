@@ -303,6 +303,13 @@ table.gs-box td.bx.pos { background: color-mix(in srgb, var(--gs-drive) var(--a)
 table.gs-box td.bx.neg { background: color-mix(in srgb, var(--bad) var(--a), var(--panel)); }
 table.gs-box td.bx-gs { white-space: nowrap; }
 table.gs-box th:first-child, table.gs-box td:first-child { position: sticky; left: 0; z-index: 1; background: var(--panel); min-width: 8.5em; }
+/* 1.21.2 (John: "the most important column is shown without scrolling when viewed on
+   the phone"): the Game Score total stays pinned at the right edge while the six parts
+   scroll between it and the player's name */
+table.gs-box th:last-child, table.gs-box td.bx-gs { position: sticky; right: 0; z-index: 1; background: var(--panel); box-shadow: inset 1px 0 0 var(--line); }
+@media (max-width: 640px) { table.gs-box th:first-child, table.gs-box td:first-child { min-width: 7.5em; } }
+table.gs-box tr.grp td { position: static; }
+table.gs-box .grp-lab { position: sticky; left: 8px; }      /* the Forwards and Defense labels stay in view too */
 table.gs-box tr.grp td { font: 600 .98rem/1 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-top: 10px; }
 table.gs-table tr.grp td { font: 600 .98rem/1 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-top: 10px; }
 /* tablets and narrow windows: the trend sits under the bars, so the plot keeps its width */
