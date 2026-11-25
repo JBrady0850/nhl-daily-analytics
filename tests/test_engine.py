@@ -1171,14 +1171,14 @@ def test_watch_publishes_again_when_the_site_lags_the_data(tmp_path, monkeypatch
     monkeypatch.setattr(W, "check", lambda d, s, n=None: (False, ["no change"]))
     W.main([str(p), str(tmp_path)], now=now, get=site("2026-11-18T00:01:17Z"))
     out = capsys.readouterr()
-    assert out.out.splitlines() == ["build=false", "deploy=true"] and "publishing it again" in out.err
+    assert out.out.splitlines() == ["build=false", "deploy=true", "why="] and "publishing it again" in out.err
     W.main([str(p), str(tmp_path)], now=now, get=site("2026-11-18T00:16:28Z"))
-    assert capsys.readouterr().out.splitlines() == ["build=false", "deploy=false"]
+    assert capsys.readouterr().out.splitlines() == ["build=false", "deploy=false", "why="]
     # a build publishes anyway, so the site is not even asked
     monkeypatch.setattr(W, "check", lambda d, s, n=None: (True, ["WSH lineup changed"]))
     asked.clear()
     W.main([str(p), str(tmp_path)], now=now, get=site("2026-11-18T00:01:17Z"))
-    assert capsys.readouterr().out.splitlines() == ["build=true", "deploy=false"] and asked == []
+    assert capsys.readouterr().out.splitlines() == ["build=true", "deploy=false", "why=Game-day watch: WSH lineup changed"] and asked == []
 
 
 def test_pages_deploy_is_retried_and_runs_without_a_build_when_the_site_lags():
@@ -1483,3 +1483,131 @@ def test_update_scores_missing_older_games_from_the_schedule(tmp_path):
     assert all(p["trend"]["g"] == [p["gs"]] and p["trend"]["n"] == 1 for p in t["skaters"])
     assert t["trend_others"] == [] and hist["names"]                   # 1.20.0: one game, nobody else; names kept
     assert all(abs(sum(p["cols"].values()) - p["gs"]) < 0.011 for p in t["skaters"])   # 1.21.0: the six columns
+
+
+# 1.22.0 (John, 2026-11-25): Garnet Hathaway was tagged DRAGGING at "0.00 a game" (his
+# average was -0.001); John chose "Need -0.05 or lower"
+def test_dragging_needs_an_average_of_minus_0_05_or_lower():
+    from nhlda import gamescore as G
+    hathaway = [-0.33, 0.35, -0.59, 0.7, -0.12, 0.2, 0.0, 0.35, -0.21, -0.36]
+    n, avg, slope = G.series_stats(hathaway)
+    assert n == 10 and -0.005 < avg < 0 and slope <= 0
+    assert not G.dragging(n, avg, slope)
+    assert G.dragging(10, -0.05, -0.01) and G.dragging(10, -0.0501, 0.0)
+    assert not G.dragging(10, -0.044, -0.2)            # shows as -0.04: not far enough below zero
+    assert G.dragging(10, -0.046, -0.2)                # shows as -0.05
+    assert not G.dragging(10, -0.3, 0.01) and not G.dragging(4, -0.9, -0.2)
+
+
+def _upd_file(date, **kw):
+    games = [{"game_id": 1, "matchup": "OTT @ FLA", "away": "OTT", "home": "FLA", "state": "FUT", "projected": "FLA", "win_prob": 0.509,
+              "away_side": {"goalie": {"name": "Linus Ullmark", "source": "DFO_PROJECTED"}},
+              "home_side": {"goalie": {"name": "Sergei Bobrovsky", "source": "DFO_PROJECTED"}}},
+             {"game_id": 2, "matchup": "BOS @ TBL", "away": "BOS", "home": "TBL", "state": "FUT", "projected": "TBL", "win_prob": 0.58,
+              "away_side": {"goalie": {"name": "Jeremy Swayman", "source": "PROBABLE_ROTATION"}},
+              "home_side": {"goalie": {"name": "Andrei Vasilevskiy", "source": "DFO_CONFIRMED"}}}]
+    d = {"date": date, "generated_utc": f"{date}T15:01:00Z", "slate": {"game_count": 2, "games": games},
+         "injuries": {"players": [{"team": "FLA", "name": "Aaron Ekblad", "player_id": "8477932", "status": "DTD"},
+                                  {"team": "TBL", "name": "Brayden Point", "player_id": "8478010", "status": "IR"}]},
+         "lines": {"FLA": {"lines": [{"players": [{"nhl_id": 1}, {"nhl_id": 2}, {"nhl_id": 3}]}], "pairs": []}},
+         "gamescore": {"teams": {"FLA": {"game_id": 9, "inputs": "estimated", "pending": True}}},
+         "results": {"season": {"games": 210}}, "model": {"learning": {"cycles": 20}}}
+    d.update(kw)
+    return d
+
+
+def test_data_updates_are_numbered_per_day_and_say_what_changed(tmp_path):
+    """1.22.0 (John, 2026-11-25: "We need to add version numbers so we can track when
+    things are updated"; he chose numbered data updates shown in the app)."""
+    import copy
+    from nhlda import updates as U
+    st = str(tmp_path)
+    a = _upd_file("2026-11-25")
+    rec, log = U.stamp(st, None, a, "repository_dispatch/daily-data", "Scheduled update (9:00 AM Central)")
+    assert rec["id"] == "2026-11-25.1" and rec["n"] == 1 and rec["utc"] == "2026-11-25T15:01:00Z"
+    assert rec["why"] == "Scheduled update (9:00 AM Central)" and rec["changes"] == ["First update for Wed, Nov 25: 2 games"]
+    assert log == [rec]
+    # the same day again: the next number, and each change in plain words
+    b = copy.deepcopy(a)
+    g0, g1 = b["slate"]["games"]
+    g0["home_side"]["goalie"]["source"] = "DFO_CONFIRMED"
+    g0["win_prob"] = 0.535                                  # moved 2.6 points
+    g1["projected"], g1["win_prob"] = "BOS", 0.512          # the pick flipped
+    b["injuries"]["players"] = [{"team": "FLA", "name": "Aaron Ekblad", "player_id": "8477932", "status": "OUT"},
+                                {"team": "FLA", "name": "Uvis Balinskis", "player_id": "8481534", "status": "DTD"}]
+    b["lines"]["FLA"]["lines"][0]["players"][2] = {"nhl_id": 4}
+    b["gamescore"]["teams"]["FLA"].update(inputs="full", pending=False)
+    b["gamescore"]["teams"]["TBL"] = {"game_id": 10, "inputs": "full", "pending": False}
+    b["results"]["season"]["games"] = 224
+    b["model"]["learning"]["cycles"] = 21
+    rec, log = U.stamp(st, a, b, "repository_dispatch/lineup-watch", "Game-day watch: FLA goalie: Sergei Bobrovsky (Likely) -> Sergei Bobrovsky (Confirmed)")
+    assert rec["id"] == "2026-11-25.2"
+    assert rec["changes"] == [
+        "FLA goalie: Sergei Bobrovsky (projected) to Sergei Bobrovsky (confirmed)",
+        "OTT @ FLA: FLA win chance 50.9% to 53.5%",
+        "BOS @ TBL pick: TBL 58.0% to BOS 51.2%",
+        "New Game Score (latest finished game): TBL",
+        "Game Score rescored with newer inputs: FLA",
+        "Season record: 14 more games settled (224 in all)",
+        "Model learning cycle 21 run",
+        "Injury list: added Uvis Balinskis (FLA, DTD)",
+        "Injury list: removed Brayden Point (TBL)",
+        "Injury list: Aaron Ekblad (FLA) DTD to OUT",
+        "Lines changed: FLA"], rec["changes"]
+    assert [u["id"] for u in log] == ["2026-11-25.2", "2026-11-25.1"]       # newest first
+    check_public({"update": rec, "update_log": log})
+    # a final score, and a locked pick's win chance is not reported again
+    c = copy.deepcopy(b)
+    c["slate"]["games"][0].update(state="FINAL", pick_locked=True, result={"away_score": 2, "home_score": 4, "last_period": "OT", "pick": "win"})
+    c["slate"]["games"][1].update(state="LIVE", pick_locked=True, win_prob=0.9)
+    rec, _ = U.stamp(st, b, c, "schedule/", "")
+    assert rec["changes"] == ["Final: OTT 2, FLA 4 in overtime, the pick won"] and rec["why"] == "Automatic update"
+    # nothing changed: said so; a run by hand says so
+    rec, _ = U.stamp(st, c, copy.deepcopy(c), "workflow_dispatch/", "")
+    assert rec["id"] == "2026-11-25.4" and rec["why"] == "Run by hand"
+    assert rec["changes"] == ["No change to goalies, picks, results, injuries, lines or Game Scores"]
+    # a new day starts again at 1; a missing injury report is not a list of removals
+    d = _upd_file("2026-11-26", injuries={"players": []})
+    rec, log = U.stamp(st, c, d, "repository_dispatch/daily-data", "Scheduled update (9:00 AM Central)")
+    assert rec["id"] == "2026-11-26.1" and not any(x.startswith("Injury list") for x in rec["changes"])
+    # long lists are cut with a count, and the record keeps the newest updates only
+    many = copy.deepcopy(d)
+    many["injuries"]["players"] = [{"team": "FLA", "name": f"P{i}", "player_id": str(i), "status": "IR"} for i in range(9)]
+    base = copy.deepcopy(d)
+    base["injuries"]["players"] = [{"team": "FLA", "name": "Q", "player_id": "q", "status": "IR"}]
+    rec, _ = U.stamp(st, base, many)
+    inj = [x for x in rec["changes"] if x.startswith("Injury list")]
+    assert len(inj) == U.MAX_INJURY + 1 and inj[-1] == "Injury list: 4 more changes"
+    for _ in range(U.KEEP + 5):
+        rec, log = U.stamp(st, d, d)
+    hist = json.load(open(tmp_path / "updates.json", encoding="utf-8"))["updates"]
+    assert len(hist) == U.KEEP and len(log) == U.PUBLISH and log[0] == rec and rec["n"] == U.KEEP + 7
+
+
+def test_the_update_reason_reaches_the_build_from_the_guard(capsys, tmp_path, monkeypatch):
+    import datetime as dt
+    from nhlda import watch as W
+    now = dt.datetime(2026, 11, 25, 15, 3, tzinfo=dt.timezone.utc)     # 9:03 AM Central
+    assert W.why_line(True, ["x"], "2026-11-24T23:00:00Z", now) == "Scheduled update (9:00 AM Central)"
+    assert W.why_line(True, ["x"], "2026-11-25T15:00:00Z", dt.datetime(2026, 11, 25, 23, 1, tzinfo=dt.timezone.utc)) == "Scheduled update (4:45 PM Central)"
+    assert W.why_line(True, ["FLA goalie: a -> b", "TBL lineup\nchanged"], "2026-11-25T15:01:00Z", now) == "Game-day watch: FLA goalie: a -> b; TBL lineup changed"
+    assert W.why_line(False, ["no change"], "2026-11-25T15:01:00Z", now) == ""
+    assert len(W.why_line(True, ["x" * 400], "2026-11-25T15:01:00Z", now)) == 300
+    wf = open(os.path.join(ROOT, ".github", "workflows", "daily.yml"), encoding="utf-8").read()
+    assert "why: ${{ steps.due.outputs.why }}" in wf and "why=Run by hand" in wf
+    assert "NDA_WHY: ${{ needs.when.outputs.why }}" in wf and "NDA_EVENT: ${{ github.event_name }}/${{ github.event.action }}" in wf
+    # the text goes through the environment, never pasted into a shell script
+    for line in wf.splitlines():
+        if "run:" in line:
+            assert "outputs.why" not in line
+    build = open(os.path.join(ROOT, "nhlda", "build.py"), encoding="utf-8").read()
+    assert build.index("U.stamp(") < build.index("    check_public(out)")
+
+
+def test_sample_data_carries_the_update_number():
+    d = json.load(open(os.path.join(HERE, "fixtures", "sample_latest.json"), encoding="utf-8"))
+    u = d["update"]
+    assert re.match(r"^\d{4}-\d{2}-\d{2}\.\d+$", u["id"]) and u["id"] == f"{u['date']}.{u['n']}" and d["update_log"][0] == u
+    assert all(isinstance(x, str) and x for x in u["changes"]) and u["why"]
+    doc = open(os.path.join(ROOT, "docs", "DATA.md"), encoding="utf-8").read()
+    assert "| `update` |" in doc and "| `update_log` |" in doc

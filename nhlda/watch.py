@@ -22,7 +22,7 @@ Daily Faceoff is the social-media route: its goalie entries relay the beat write
 own posts (mostly on X) within minutes, with the writer's name, the time and a link.
 X cannot be read directly (see nhlda.dfo).
 
-    python -m nhlda.watch app/data/latest.json state    # prints build= and deploy= (true or false)
+    python -m nhlda.watch app/data/latest.json state    # prints build= and deploy= (true or false), and why=
 
 2026-11-18 (run 944): the build pushed its data at 00:16 UTC, but the Pages deploy
 found no "github-pages" artifact two seconds after the upload had succeeded, and the
@@ -192,6 +192,19 @@ def live_behind(data, url, now, get=None):
     return seen < have
 
 
+def why_line(build, reasons, generated_utc, now):
+    """1.22.0: why this update runs, for the data file's update record (one line):
+    the scheduled update it covers, or what the game-day watch saw; empty when there is
+    no build."""
+    if not build:
+        return ""
+    if S.due(generated_utc, now)[0]:
+        slot = S.last_main(now).astimezone(S.CENTRAL)
+        return f"Scheduled update ({f'{slot:%I:%M %p}'.lstrip('0')} Central)"
+    text = "Game-day watch: " + "; ".join(" ".join(str(r).split()) for r in reasons)
+    return text if len(text) <= 300 else text[:297] + "..."
+
+
 def main(argv=None, now=None, get=None):
     argv = sys.argv[1:] if argv is None else argv
     data_path = argv[0] if argv else "app/data/latest.json"
@@ -201,6 +214,7 @@ def main(argv=None, now=None, get=None):
     behind = None if build else live_behind(_load(data_path), pages_url(), now, get)
     print(f"build={'true' if build else 'false'}")
     print(f"deploy={'true' if behind else 'false'}")
+    print(f"why={why_line(build, reasons, (_load(data_path) or {}).get('generated_utc'), now)}")
     for r in reasons:
         print(("Build: " if build else "Skip: ") + r, file=sys.stderr)
     if behind:

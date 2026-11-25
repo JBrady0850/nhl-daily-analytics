@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.21.2";
+  const APP_VERSION = "1.22.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -373,6 +373,7 @@
   function render() {
     hideTip();
     view.innerHTML = D ? VIEWS[st.tab]() : noData();
+    { const w = $("#dver-w"), v = $("#dver"); if (w && v) { v.textContent = updId(); w.hidden = !updId(); } }
     buildInline();
     decorate(view);
     persist();
@@ -389,7 +390,8 @@
     getApp: () => getApp(),
     closeApp: () => closeSheet(),
     hideInstall: () => { try { localStorage.setItem(HINT, String(Date.now() + SNOOZE_MS)); } catch (e) { } showInstall(); },
-    refresh: () => refresh(true)
+    refresh: () => refresh(true),
+    updates: () => { setTab("help"); const el = document.getElementById("updates"); if (el) el.scrollIntoView({ block: "start" }); }
   };
 
   function noData() {
@@ -461,7 +463,13 @@
   }
   const dueLine = g => { const t = finalDue(g); return t ? `<p class="small muted due-final">${esc(t)}</p>` : ""; };
   const updSpan = () => { const s = updState(); return `<span class="upd ${s.kind}" data-upd>${esc(updText(s))}</span>`; };
-  const updated = () => `Updated ${esc(localStamp(D.generated_utc))}. <span class="upd-line">${updSpan()} <button class="linkish noprint" data-act="refresh">Check for newer data</button></span>`;
+  // 1.22.0 (John, 2026-11-25: "We need to add version numbers so we can track when things
+  // are updated"; he chose numbered data updates, shown in the app): the data file's
+  // number for its day beside the Updated time, at the bottom of every page and in
+  // Settings; each opens Help's list of recent updates and what each one changed
+  const updId = () => (D && D.update && D.update.id) || "";
+  const updNo = () => updId() ? ` <button class="linkish upd-no" data-act="updates" aria-label="Data update ${esc(updId())}: see what each update changed">(data update ${esc(updId())})</button>` : "";
+  const updated = () => `Updated ${esc(localStamp(D.generated_utc))}${updNo()}. <span class="upd-line">${updSpan()} <button class="linkish noprint" data-act="refresh">Check for newer data</button></span>`;
   const stamp = () => `<p class="sub">${esc(longDate(D.date))}. ${updated()}</p>`;
 
   // ---------- Today ----------
@@ -720,7 +728,7 @@
     const last = pts[pts.length - 1];
     const each = t.g.map((v, i) => { const g = games[i] || {}; return `${shortDay(g.date)} ${g.home ? "vs" : "at"} ${g.opp || "?"} ${typeof v === "number" ? signed(v) : "did not play"}`; }).join("; ");
     const dir = typeof t.slope !== "number" ? "" : t.slope > 0.02 ? "rising" : t.slope < -0.02 ? "falling" : "flat";
-    const tip = `Game Score in each of his team's last ${k} games, oldest first: ${each}. Average ${signed(t.avg)} over the ${t.n} he played${dir ? `; trend ${dir} (${signed(t.slope, 2)} per game)` : ""}.${t.drag ? " DRAGGING: below zero on average and not climbing, so he has cost his team more than he gave." : ""}`;
+    const tip = `Game Score in each of his team's last ${k} games, oldest first: ${each}. Average ${signed(t.avg)} over the ${t.n} he played${dir ? `; trend ${dir} (${signed(t.slope, 2)} per game)` : ""}.${t.drag ? " DRAGGING: 0.05 or more below zero on average and not climbing, so he has cost his team more than he gave." : ""}`;
     const zero = 0 >= sc.lo && 0 <= sc.hi ? `<line class="tr-zero" x1="0" x2="${TREND_W}" y1="${ys(0).toFixed(1)}" y2="${ys(0).toFixed(1)}"/>` : "";
     return `<span class="gs-trend${t.drag ? " drag" : ""}" data-tip="${esc(tip)}" tabindex="0" role="img" aria-label="${esc(p.name)}, last ${k} games: average ${signed(t.avg)}${dir ? ", trend " + dir : ""}${t.drag ? ", dragging the team down" : ""}">
       <span class="tr-lab">Last ${k}</span><svg viewBox="0 0 ${TREND_W} ${TREND_H}" preserveAspectRatio="none" aria-hidden="true">${zero}<polyline class="tr-line" points="${line}"/>${fit}${last ? `<circle class="tr-dot" cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="2.4"/>` : ""}</svg>
@@ -746,6 +754,49 @@
   }
   function gsOutRow(p, ab, sc, games) {
     return `<div class="gs-row out${p.trend.drag ? " drag" : ""}"><span class="gs-name">${pname(p.name, p.id)}</span><b class="gs-val" data-tip="He did not play the team's last game, so he has no Game Score or bars for it. His trend beside it covers the games he did play.">-</b><span class="gs-out-txt small">${outWhy(p, ab)}</span>${gsTrend(p, sc, games)}</div>`;
+  }
+  // 1.22.0 (John, 2026-11-25: "Also need to figure out a better way to display this as
+  // the phone version is lacking"; he chose one line per player): on a phone the chart
+  // above becomes one line per skater: his last ten games as squares (blue helped, red
+  // hurt, a deeper color is a bigger amount, hollow when he did not play, the last game
+  // outlined), his average with a trend arrow, and his Game Score in the last game. A tap
+  // opens the line: where the Game Score came from, each of the ten games, and his
+  // NHL.com page. The name in the closed line is plain text, so a tap anywhere on it opens
+  // the line instead of leaving the app; the open line links the page. Wider screens keep
+  // the chart.
+  const GP_SQ_FULL = 1.5, GP_CHIP_FULL = 2;          // a game this far from 0 gets the deepest color
+  function gpTint(v, full, from, to) {
+    if (typeof v !== "number") return "";
+    if (Math.abs(v) < 0.005) return `background:color-mix(in srgb, var(--muted) ${from}%, var(--panel))`;
+    const a = Math.round(from + (to - from) * Math.min(1, Math.abs(v) / full));
+    return `background:color-mix(in srgb, ${v > 0 ? "var(--gs-drive)" : "var(--bad)"} ${a}%, var(--panel))`;
+  }
+  const gpShort = n => { const w = String(n || "").trim().split(/\s+/); return w.length > 1 ? `${w[0][0]}. ${w.slice(1).join(" ")}` : String(n || ""); };
+  const gpDir = t => typeof t.slope !== "number" ? "" : t.slope > 0.02 ? "rising" : t.slope < -0.02 ? "falling" : "flat";
+  const GP_ARROW = { rising: ["up", "▲"], falling: ["dn", "▼"], flat: ["fl", "▬"] };
+  function gpRow(p, games, t, ab, out) {
+    const tr = p.trend && Array.isArray(p.trend.g) && p.trend.n ? p.trend : null, dir = tr ? gpDir(tr) : "", drag = !!(tr && tr.drag);
+    const sq = !tr ? `<span class="gp-none">-</span>` : tr.g.map((v, i) => `<i class="${typeof v !== "number" ? "dnp" : ""}${i === tr.g.length - 1 ? " last" : ""}" style="${gpTint(v, GP_SQ_FULL, 22, 85)}"></i>`).join("");
+    const ar = dir ? `<i class="gp-ar ${GP_ARROW[dir][0]}" aria-hidden="true">${GP_ARROW[dir][1]}</i>` : "";
+    const gs = out ? null : p.gs;
+    const say = `${p.name}: ${out ? "did not play the last game" : "Game Score " + signed(gs) + " in the last game"}${tr ? `; last ${tr.g.length} games average ${signed(tr.avg)}${dir ? ", " + dir : ""}` : ""}${drag ? "; dragging the team down" : ""}. Tap for details.`;
+    const parts = !out && p.cols ? `<dl class="gp-parts">${BOX_COLS.map(([k, n]) => `<dt>${esc(n === "PP" ? "Power play" : n)}</dt><dd style="${gpTint(p.cols[k], 0.75, 12, 42)}">${Math.abs(p.cols[k]) >= 0.005 ? signed(p.cols[k]) : ""}</dd>`).join("")}</dl>`
+      : !out ? `<p class="small">Offense ${signed(p.o.reduce((a, b) => a + b, 0))}, defense ${signed(p.d.reduce((a, b) => a + b, 0))}.</p>` : "";
+    const each = !tr ? "" : `<p class="gp-lab">Last ${tr.g.length} games, oldest first</p><ol class="gp-games">${tr.g.map((v, i) => { const g = games[i] || {};
+      return `<li class="${typeof v === "number" ? "" : "dnp"}" style="${gpTint(v, GP_SQ_FULL, 12, 42)}"><span>${esc(shortDay(g.date))} ${g.home ? "vs" : "at"} ${esc(g.opp || "?")}</span><b>${typeof v === "number" ? signed(v) : "out"}</b></li>`; }).join("")}</ol>
+      <p class="small muted gp-sum">Average ${signed(tr.avg)} over the ${esc(tr.n)} he played${dir ? `; trend ${dir} (${signed(tr.slope, 2)} per game)` : ""}.${drag ? " Dragging the team down: 0.05 or more below zero on average and not climbing." : ""}</p>`;
+    const lastLab = out ? `<p class="gp-out small">${outWhy(p, ab)}</p>` : `<p class="gp-lab">Last game, ${esc(shortDay(t.date))} ${t.home ? "vs" : "at"} ${esc(t.opp)}: Game Score ${signed(gs)}</p>`;
+    return `<details class="gp-row${drag ? " drag" : ""}${out ? " out" : ""}"><summary aria-label="${esc(say)}"><span class="gp-nm">${esc(gpShort(p.name))}</span><span class="gp-sq" aria-hidden="true">${sq}</span><span class="gp-avg">${tr ? signed(tr.avg) : "-"}${ar}</span><b class="gp-gs" style="${out ? "" : gpTint(gs, GP_CHIP_FULL, 14, 42)}">${out ? "-" : signed(gs)}</b></summary>
+      <div class="gp-det"><p class="gp-who">${pname(p.name, p.id)} <span class="small muted">${esc(p.pos || "")}${!out && typeof p.toi === "number" ? `, ${num(p.toi, 1)} minutes on ice` : ""}</span>${drag ? ` <span class="pill bad">Dragging</span>` : ""}</p>
+      ${lastLab}${parts}${each}</div></details>`;
+  }
+  function gpHead(nG) {
+    return `<div class="gp-head"><span>Player</span><span data-tip="${esc(TIPS.gs.Squares || "")}" tabindex="0">Last ${nG} games</span><span data-tip="${esc(TIPS.gs.Avg || "")}" tabindex="0">Avg</span><span data-tip="${esc(TIPS.gs["Last game"] || "")}" tabindex="0">Last game</span></div>`;
+  }
+  function phoneList(fw, dm, games, t, ab) {
+    const nG = games.length, rows = list => list.map(p => gpRow(p, games, t, ab, false)).join("");
+    return `<div class="gs-phone"><p class="small gp-how">One line per skater. The squares are his last ${nG} games, oldest on the left, and the outlined one is the last game: blue helped his team, red hurt it, a deeper color is a bigger amount, and a hollow square is a game he did not play. Avg is his average over the games he played (▲ rising, ▼ falling, ▬ flat). Last game is his Game Score in it. Tap a player to see where it came from.</p>
+      ${gpHead(nG)}${fw.length ? `<p class="gs-grp">Forwards</p>${rows(fw)}` : ""}${dm.length ? `<p class="gs-grp">Defense</p>${rows(dm)}` : ""}</div>`;
   }
   // 1.21.0 (John, 2026-11-25: a HockeyStats.com-style box table for My Teams, "build it
   // without the Goals Above Replacement"): every skater's Game Score in six columns that
@@ -823,7 +874,8 @@
       : `No skater is dragging the team down over its last ${nG} games.`}</p>`;
     const othersBox = !others.length ? "" : `<div class="gs-others"><p class="gs-grp">Not in the last game</p>
       <p class="small muted gs-others-how">They played for the ${esc(teamName(ab))} in some of its last ${nG} games but not in the last one, so they have no bars. Their trend covers the same ${nG} games as above.</p>
-      ${others.map(p => gsOutRow(p, ab, sc, games)).join("")}</div>`;
+      ${others.map(p => gsOutRow(p, ab, sc, games)).join("")}
+      <div class="gs-phone">${gpHead(nG)}${others.map(p => gpRow(p, games, t, ab, true)).join("")}</div></div>`;
     const fw = sk.filter(p => p.pos !== "D"), dm = sk.filter(p => p.pos === "D");
     const key = GS_PARTS.map(([k, n]) => `<span class="gs-key" data-tip="${esc((TIPS.gs || {})[n] || n)}"><i class="gs-sw gs-${k}"></i>${esc(n)}</span>`).join("");
     const cells = v => v.map(x => td(signed(x), "n")).join("");
@@ -843,13 +895,14 @@
         : `<p class="small muted">MoneyPuck did not post this game's shot values, so each shot is valued at MoneyPuck's season average for shots of that type from that distance.</p>`)
       : t.pending ? `<p class="small muted gs-pending">The NHL has not published this game's shift charts yet, so only production is scored for now; play driving, special teams and usage are added at the first update after they appear.</p>`
       : `<p class="small muted">Play driving, special teams and usage were not available for this game (the shift charts were missing), so only production is scored.</p>`;
-    return `<details class="lastgame" open><summary><span class="lg-title">Last game</span> <span class="small muted">${esc(shortDay(t.date))}, ${t.home ? "vs" : "at"} ${esc(t.opp)}</span></summary>
+    return `<details class="lastgame${games ? " has-phone" : ""}" open><summary><span class="lg-title">Last game</span> <span class="small muted">${esc(shortDay(t.date))}, ${t.home ? "vs" : "at"} ${esc(t.opp)}</span></summary>
       ${strip}
       <p class="small gs-how"><b>Two bars per player: the top bar is his offense</b> (what he created: goals, assists, shots, chances), <b>the bottom bar his defense</b> (what he stopped: blocks, chances against). Parts right of the center line helped his team; parts left of it hurt. The number beside each name is his Game Score, the two bars added together, in goals-like units: above 0 he helped, below 0 he hurt, 0 is an ordinary game.</p>
       <div class="gs-legend">${key}</div>
       ${dragLine}<div class="gs-chart${games ? " trended" : ""}"><div class="gs-head"><span class="gs-name">Player</span><span class="gs-val" data-tip="${esc(TIPS.gs["Game Score"])}">Game Score</span>
       <div class="gs-sides" style="--z:${((0 - lo) / span * 100).toFixed(2)}%"><span class="hurt" data-tip="Left of the line: the parts of his game that cost his team.">Hurt</span><span class="helped" data-tip="Right of the line: the parts of his game that helped his team.">Helped</span></div>${games ? `<span class="gs-trend-h" data-tip="${esc(TIPS.gs.Trend)}">Last ${nG}</span>` : ""}</div>
       ${group("Forwards", fw.map(p => gsRow(p, lo, span, sc, games)).join(""))}${group("Defense", dm.map(p => gsRow(p, lo, span, sc, games)).join(""))}</div>
+      ${games ? phoneList(fw, dm, games, t, ab) : ""}
       ${gk.length ? `<div class="gs-goalies"><div class="gs-head"><span class="gs-name">Goalie</span><span class="gs-val" data-tip="${esc(TIPS.gs.Goalie)}">Goals saved</span><span></span></div>${gk.map(g => gsGoalie(g, t.pending)).join("")}</div>` : ""}
       ${boxTable(t)}
       ${note}
@@ -1233,6 +1286,7 @@
       <section class="card"><h2 style="margin-top:0">Get the app</h2>${installSteps()}</section>
       <section class="card"><h2 style="margin-top:0">Today's data</h2><dl class="kv"><dt>Slate</dt><dd>${esc(longDate(D.date))}, ${esc(D.slate.game_count)} games</dd>
         <dt>Built</dt><dd>${esc(localStamp(D.generated_utc))}</dd>
+        ${updId() ? `<dt>Data update</dt><dd>${esc(updId())}, the ${esc(ordinal(D.update.n))} of the day. <button class="linkish" data-act="updates">What each update changed</button></dd>` : ""}
         <dt>Schedule</dt><dd>Twice a day, about ${dailyRuns().map(esc).join(" and ")} your time. GitHub can start a run late. On game days it also checks Daily Faceoff's starting goalies (and each team's lineup in the 90 minutes before its game) every 15 minutes from 9:30 AM US Central until the last game starts, and updates within minutes when one changes.</dd>
         <dt>Next update</dt><dd>${updSpan()}</dd>
         <dt>Starting goalies</dt><dd>${gl.loaded ? `${esc(gl.teams)} teams listed by Daily Faceoff, ${esc(gl.confirmed)} confirmed` : "Daily Faceoff not reached; starters are the model's rotation guess"}</dd>
@@ -1244,6 +1298,14 @@
   }
 
   // ---------- help ----------
+  function updLog() {
+    const log = (D && Array.isArray(D.update_log)) ? D.update_log : [];
+    const items = log.map(u => `<li${u.id === updId() ? ' class="cur"' : ""}><p class="upd-h"><b>${esc(u.id)}</b> <span class="small muted">${esc(localStamp(u.utc))}${u.id === updId() ? ", this file" : ""}</span></p>
+      <p class="small upd-why">${esc(u.why || "")}</p><ul class="small upd-ch">${(u.changes || []).map(c => `<li>${esc(c)}</li>`).join("")}</ul></li>`).join("");
+    return `<section class="card" id="updates"><h2 style="margin-top:0">Data updates</h2>
+      <p class="small">Every rebuild of the data gets the next number for its day: 2026-11-25.7 is the seventh update of the November 25 data. The number shows beside the Updated time under each page title and at the bottom of every page. Here are the newest ${log.length || ""} updates, newest first, with why each one ran and what it changed from the one before.</p>
+      ${items ? `<ol class="upd-log">${items}</ol>` : `<p class="small muted">This data file was built before updates were numbered.</p>`}</section>`;
+  }
   function vHelp() {
     const gloss = (window.NDA_GLOSSARY || []).map(([t, d]) => `<dt>${esc(t)}</dt><dd>${esc(d)}</dd>`).join("");
     const tipNote = `<p class="small">Hover over, tap, or Tab to any colored tag, summary tile, column heading or dotted-underlined abbreviation to see what it means. Click or tap a player's name to open his official NHL.com page with his full stats in a separate window.</p>`;
@@ -1252,6 +1314,7 @@
       <p>The line under each page title tells you when the next update is due. GitHub starts its own scheduled runs late or now and then not at all, so a small timer outside GitHub starts each update, with GitHub's schedule as a backup; a backup run builds only when the update has not posted yet. While an update is due, an open copy of the app checks for the new file every ${CHECK_MIN.due} minutes and loads it on its own; the Check for newer data button checks right away.</p>
       <p>On game days, from 9:30 AM US Central until the last game starts, the same timer asks every 15 minutes for a quick check: the workflow reads Daily Faceoff's starting goalies and, in the 90 minutes before each game, its lineups, and builds a new file only when a goalie or a lineup changed. Daily Faceoff relays the teams' beat writers, who post goalie news on social media first (mostly on X, which no automated reader may use), so a morning-skate report or a warmup change usually reaches the app within 20 minutes. Each goalie line names the writer, the time of the post and links to it.</p>
       <p>Each morning it also settles the previous night's games, keeps the season record, and every 10 settled games tests whether a refit of the model would predict better. A refit is adopted only after it proves itself on games it has not seen.</p></section>
+      ${updLog()}
       <section class="card"><h2 style="margin-top:0">Limits</h2><ul class="steps-list"><li>Hockey is close to a coin flip: last season the model picked 56 percent of winners on games it had not seen, and about 64 percent on picks that cleared the gate. Treat the numbers as estimates.</li>
       <li>Morning starting goalies are mostly projections; check the evening update or the team's own news before relying on one.</li>
       <li>Line combinations change at the morning skate. When Daily Faceoff cannot be reached, the app rebuilds lines from the last game's ice time.</li>

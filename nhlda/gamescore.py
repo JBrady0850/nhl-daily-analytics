@@ -50,6 +50,7 @@ HIST_NAME = "gamescore_history.json"
 HISTORY_GAMES = 10       # 1.19.0: each team's last ten games feed the players' trends
 BACKFILL_MAX = 200       # older games scored per run to fill the history (the first run scores the season)
 DRAG_MIN_GAMES = 5       # games he must have played of the last ten before he can be flagged
+DRAG_MAX_AVG = -0.05     # 1.22.0: his average must be this far below zero (an even player is not dragging)
 NAMES_FETCH_MAX = 80     # 1.20.0: players looked up on the NHL's player pages per run when no saved game or roster names them
 MASTER_NAME = "player_master_list.json"   # the file core.MASTER_LIST_NAME writes: today's NHL rosters
 LOOKBACK_DAYS = 3        # finished games of today and the three days before
@@ -590,9 +591,14 @@ def series_stats(vals):
 
 def dragging(n, avg, slope):
     """A player dragging his team down: at least DRAG_MIN_GAMES of the last ten played,
-    below zero on average (he cost his team more than he gave), and his trend line
-    flat or falling (not climbing out of it)."""
-    return bool(n >= DRAG_MIN_GAMES and avg is not None and avg < 0 and (slope is None or slope <= 0))
+    at least 0.05 a game below zero on average (he cost his team more than he gave), and
+    his trend line flat or falling (not climbing out of it).
+
+    1.22.0 (John, 2026-11-25, chose "Need -0.05 or lower"): Garnet Hathaway was tagged
+    DRAGGING at "0.00 a game"; his average was -0.001, an even player. The average is
+    compared as the app shows it, to two decimals."""
+    return bool(n >= DRAG_MIN_GAMES and avg is not None and round(avg, 2) <= DRAG_MAX_AVG
+                and (slope is None or slope <= 0))
 
 
 def _trend(vals):

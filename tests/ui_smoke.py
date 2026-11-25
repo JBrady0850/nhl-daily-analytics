@@ -528,6 +528,131 @@ BOX_JS = """(ab) => {
 }"""
 
 
+PHONE_JS = """(ab) => {
+  const c = [...document.querySelectorAll('main section.teamcard')].find(s => s.querySelector('.tc-head .tm').textContent.trim() === ab);
+  const lg = c && c.querySelector('details.lastgame');
+  if (!lg) return {last: false};
+  const vis = e => !!e && e.getClientRects().length > 0 && getComputedStyle(e).visibility !== 'hidden';
+  const box = lg.querySelector(':scope > .gs-phone'), chart = lg.querySelector('.gs-chart');
+  const rowsOf = root => [...(root ? root.querySelectorAll('details.gp-row') : [])].map(d => {
+    const s = d.querySelector('summary'), r = s.getBoundingClientRect();
+    const kids = [...s.children].map(k => k.getBoundingClientRect());
+    const sq = [...d.querySelectorAll('.gp-sq > i')];
+    return {name: s.querySelector('.gp-nm').textContent.trim(), avg: s.querySelector('.gp-avg').childNodes[0].textContent.trim(),
+      gs: s.querySelector('.gp-gs').textContent.trim(), sq: sq.length, dnp: sq.filter(i => i.classList.contains('dnp')).length,
+      last: sq.length ? sq[sq.length - 1].classList.contains('last') && sq.filter(i => i.classList.contains('last')).length === 1 : null,
+      drag: d.classList.contains('drag'), h: Math.round(r.height), inside: vis(s) ? kids.every(k => k.left >= r.left - 0.5 && k.right <= r.right + 0.5) : null,
+      label: (s.getAttribute('aria-label') || '').length > 20, link: (d.querySelector('.gp-det a.plink') || {href: ''}).href,
+      parts: [...d.querySelectorAll('.gp-parts dd')].map(x => x.textContent.trim()), games: d.querySelectorAll('.gp-games li').length,
+      out: (d.querySelector('.gp-out') || {textContent: ''}).textContent.replace(/\\s+/g, ' ').trim(),
+      dragPill: [...d.querySelectorAll('.gp-det .pill.bad[data-tip]')].some(x => x.textContent.trim() === 'Dragging'), tipsInSummary: s.querySelectorAll('[data-tip]').length};
+  });
+  return {last: true, narrow: innerWidth <= 640, phoneShown: vis(box), chartShown: vis(chart),
+    legendShown: vis(lg.querySelector(':scope > .gs-legend')), howShown: vis(lg.querySelector(':scope > .gs-how')),
+    how: (box && box.querySelector('.gp-how') || {textContent: ''}).textContent.trim(),
+    head: box ? [...box.querySelectorAll('.gp-head > span')].map(h => [h.textContent.trim(), !!h.dataset.tip]) : [],
+    groups: box ? [...box.querySelectorAll('.gs-grp')].map(g => g.textContent.trim()) : [],
+    rows: rowsOf(box), others: rowsOf(lg.querySelector('.gs-others .gs-phone')),
+    othersOld: vis(lg.querySelector('.gs-others .gs-row'))};
+}"""
+
+
+def check_phone_list(pg, sample, ab):
+    """1.22.0 (John, 2026-11-25: "Also need to figure out a better way to display this as
+    the phone version is lacking"; he chose one line per player): on a phone the last-game
+    chart is one line per skater (the last ten games as squares, the average with a trend
+    arrow, the last-game Game Score), and a tap opens where it came from. Wider screens
+    keep the chart."""
+    t = sample["gamescore"]["teams"][ab]
+    pg.click('#tabs button[data-tab="myteams"]')
+    pg.wait_for_timeout(40)
+    got = pg.evaluate(PHONE_JS, ab)
+    if not got.get("last"):
+        return [f"phone list {ab}: no last game"]
+    sign = lambda v: ("+" if v > 0 else "") + f"{v:.2f}"
+    short = lambda n: (n.split()[0][0] + ". " + " ".join(n.split()[1:])) if len(n.split()) > 1 else n
+    order = [p for p in t["skaters"] if p["pos"] != "D"] + [p for p in t["skaters"] if p["pos"] == "D"]
+    others = [p for p in t.get("trend_others") or [] if p["trend"]["n"]]
+    out = []
+    narrow = got["narrow"]
+    want_shown = {"phoneShown": narrow, "chartShown": not narrow, "legendShown": not narrow, "howShown": not narrow, "othersOld": bool(others) and not narrow}
+    out += [f"phone list {ab} {k}: {got[k]} (want {v})" for k, v in want_shown.items() if got[k] != v]
+    if got["head"] != [["Player", False], [f"Last {len(t['trend_games'])} games", True], ["Avg", True], ["Last game", True]]:
+        out.append(f"phone list {ab}: headings {got['head']}")
+    if got["groups"] != ["Forwards", "Defense"] or not got["how"].startswith("One line per skater."):
+        out.append(f"phone list {ab}: groups {got['groups']}, how {got['how'][:40]!r}")
+    def row_want(p, missed):
+        tr = p["trend"]
+        return {"name": short(p["name"]), "avg": sign(tr["avg"]), "gs": "-" if missed else sign(p["gs"]), "sq": len(tr["g"]),
+                "dnp": sum(1 for v in tr["g"] if v is None), "last": True, "drag": tr["drag"], "label": True,
+                "link": f"https://www.nhl.com/player/{p['id']}", "games": len(tr["g"]), "dragPill": tr["drag"], "tipsInSummary": 0}
+    for lab, rows, plist, missed in (("row", got["rows"], order, False), ("not in the last game", got["others"], others, True)):
+        if len(rows) != len(plist):
+            out.append(f"phone list {ab}: {len(rows)} {lab}s for {len(plist)} players")
+            continue
+        for r, p in zip(rows, plist):
+            w = row_want(p, missed)
+            bad = {k: (r[k], v) for k, v in w.items() if r[k] != v}
+            if not missed and p.get("cols"):
+                parts = ["" if abs(p["cols"][k]) < 0.005 else sign(p["cols"][k]) for k in ("gc", "on_o", "on_d", "pp", "pen", "other")]
+                if r["parts"] != parts:
+                    bad["parts"] = (r["parts"], parts)
+            if missed and not r["out"]:
+                bad["out"] = (r["out"], "the reason he was out")
+            if narrow and (r["inside"] is not True or r["h"] > 48):
+                bad["fit"] = (r["inside"], r["h"])
+            if bad:
+                out.append(f"phone list {ab} {lab} {p['name']}: {bad}")
+    if narrow and not out:
+        # a tap opens the line, and a second tap closes it
+        s = pg.locator("main section.teamcard details.lastgame > .gs-phone details.gp-row > summary").first
+        s.tap()
+        pg.wait_for_timeout(60)
+        if not pg.evaluate("document.querySelector('main details.lastgame > .gs-phone details.gp-row').open"):
+            out.append(f"phone list {ab}: a tap did not open the line")
+        elif not pg.locator("main details.lastgame > .gs-phone details.gp-row .gp-det a.plink").first.is_visible():
+            out.append(f"phone list {ab}: the open line shows no NHL.com link")
+        s.tap()
+        pg.wait_for_timeout(60)
+        if pg.evaluate("document.querySelector('main details.lastgame > .gs-phone details.gp-row').open"):
+            out.append(f"phone list {ab}: a second tap did not close the line")
+    return out
+
+
+UPDATE_JS = """() => {
+  const sub = document.querySelector('main p.sub'), b = sub && sub.querySelector('button.upd-no');
+  const f = document.getElementById('dver'), w = document.getElementById('dver-w');
+  return {sub: b ? b.textContent.trim() : null, act: b ? b.dataset.act : null, foot: f ? f.textContent.trim() : null, footShown: !!w && !w.hidden};
+}"""
+
+
+def check_update_number(pg, sample):
+    """1.22.0 (John, 2026-11-25: "We need to add version numbers so we can track when
+    things are updated"; he chose numbered data updates shown in the app)."""
+    u, log = sample["update"], sample["update_log"]
+    out = []
+    pg.click('#tabs button[data-tab="today"]')
+    got = pg.evaluate(UPDATE_JS)
+    if got != {"sub": f"(data update {u['id']})", "act": "updates", "foot": u["id"], "footShown": True}:
+        out.append(f"update number: {got}")
+    pg.click('#tabs button[data-tab="settings"]')
+    dd = pg.evaluate("(() => { const t = [...document.querySelectorAll('main dl.kv dt')].find(d => d.textContent.trim() === 'Data update'); return t ? [t.nextElementSibling.textContent.trim(), !!t.dataset.tip] : null; })()")
+    if not dd or not dd[0].startswith(f"{u['id']}, the {u['n']}") or not dd[1]:
+        out.append(f"update number in Settings: {dd}")
+    pg.locator("#dver").click()
+    pg.wait_for_timeout(80)
+    h = pg.evaluate("""(() => { const s = document.getElementById('updates'); if (!s) return null;
+      return {tab: document.querySelector('#tabs [aria-selected=true]').dataset.tab, top: Math.round(s.getBoundingClientRect().top),
+        ids: [...s.querySelectorAll('.upd-log > li .upd-h b')].map(b => b.textContent.trim()),
+        cur: [...s.querySelectorAll('.upd-log > li.cur .upd-h b')].map(b => b.textContent.trim()),
+        why: [...s.querySelectorAll('.upd-log > li .upd-why')].map(p => p.textContent.trim()),
+        changes: [...s.querySelectorAll('.upd-log > li .upd-ch')].map(l => [...l.children].map(x => x.textContent.trim()))}; })()""")
+    want = {"tab": "help", "ids": [x["id"] for x in log], "cur": [u["id"]], "why": [x["why"] for x in log], "changes": [x["changes"] for x in log]}
+    if not h or any(h[k] != v for k, v in want.items()) or not (-2 <= h["top"] <= 120):
+        out.append(f"Help data updates: {h}")
+    return out
+
+
 def check_box_table(pg, sample, ab):
     """1.21.0 (John, 2026-11-25: a HockeyStats.com-style box table for My Teams, "build it
     without the Goals Above Replacement"): every skater's Game Score in six columns that
@@ -1473,6 +1598,8 @@ def main():
                 fails.extend(f"{name}: {m}" for m in check_team_places(pg, sample, "FLA", mob))
                 fails.extend(f"{name}: {m}" for m in check_last_game(pg, sample, "FLA"))
                 fails.extend(f"{name}: {m}" for m in check_box_table(pg, sample, "FLA"))
+                fails.extend(f"{name}: {m}" for m in check_phone_list(pg, sample, "FLA"))
+                fails.extend(f"{name}: {m}" for m in check_update_number(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_points_leaders(pg, sample, "FLA"))
                 pg.click('#tabs button[data-tab="today"]')
                 if pg.locator("main .due-final").count():
@@ -1535,12 +1662,13 @@ def main():
                 want += sum(1 for p in lg["skaters"] if (p.get("trend") or {}).get("drag"))   # 1.19.0: and the dragging summary
                 outs = [p for p in lg.get("trend_others") or [] if p["trend"]["n"]]
                 want += len(outs) + sum(1 for p in outs if p["trend"]["drag"])                 # 1.20.0: players not in the last game
+                want += len(lg["skaters"]) + len(outs)          # 1.22.0: the phone lines link each player's page once, inside the open line
                 if len(links) != want or want < 15:
                     fails.append(f"{name}: {len(links)} player links on My Teams, expected {want}")
                 bad = [l for l in links if not re.match(r"^https://www\.nhl\.com/player/\d{6,8}$", l[0] or "") or l[1] != "_blank" or "noopener" not in (l[2] or "")]
                 if bad:
                     fails.append(f"{name}: bad player links {bad[:2]}")
-                first = pg.locator("main a.plink").first
+                first = pg.locator("main a.plink:visible").first
                 with ctx.expect_page() as info:
                     (first.tap() if mob else first.click())
                 player_page = info.value

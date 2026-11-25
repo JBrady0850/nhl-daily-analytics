@@ -31,6 +31,22 @@ no wager, account or chat wording.
 | `dfs` | object | DraftKings projections: `skaters` (top 30 by projection) and `goalies` (every probable starter, highest team win probability first, ties by projection). |
 | `sources` | object | What loaded: goalie and injury counts, `injuries.sources` (the reports read: `espn`, `hockey_reference`, `daily_faceoff`) and `injuries.source` (the same joined with `+`, or `none`), market games, lines by source, request counts, build seconds. `starting_goalies.refused` and `lines.refused` (teams) say Daily Faceoff did not answer this update; `starting_goalies.cached_utc`, `lines.cached` and `lines.cached_utc` say its earlier answer was used instead. |
 | `problems` | list | Plain-text notes about anything that failed or fell back. Empty on a clean run. |
+| `update` | object | Since 1.22.0: this file's update number and record. See below. |
+| `update_log` | list | Since 1.22.0: the newest 30 update records, newest first (the first is `update`). |
+
+## `update` and `update_log`
+
+Every build of the data file gets the next number for its slate date. The record:
+
+| Key | Meaning |
+| --- | --- |
+| `id` | `YYYY-MM-DD.N`, for example `2026-11-25.7`: the seventh update of the November 25 data. |
+| `date`, `n` | The slate date and the number within it (1 for the first update of a day). |
+| `utc` | When the update was built (the same as `generated_utc`). |
+| `why` | Why it ran: `Scheduled update (9:00 AM Central)` or `(4:45 PM Central)`, `Game-day watch: ` and the goalie or lineup change it saw, `Run by hand`, or `Automatic update` (a backup run). |
+| `changes` | What it changed from the file it replaced, one plain line each: goalies (name, and projected, confirmed or rotation guess), picks and win chances that moved 2 points or more before puck drop, final scores, Game Scores of newly finished games and rescored ones, games newly settled in the season record, the model's learning cycles, injury list additions, removals and status changes (six at most, then a count) and teams whose lines changed. Twelve lines at most; the first update of a day starts with `First update for ...`. |
+
+The repository keeps the last 60 records in `state/updates.json`.
 
 ## `slate`
 
@@ -179,7 +195,7 @@ runs, so each name is looked up once.
 | `skaters` | Forwards then defensemen, each best first: `id`, `name`, `pos`, `toi` (minutes, the NHL boxscore's), `gs` (the Game Score, the sum of the eight parts), `o` and `d` (offense and defense, each `[production, play driving, special teams, usage]`; the app draws `o` as the top bar and `d` as the bottom bar), and `box` (`g`, `a1`, `a2`, `sog`, `blk`, `pd` penalties drawn, `pt` penalties taken). |
 | `goalies` | `id`, `name`, `shots` faced and `ga` (the NHL boxscore's), `xga` (MoneyPuck's expected goals of the unblocked shots he faced, its own figure for him) and `gsax` (`xga` minus `ga`). |
 | `trend_games` | Since 1.19.0: the team's last games (up to ten), oldest first, each `game`, `date`, `opp`, `home` and `result`; the last one is this game. |
-| `skaters[].trend` | Since 1.19.0: `g` (his Game Score in each of `trend_games`, null where he did not play), `n` (games he played), `avg` (his average over them), `slope` (his least-squares trend, Game Score per game, null under two games) and `drag` (true when he played at least five, `avg` is below zero and `slope` is zero or less: he is dragging the team down). |
+| `skaters[].trend` | Since 1.19.0: `g` (his Game Score in each of `trend_games`, null where he did not play), `n` (games he played), `avg` (his average over them), `slope` (his least-squares trend, Game Score per game, null under two games) and `drag` (true when he played at least five, `avg` is -0.05 or lower, since 1.22.0, and `slope` is zero or less: he is dragging the team down). |
 | `skaters[].cols` | Since 1.21.0: his Game Score in six parts that add up to `gs` (within rounding): `gc` goal creation (goals 0.75, first assists 0.70, second assists 0.55, shots 0.075), `on_o` and `on_d` (5-on-5 on-ice play driving, offense and defense), `pp` (power play), `pen` (penalties drawn minus taken, 0.15 each) and `other` (faceoffs, blocked shots, the penalty kill and the usage adjustment: the rest of `gs`). The My Teams table "Game Score by part" shows them. |
 | `trend_others` | Since 1.20.0: every other skater who played for the team in `trend_games` but not in this game, forwards first, then most games played: `id`, `name`, `pos`, `trend` (as above), `on_roster` (true when he is on the team's NHL roster today, false when he is not, null when the rosters could not be read) and `now_team` (the team whose roster he is on today, when it is another team, else null). Goalies are not included. |
 

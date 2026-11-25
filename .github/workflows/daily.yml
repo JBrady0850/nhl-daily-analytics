@@ -24,6 +24,9 @@ name: Daily data
 # more when it fails, and when no build is needed the guard compares the published data
 # file with the repository's and publishes the app again (deploy=true) when the site is
 # behind.
+# Numbered updates (1.22.0): each build numbers itself for the day (2026-11-25.7 is the
+# seventh update of the November 25 data) and records why it ran and what it changed;
+# the guard's why= line carries the reason to the build.
 # To send the event yourself: POST /repos/<owner>/<repo>/dispatches with
 # {"event_type": "daily-data"} (or "lineup-watch"), using a token with Contents:
 # write on this repository.
@@ -55,13 +58,14 @@ jobs:
     outputs:
       build: ${{ steps.due.outputs.build }}
       deploy: ${{ steps.due.outputs.deploy }}
+      why: ${{ steps.due.outputs.why }}
     steps:
       - uses: actions/checkout@v7
         with:
           ref: main            # the newest data file, not the commit the event was queued on
       - id: due
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "build=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then printf 'build=true\nwhy=Run by hand\n' >> "$GITHUB_OUTPUT"; exit 0; fi
           python3 -m nhlda.watch app/data/latest.json state >> "$GITHUB_OUTPUT"
   build:
     needs: when
@@ -77,6 +81,11 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirements.txt
       - name: Build today's data
+        # 1.22.0: the update record says why this update ran (nhlda/updates.py); the text
+        # reaches the build through the environment, never pasted into the script
+        env:
+          NDA_EVENT: ${{ github.event_name }}/${{ github.event.action }}
+          NDA_WHY: ${{ needs.when.outputs.why }}
         run: python -m nhlda build --state state --out app/data
       - name: Check the data file
         run: python -m nhlda check app/data/latest.json

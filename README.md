@@ -105,7 +105,7 @@ always has the latest data.
 | Tab | What you see |
 | --- | --- |
 | **Today** | Every game ranked by the projected winner's win probability. Each card shows the pick on a gold banner with a star crest (MY PICK, the team and its chance to win), with the confidence tier (HIGH, MODERATE, LOW), the market's view for comparison (and a "Market favors" tag when the market picks the other team), both starting goalies, and a "Why this pick" breakdown. A game that is over by an update gets the final score on a scoreboard strip under the banner and WIN or LOSS for the pick; once a game starts, its pick never changes. |
-| **My Teams** | The teams you follow: record, place in the wild-card race, division, conference and league, today's game, the last game (final score, then each player's Game Score as offense and defense bars: production, play driving, special teams and usage, and the goalie's goals saved above expected), a Game Score by part table (goal creation, on-ice offense and defense, power play, penalties and other, colored by how much each helped or hurt), each skater's trend over the team's last ten games with a DRAGGING tag for players pulling the team down (players who missed the last game are listed under it with their trend and the reason they were out), all four lines and three pairs with last-10 or season stats, which line leads the team in points, shots and penalty minutes, and the forward and the defenseman with the most points (POINTS LEADER). |
+| **My Teams** | The teams you follow: record, place in the wild-card race, division, conference and league, today's game, the last game (final score, then each player's Game Score as offense and defense bars: production, play driving, special teams and usage, and the goalie's goals saved above expected), a Game Score by part table (goal creation, on-ice offense and defense, power play, penalties and other, colored by how much each helped or hurt), each skater's trend over the team's last ten games with a DRAGGING tag for players pulling the team down (0.05 a game or more below zero and not climbing; on a phone the chart is one line per skater: ten colored squares for the last ten games, his average with a trend arrow and his last-game Game Score, and a tap opens where it came from) (players who missed the last game are listed under it with their trend and the reason they were out), all four lines and three pairs with last-10 or season stats, which line leads the team in points, shots and penalty minutes, and the forward and the defenseman with the most points (POINTS LEADER). |
 | **Lines** | The four forward lines and three defense pairs of each game's projected winner, in rank order, with every player's stats (last 10 games or season) and line and pair totals. |
 | **Goalies** | Every probable starter tonight, highest season save percentage first, with goals saved above expected, high-danger save percentage, rest days and whether the start is confirmed. |
 | **Injuries** | Every injured player the injury reports name, team by team: status (GTD, DTD, OUT, IR, LTIR, IR-NR, SUSP), the injury, the latest report and its date, and the estimated return. Filter to all teams, today's games or your teams; the app remembers the filter. IN LINEUP marks a listed player Daily Faceoff still has in today's lineup. |
@@ -114,8 +114,8 @@ always has the latest data.
 | **Results** | Last night's picks against the finals, the season pick rate, results by confidence tier, and a comparison with the betting market. |
 | **Model** | The model's settings in use beside the candidate under test and the 2025-26 baseline (with each one's score this season), its learning progress, and a calibration table: how often picks in each probability band actually won. |
 | **DFS** | Projected DraftKings fantasy points for the top 30 skaters, and for every probable starting goalie tonight sorted by his team's win probability, highest first. |
-| **Settings** | Install steps with a QR code, the data date, the update schedule in your time, privacy notes and a button that clears your saved teams. |
-| **Help** | Plain-language definitions for every term and column. |
+| **Settings** | Install steps with a QR code, the data date and its update number, the update schedule in your time, privacy notes and a button that clears your saved teams. |
+| **Help** | How it works, the recent data updates (number, time, why and what changed), and plain-language definitions for every term and column. |
 
 ## How it works
 
@@ -166,6 +166,13 @@ scheduled time passes without new data, the line says the update is due, and an 
 copy of the app checks for the new file every 5 minutes (every 15 minutes once the
 update is more than 3 hours late) and loads it on its own. The **Check for newer data**
 button checks right away.
+
+Every update is numbered for its day (1.22.0): `2026-11-25.7` is the seventh update of
+the November 25 data. The number shows beside the Updated time, at the bottom of every
+page and in Settings, and **Help > Data updates** lists the recent ones with why each
+ran (the scheduled update, the game-day watch and the change it saw, or a run by hand)
+and what it changed: goalies, picks and win chances, final scores, the injury list,
+lines, Game Scores and the season record. The record is kept in `state/updates.json`.
 
 Because every day's data file is committed, the repository history is a public,
 time-stamped record of each pick made before the games started.
@@ -236,7 +243,7 @@ source. See [docs/LIMITS.md](docs/LIMITS.md).
 | `app/` | The web app: `index.html`, `css/`, `js/app.js`, `js/glossary.js`, the service worker `sw.js`, icons and the manifest |
 | `app/data/` | Today's data file, rewritten by the workflow |
 | `nhlda/` | The Python program that builds the data file |
-| `state/` | The season record, the model's learning history, a player list, yesterday's slate (for settling results) and each team's last scored game |
+| `state/` | The season record, the model's learning history, a player list, yesterday's slate (for settling results), each team's last scored game and the numbered update record (`updates.json`) |
 | `.github/workflows/` | `daily.yml` builds and publishes (main and backup times; `nhlda/schedule.py` decides whether a scheduled run builds); `tests.yml` runs the tests; `pages.yml` republishes the app after a code change |
 | `docs/` | [Data file format](docs/DATA.md), [privacy](docs/PRIVACY.md), [limits](docs/LIMITS.md) and the screenshots |
 | `tests/` | Engine tests, a browser test of every tab, the screenshot and artwork makers and the sample data |

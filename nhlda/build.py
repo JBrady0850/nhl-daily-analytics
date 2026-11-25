@@ -26,6 +26,7 @@ from .data import (Fetcher, SlateDetector, TeamGameLog, MoneyPuckLoader, Standin
                    fetch_market_odds, fetch_finals)
 from .lines import all_team_lines, dfo_goalies_with_cache, dfo_note
 from . import gamescore as GS
+from . import updates as U
 
 FORMAT = "nhl-daily-analytics/1"
 # Official team logos stay on the NHL's own image server; the app shows them from
@@ -408,6 +409,15 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
                             seconds=round((dt.datetime.now(dt.timezone.utc) - started).total_seconds())),
             "problems": problems,
         }
+    # 1.22.0 (John, 2026-11-25: "We need to add version numbers so we can track when
+    # things are updated"): this update's number for the day, why it ran and what it
+    # changed against the file it replaces
+    try:
+        prev_file = json.load(open(os.path.join(out_dir, "latest.json"), encoding="utf-8"))
+    except (OSError, ValueError):
+        prev_file = None
+    out["update"], out["update_log"] = U.stamp(state_dir, prev_file, out,
+                                               os.environ.get("NDA_EVENT"), os.environ.get("NDA_WHY"))
     check_public(out)
     text = json.dumps(out, separators=(",", ":"), ensure_ascii=True)
     for name, body in (("latest.json", text), ("latest.js", "window.NDA_DATA=" + text + ";\n")):
