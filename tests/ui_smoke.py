@@ -475,8 +475,8 @@ LAST_GAME_JS = """(ab) => {
     // 1.19.0: each skater's trend over his team's last games, its heading, the dragging summary
     trends: [...lg.querySelectorAll('.gs-chart .gs-row')].map(r => { const t = r.querySelector('.gs-trend'); if (!t) return null;
       const q = t.getBoundingClientRect(), row = r.getBoundingClientRect(), dot = t.querySelector('.tr-dot');
-      return [(t.querySelector('.tr-avg') || {textContent: ''}).textContent.trim(), !!t.querySelector('.pill.bad'), !!t.dataset.tip,
-        !!t.querySelector('polyline.tr-line'), !!t.querySelector('line.tr-zero'), !!dot, q.right <= row.right + 0.5 && q.left >= row.left - 0.5,
+      return [(t.querySelector('.tr-num') || t.querySelector('.tr-avg') || {textContent: ''}).textContent.trim(), [...r.querySelectorAll('.pill.bad')].some(x => x.textContent.trim() === 'Dragging'), !!t.dataset.tip,
+        !!t.querySelector('polyline.tr-line') || !!t.querySelector('svg.cols'), !!t.querySelector('line.tr-zero'), !!dot || !!t.querySelector('svg.cols rect.last'), q.right <= row.right + 0.5 && q.left >= row.left - 0.5,
         (t.getAttribute('aria-label') || '').length > 10]; }),
     trendHead: (() => { const h = lg.querySelector('.gs-chart > .gs-head .gs-trend-h'); return h ? [h.textContent.trim(), !!h.dataset.tip] : null; })(),
     dragLine: (() => { const d = lg.querySelector('.gs-dragline'); if (!d) return '';
@@ -486,8 +486,8 @@ LAST_GAME_JS = """(ab) => {
     // 1.20.0: skaters of the last ten games who missed the last one, under the chart
     others: [...lg.querySelectorAll('.gs-others .gs-row')].map(r => { const a = r.querySelector('.gs-name a.plink'), t = r.querySelector('.gs-trend'), v = r.querySelector('.gs-val');
       return [a ? a.childNodes[0].textContent.trim() : null, v.textContent.trim(), !!v.dataset.tip, (r.querySelector('.gs-out-txt') || {textContent: ''}).textContent.replace(/\\s+/g, ' ').trim(),
-        t ? (t.querySelector('.tr-avg') || {textContent: ''}).textContent.trim() : null, t ? !!t.querySelector('polyline.tr-line') : false,
-        !!(t && t.querySelector('.pill.bad')), r.classList.contains('drag'), !r.querySelector('.gs-bars'),
+        t ? (t.querySelector('.tr-num') || t.querySelector('.tr-avg') || {textContent: ''}).textContent.trim() : null, t ? !!t.querySelector('polyline.tr-line') || !!t.querySelector('svg.cols') : false,
+        [...r.querySelectorAll('.pill.bad')].some(x => x.textContent.trim() === 'Dragging'), r.classList.contains('drag'), !r.querySelector('.gs-bars'),
         (() => { const q = r.getBoundingClientRect(), w = t ? t.getBoundingClientRect() : q; return w.right <= q.right + 0.5 && w.left >= q.left - 0.5; })()]; }),
     othersHead: (() => { const g = lg.querySelector('.gs-others > .gs-grp'); return g ? g.textContent.trim() : null; })(),
     othersHow: (lg.querySelector('.gs-others-how') || {textContent: ''}).textContent.trim(),
@@ -528,95 +528,56 @@ BOX_JS = """(ab) => {
 }"""
 
 
-PHONE_JS = """(ab) => {
+TREND_COLS_JS = """(ab) => {
   const c = [...document.querySelectorAll('main section.teamcard')].find(s => s.querySelector('.tc-head .tm').textContent.trim() === ab);
   const lg = c && c.querySelector('details.lastgame');
-  if (!lg) return {last: false};
-  const vis = e => !!e && e.getClientRects().length > 0 && getComputedStyle(e).visibility !== 'hidden';
-  const box = lg.querySelector(':scope > .gs-phone'), chart = lg.querySelector('.gs-chart');
-  const rowsOf = root => [...(root ? root.querySelectorAll('details.gp-row') : [])].map(d => {
-    const s = d.querySelector('summary'), r = s.getBoundingClientRect();
-    const kids = [...s.children].map(k => k.getBoundingClientRect());
-    const sq = [...d.querySelectorAll('.gp-sq > i')];
-    return {name: s.querySelector('.gp-nm').textContent.trim(), avg: s.querySelector('.gp-avg').childNodes[0].textContent.trim(),
-      gs: s.querySelector('.gp-gs').textContent.trim(), sq: sq.length, dnp: sq.filter(i => i.classList.contains('dnp')).length,
-      last: sq.length ? sq[sq.length - 1].classList.contains('last') && sq.filter(i => i.classList.contains('last')).length === 1 : null,
-      drag: d.classList.contains('drag'), h: Math.round(r.height), inside: vis(s) ? kids.every(k => k.left >= r.left - 0.5 && k.right <= r.right + 0.5) : null,
-      label: (s.getAttribute('aria-label') || '').length > 20, link: (d.querySelector('.gp-det a.plink') || {href: ''}).href,
-      parts: [...d.querySelectorAll('.gp-parts dd')].map(x => x.textContent.trim()), games: d.querySelectorAll('.gp-games li').length,
-      out: (d.querySelector('.gp-out') || {textContent: ''}).textContent.replace(/\\s+/g, ' ').trim(),
-      dragPill: [...d.querySelectorAll('.gp-det .pill.bad[data-tip]')].some(x => x.textContent.trim() === 'Dragging'), tipsInSummary: s.querySelectorAll('[data-tip]').length};
+  if (!lg) return null;
+  return [...lg.querySelectorAll('.gs-chart .gs-row .gs-trend, .gs-others .gs-row .gs-trend')].filter(t => !t.classList.contains('none')).map(t => {
+    const svg = t.querySelector('svg'), r = svg.getBoundingClientRect();
+    return {cols: svg.classList.contains('cols'), line: !!svg.querySelector('polyline.tr-line'), w: Math.round(r.width), h: Math.round(r.height),
+      rects: [...svg.querySelectorAll('rect')].map(x => x.classList.contains('tr-up') ? 'up' : x.classList.contains('tr-dn') ? 'dn' : x.classList.contains('tr-out') ? 'out' : '?'),
+      last: [...svg.querySelectorAll('rect')].map(x => x.classList.contains('last')).lastIndexOf(true), nLast: svg.querySelectorAll('rect.last').length,
+      label: (t.querySelector('.tr-avl') || {textContent: ''}).textContent.trim(), num: (t.querySelector('.tr-num') || {textContent: ''}).textContent.trim(),
+      arrow: (t.querySelector('.tr-ar') || {className: ''}).className.replace('tr-ar', '').trim()};
   });
-  return {last: true, narrow: innerWidth <= 640, phoneShown: vis(box), chartShown: vis(chart),
-    legendShown: vis(lg.querySelector(':scope > .gs-legend')), howShown: vis(lg.querySelector(':scope > .gs-how')),
-    how: (box && box.querySelector('.gp-how') || {textContent: ''}).textContent.trim(),
-    head: box ? [...box.querySelectorAll('.gp-head > span')].map(h => [h.textContent.trim(), !!h.dataset.tip]) : [],
-    groups: box ? [...box.querySelectorAll('.gs-grp')].map(g => g.textContent.trim()) : [],
-    rows: rowsOf(box), others: rowsOf(lg.querySelector('.gs-others .gs-phone')),
-    othersOld: vis(lg.querySelector('.gs-others .gs-row'))};
 }"""
 
 
-def check_phone_list(pg, sample, ab):
-    """1.22.0 (John, 2026-11-25: "Also need to figure out a better way to display this as
-    the phone version is lacking"; he chose one line per player): on a phone the last-game
-    chart is one line per skater (the last ten games as squares, the average with a trend
-    arrow, the last-game Game Score), and a tap opens where it came from. Wider screens
-    keep the chart."""
+def check_trend_columns(pg, sample, ab):
+    """1.22.1 (John, 2026-11-25: on the 1.21.2 chart "the last 10 games graph did not show
+    well on the phone"; he chose up and down columns): on a phone each of the last ten
+    games is a column across the row (up for a Game Score of 0 or more, down below 0, a
+    small hollow dash for a game he missed, the last one brightest) and the number reads AVG with
+    the trend arrow; wider screens keep the line."""
     t = sample["gamescore"]["teams"][ab]
     pg.click('#tabs button[data-tab="myteams"]')
     pg.wait_for_timeout(40)
-    got = pg.evaluate(PHONE_JS, ab)
-    if not got.get("last"):
-        return [f"phone list {ab}: no last game"]
+    got = pg.evaluate(TREND_COLS_JS, ab)
+    if got is None:
+        return [f"trend columns {ab}: no last game"]
+    narrow = pg.evaluate("innerWidth <= 640")
     sign = lambda v: ("+" if v > 0 else "") + f"{v:.2f}"
-    short = lambda n: (n.split()[0][0] + ". " + " ".join(n.split()[1:])) if len(n.split()) > 1 else n
     order = [p for p in t["skaters"] if p["pos"] != "D"] + [p for p in t["skaters"] if p["pos"] == "D"]
-    others = [p for p in t.get("trend_others") or [] if p["trend"]["n"]]
+    players = [p for p in order if (p.get("trend") or {}).get("n")] + [p for p in t.get("trend_others") or [] if p["trend"]["n"]]
+    if len(got) != len(players):
+        return [f"trend columns {ab}: {len(got)} trends for {len(players)} players"]
     out = []
-    narrow = got["narrow"]
-    want_shown = {"phoneShown": narrow, "chartShown": not narrow, "legendShown": not narrow, "howShown": not narrow, "othersOld": bool(others) and not narrow}
-    out += [f"phone list {ab} {k}: {got[k]} (want {v})" for k, v in want_shown.items() if got[k] != v]
-    if got["head"] != [["Player", False], [f"Last {len(t['trend_games'])} games", True], ["Avg", True], ["Last game", True]]:
-        out.append(f"phone list {ab}: headings {got['head']}")
-    if got["groups"] != ["Forwards", "Defense"] or not got["how"].startswith("One line per skater."):
-        out.append(f"phone list {ab}: groups {got['groups']}, how {got['how'][:40]!r}")
-    def row_want(p, missed):
+    for g, p in zip(got, players):
         tr = p["trend"]
-        return {"name": short(p["name"]), "avg": sign(tr["avg"]), "gs": "-" if missed else sign(p["gs"]), "sq": len(tr["g"]),
-                "dnp": sum(1 for v in tr["g"] if v is None), "last": True, "drag": tr["drag"], "label": True,
-                "link": f"https://www.nhl.com/player/{p['id']}", "games": len(tr["g"]), "dragPill": tr["drag"], "tipsInSummary": 0}
-    for lab, rows, plist, missed in (("row", got["rows"], order, False), ("not in the last game", got["others"], others, True)):
-        if len(rows) != len(plist):
-            out.append(f"phone list {ab}: {len(rows)} {lab}s for {len(plist)} players")
+        if not narrow:
+            if g["cols"] or not g["line"] or g["label"] or g["arrow"]:
+                out.append(f"trend {p['name']} at desktop width: {g}")
             continue
-        for r, p in zip(rows, plist):
-            w = row_want(p, missed)
-            bad = {k: (r[k], v) for k, v in w.items() if r[k] != v}
-            if not missed and p.get("cols"):
-                parts = ["" if abs(p["cols"][k]) < 0.005 else sign(p["cols"][k]) for k in ("gc", "on_o", "on_d", "pp", "pen", "other")]
-                if r["parts"] != parts:
-                    bad["parts"] = (r["parts"], parts)
-            if missed and not r["out"]:
-                bad["out"] = (r["out"], "the reason he was out")
-            if narrow and (r["inside"] is not True or r["h"] > 48):
-                bad["fit"] = (r["inside"], r["h"])
-            if bad:
-                out.append(f"phone list {ab} {lab} {p['name']}: {bad}")
-    if narrow and not out:
-        # a tap opens the line, and a second tap closes it
-        s = pg.locator("main section.teamcard details.lastgame > .gs-phone details.gp-row > summary").first
-        s.tap()
-        pg.wait_for_timeout(60)
-        if not pg.evaluate("document.querySelector('main details.lastgame > .gs-phone details.gp-row').open"):
-            out.append(f"phone list {ab}: a tap did not open the line")
-        elif not pg.locator("main details.lastgame > .gs-phone details.gp-row .gp-det a.plink").first.is_visible():
-            out.append(f"phone list {ab}: the open line shows no NHL.com link")
-        s.tap()
-        pg.wait_for_timeout(60)
-        if pg.evaluate("document.querySelector('main details.lastgame > .gs-phone details.gp-row').open"):
-            out.append(f"phone list {ab}: a second tap did not close the line")
-    return out
+        sl = tr.get("slope")
+        want = {"cols": True, "line": False, "rects": ["out" if v is None else "up" if v >= 0 else "dn" for v in tr["g"]],
+                "last": len(tr["g"]) - 1, "nLast": 1, "label": "Avg", "num": sign(tr["avg"]),
+                "arrow": "" if sl is None else "rising" if sl > 0.02 else "falling" if sl < -0.02 else "flat"}
+        bad = {k: (g[k], v) for k, v in want.items() if g[k] != v}
+        if g["w"] < 140 or g["h"] < 36:          # across the row, not the old 110 by 28
+            bad["size"] = (g["w"], g["h"])
+        if bad:
+            out.append(f"trend columns {ab} {p['name']}: {bad}")
+    return out[:4]
 
 
 UPDATE_JS = """() => {
@@ -1598,7 +1559,7 @@ def main():
                 fails.extend(f"{name}: {m}" for m in check_team_places(pg, sample, "FLA", mob))
                 fails.extend(f"{name}: {m}" for m in check_last_game(pg, sample, "FLA"))
                 fails.extend(f"{name}: {m}" for m in check_box_table(pg, sample, "FLA"))
-                fails.extend(f"{name}: {m}" for m in check_phone_list(pg, sample, "FLA"))
+                fails.extend(f"{name}: {m}" for m in check_trend_columns(pg, sample, "FLA"))
                 fails.extend(f"{name}: {m}" for m in check_update_number(pg, sample))
                 fails.extend(f"{name}: {m}" for m in check_points_leaders(pg, sample, "FLA"))
                 pg.click('#tabs button[data-tab="today"]')
@@ -1662,7 +1623,6 @@ def main():
                 want += sum(1 for p in lg["skaters"] if (p.get("trend") or {}).get("drag"))   # 1.19.0: and the dragging summary
                 outs = [p for p in lg.get("trend_others") or [] if p["trend"]["n"]]
                 want += len(outs) + sum(1 for p in outs if p["trend"]["drag"])                 # 1.20.0: players not in the last game
-                want += len(lg["skaters"]) + len(outs)          # 1.22.0: the phone lines link each player's page once, inside the open line
                 if len(links) != want or want < 15:
                     fails.append(f"{name}: {len(links)} player links on My Teams, expected {want}")
                 bad = [l for l in links if not re.match(r"^https://www\.nhl\.com/player/\d{6,8}$", l[0] or "") or l[1] != "_blank" or "noopener" not in (l[2] or "")]

@@ -327,6 +327,16 @@ table.gs-table tr.grp td { font: 600 .98rem/1 var(--display); letter-spacing: .0
 table.gs-table td:first-child { min-width: 10em; }
 /* phones: the name and value on one line, the bars across the full width below */
 @media (max-width: 640px) {
+  /* 1.22.1: the Last 10 graph as up and down columns across the row */
+  .gs-trend.st-cols svg { flex: 1 1 auto; width: auto; min-width: 0; height: 40px; }
+  .gs-trend .tr-up { fill: var(--gs-drive); fill-opacity: .8; } .gs-trend .tr-dn { fill: var(--bad); fill-opacity: .8; }      /* 3 to 1 or more on the card in both themes */
+  .gs-trend rect.last { fill-opacity: 1; }                      /* the last game is the brightest column */
+  .gs-trend .tr-out { fill: none; stroke: var(--muted); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .gs-trend.st-cols { padding-right: 2px; }
+  .gs-trend .tr-avl { font: 600 .72rem/1 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .gs-trend.st-cols .tr-avg { min-width: 0; white-space: nowrap; }
+  .gs-name .pill { font-size: .72rem; padding: 2px 6px 0; letter-spacing: .05em; margin-left: 4px; vertical-align: 1px; }
+  .gs-trend .tr-ar { font-style: normal; font-size: .62rem; } .tr-ar.rising { color: var(--ok); } .tr-ar.falling { color: var(--bad); } .tr-ar.flat { color: var(--muted); }
   .gs-head, .gs-row, .gs-chart.trended .gs-head, .gs-chart.trended .gs-row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 3px; }
   .gs-others .gs-row { grid-template-columns: minmax(0, 1fr) auto; }
   .gs-bars, .gs-sides, .gs-gk-txt, .gs-out-txt, .gs-trend, .gs-trend-h, .gs-chart.trended .gs-trend, .gs-others .gs-trend { grid-column: 1 / -1; }
@@ -334,52 +344,6 @@ table.gs-table td:first-child { min-width: 10em; }
   .gs-trend svg { width: 110px; }
   .gs-trend .tr-lab { display: inline; }
 }
-.gs-phone { display: none; }
-/* 1.22.0 (John: "the phone version is lacking"; he chose one line per player): on a phone
-   the last-game chart becomes one line per skater, squares for the last ten games, the
-   average with a trend arrow and the last-game Game Score; a tap opens the details */
-@media (max-width: 640px) {
-  .lastgame.has-phone .gs-chart, .lastgame.has-phone > .gs-how, .lastgame.has-phone > .gs-legend, .lastgame.has-phone .gs-others .gs-row { display: none; }
-  .lastgame.has-phone .gs-phone { display: block; }
-}
-.gp-how { margin: 0 0 6px; color: var(--muted); }
-.gp-head, .gp-row > summary { display: grid; grid-template-columns: minmax(0, 1fr) auto 3.7em 3.5em 0.8em; align-items: center; gap: 0 6px; }
-.gp-head { padding: 2px 0 5px; border-bottom: 1px solid var(--line); font: 600 .82rem/1.05 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-.gp-head > span[data-tip] { cursor: help; }
-.gp-head > span:nth-child(3), .gp-head > span:nth-child(4) { text-align: right; }
-.gp-head::after { content: ""; }
-.gp-row { border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent); }
-.gp-row > summary { list-style: none; cursor: pointer; min-height: 40px; padding: 4px 0; -webkit-tap-highlight-color: transparent; }
-.gp-row > summary::-webkit-details-marker { display: none; }
-.gp-row > summary::after { content: "\25BE"; color: var(--muted); font-size: .8rem; text-align: right; }
-.gp-row[open] > summary::after { content: "\25B4"; }
-.gp-row > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.gp-nm { font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.gp-sq { display: inline-flex; gap: 1.5px; align-items: center; }
-.gp-sq > i { display: block; width: 7px; height: 18px; border-radius: 2px; }
-.gp-sq > i.dnp { box-shadow: inset 0 0 0 1px var(--muted); opacity: .7; }
-.gp-sq > i.last { box-shadow: 0 0 0 1.5px var(--ink); }
-.gp-sq > i.dnp.last { box-shadow: inset 0 0 0 1px var(--muted), 0 0 0 1.5px var(--ink); }
-.gp-none { color: var(--muted); }
-.gp-avg { font: 600 .82rem/1 var(--mono); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
-.gp-ar { font-style: normal; font-size: .6rem; margin-left: 2px; vertical-align: 1px; }
-.gp-ar.up { color: var(--ok); } .gp-ar.dn { color: var(--bad); } .gp-ar.fl { color: var(--muted); }
-.gp-gs { display: block; font: 600 .86rem/1 var(--mono); font-variant-numeric: tabular-nums; text-align: center; padding: 6px 2px; border-radius: 5px; }
-.gp-row.drag > summary { background: color-mix(in srgb, var(--bad) 8%, transparent); box-shadow: inset 3px 0 0 var(--bad); padding-left: 6px; }
-.gp-row.drag .gp-avg { color: var(--bad); }
-.gp-det { padding: 2px 2px 10px; }
-.gp-who { margin: 2px 0 4px; }
-.gp-who .pill { font-size: .74rem; padding: 2px 6px 0; letter-spacing: .05em; }
-.gp-lab { margin: 6px 0 4px; font-size: .84rem; font-weight: 600; }
-.gp-out { margin: 4px 0; color: var(--muted); display: flex; flex-wrap: wrap; gap: 3px 6px; align-items: center; }
-.gp-out .pill { font-size: .74rem; padding: 2px 6px 0; }
-.gp-parts { display: grid; grid-template-columns: minmax(0, 1fr) 3.7em minmax(0, 1fr) 3.7em; gap: 4px 8px; align-items: center; margin: 0; font-size: .82rem; }
-.gp-parts dt { margin: 0; } .gp-parts dd { margin: 0; text-align: center; font: 600 .8rem/1 var(--mono); padding: 5px 0; border-radius: 4px; min-height: 1.6em; box-sizing: border-box; }
-.gp-games { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px 6px; font-size: .8rem; }
-.gp-games li { display: flex; justify-content: space-between; gap: 6px; padding: 4px 6px; border-radius: 4px; }
-.gp-games li b { font: 600 .8rem/1.2 var(--mono); }
-.gp-games li.dnp { box-shadow: inset 0 0 0 1px var(--line); color: var(--muted); }
-.gp-sum { margin: 6px 0 0; }
 /* 1.22.0: Help, Data updates */
 .upd-no { font-size: inherit; }
 .upd-log { list-style: none; margin: 0; padding: 0; }

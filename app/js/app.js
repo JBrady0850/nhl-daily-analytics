@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.22.0";
+  const APP_VERSION = "1.22.1";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -699,6 +699,7 @@
     });
     return out;
   }
+  const PHONE_Q = window.matchMedia ? window.matchMedia("(max-width: 640px)") : null;
   // 1.19.0 (John, 2026-11-05: "for the graph for my teams also include a trend line for
   // the performance help or hurt to identify players that are dragging down the team"):
   // each skater's Game Score in each of his team's last ten games, oldest on the left,
@@ -730,13 +731,32 @@
     const dir = typeof t.slope !== "number" ? "" : t.slope > 0.02 ? "rising" : t.slope < -0.02 ? "falling" : "flat";
     const tip = `Game Score in each of his team's last ${k} games, oldest first: ${each}. Average ${signed(t.avg)} over the ${t.n} he played${dir ? `; trend ${dir} (${signed(t.slope, 2)} per game)` : ""}.${t.drag ? " DRAGGING: 0.05 or more below zero on average and not climbing, so he has cost his team more than he gave." : ""}`;
     const zero = 0 >= sc.lo && 0 <= sc.hi ? `<line class="tr-zero" x1="0" x2="${TREND_W}" y1="${ys(0).toFixed(1)}" y2="${ys(0).toFixed(1)}"/>` : "";
-    return `<span class="gs-trend${t.drag ? " drag" : ""}" data-tip="${esc(tip)}" tabindex="0" role="img" aria-label="${esc(p.name)}, last ${k} games: average ${signed(t.avg)}${dir ? ", trend " + dir : ""}${t.drag ? ", dragging the team down" : ""}">
-      <span class="tr-lab">Last ${k}</span><svg viewBox="0 0 ${TREND_W} ${TREND_H}" preserveAspectRatio="none" aria-hidden="true">${zero}<polyline class="tr-line" points="${line}"/>${fit}${last ? `<circle class="tr-dot" cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="2.4"/>` : ""}</svg>
-      <b class="tr-avg">${signed(t.avg)}</b>${t.drag ? `<span class="pill bad">Dragging</span>` : ""}</span>`;
+    // 1.22.1 (John, 2026-11-25: on the 1.21.2 chart "the last 10 games graph did not show
+    // well on the phone"; he chose up and down columns): on a phone each of the ten games is
+    // a column across the full width of the row, up and blue when he helped, down and red
+    // when he hurt, taller for a bigger Game Score; the last game is the brightest column
+    // and a small hollow dash marks a game he missed. The number is labeled AVG with his trend arrow. Wider
+    // screens keep the line.
+    const cols = !!(PHONE_Q && PHONE_Q.matches);
+    let pic = `<svg viewBox="0 0 ${TREND_W} ${TREND_H}" preserveAspectRatio="none" aria-hidden="true">${zero}<polyline class="tr-line" points="${line}"/>${fit}${last ? `<circle class="tr-dot" cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="2.4"/>` : ""}</svg>`;
+    if (cols) {
+      const slot = TREND_W / k, bw = slot * 0.66, y0 = ys(0);
+      pic = `<svg class="cols" viewBox="0 0 ${TREND_W} ${TREND_H}" preserveAspectRatio="none" aria-hidden="true"><line class="tr-zero" x1="0" x2="${TREND_W}" y1="${y0.toFixed(1)}" y2="${y0.toFixed(1)}"/>${t.g.map((v, i) => {
+        const x = (i * slot + (slot - bw) / 2).toFixed(2), lastc = i === k - 1 ? " last" : "";
+        if (typeof v !== "number") return `<rect class="tr-out${lastc}" x="${(i * slot + slot * 0.3).toFixed(2)}" y="${(y0 - 1).toFixed(2)}" width="${(slot * 0.4).toFixed(2)}" height="2"/>`;
+        const y = ys(v), top = Math.min(y, y0), h = Math.max(1.2, Math.abs(y - y0));
+        return `<rect class="${v >= 0 ? "tr-up" : "tr-dn"}${lastc}" x="${x}" y="${top.toFixed(2)}" width="${bw.toFixed(2)}" height="${h.toFixed(2)}"/>`; }).join("")}</svg>`;
+    }
+    const arrow = !cols || !dir ? "" : ` <i class="tr-ar ${dir}" aria-hidden="true">${dir === "rising" ? "\u25B2" : dir === "falling" ? "\u25BC" : "\u25AC"}</i>`;
+    return `<span class="gs-trend${t.drag ? " drag" : ""}${cols ? " st-cols" : ""}" data-tip="${esc(tip)}" tabindex="0" role="img" aria-label="${esc(p.name)}, last ${k} games: average ${signed(t.avg)}${dir ? ", trend " + dir : ""}${t.drag ? ", dragging the team down" : ""}">
+      <span class="tr-lab">Last ${k}</span>${pic}
+      <b class="tr-avg">${cols ? `<span class="tr-avl">Avg</span> ` : ""}<span class="tr-num">${signed(t.avg)}</span>${arrow}</b>${t.drag && !cols ? `<span class="pill bad">Dragging</span>` : ""}</span>`;
   }
+  // 1.22.1: on a phone the DRAGGING tag sits beside the name, so the columns keep the width
+  const dragTag = p => p.trend && p.trend.drag && PHONE_Q && PHONE_Q.matches ? ` <span class="pill bad">Dragging</span>` : "";
   function gsRow(p, lo, span, sc, games) {
     const say = (lab, v) => `${lab} ${GS_PARTS.map(([, n], i) => `${n.toLowerCase()} ${signed(v[i])}`).join(", ")}`;
-    return `<div class="gs-row${p.trend && p.trend.drag ? " drag" : ""}"><span class="gs-name">${pname(p.name, p.id)}</span><b class="gs-val" data-tip="Game Score ${signed(p.gs)}: offense ${signed(p.o.reduce((a, b) => a + b, 0))} plus defense ${signed(p.d.reduce((a, b) => a + b, 0))}. Above 0 he helped his team; below 0 he hurt it.">${signed(p.gs)}</b>
+    return `<div class="gs-row${p.trend && p.trend.drag ? " drag" : ""}"><span class="gs-name">${pname(p.name, p.id)}${dragTag(p)}</span><b class="gs-val" data-tip="Game Score ${signed(p.gs)}: offense ${signed(p.o.reduce((a, b) => a + b, 0))} plus defense ${signed(p.d.reduce((a, b) => a + b, 0))}. Above 0 he helped his team; below 0 he hurt it.">${signed(p.gs)}</b>
       <div class="gs-bars" role="img" aria-label="${esc(p.name)}: ${signed(p.gs)}. ${esc(say("Offense", p.o))}. ${esc(say("Defense", p.d))}.">
       <div class="gs-plot" style="--z:${((0 - lo) / span * 100).toFixed(2)}%"><span class="gs-trk o">${gsTrack(p.o, "offense", lo, span)}</span><span class="gs-trk d">${gsTrack(p.d, "defense", lo, span)}</span></div></div>${games ? gsTrend(p, sc, games) : ""}</div>`;
   }
@@ -753,50 +773,7 @@
     return `<span>Did not play the last game</span>`;
   }
   function gsOutRow(p, ab, sc, games) {
-    return `<div class="gs-row out${p.trend.drag ? " drag" : ""}"><span class="gs-name">${pname(p.name, p.id)}</span><b class="gs-val" data-tip="He did not play the team's last game, so he has no Game Score or bars for it. His trend beside it covers the games he did play.">-</b><span class="gs-out-txt small">${outWhy(p, ab)}</span>${gsTrend(p, sc, games)}</div>`;
-  }
-  // 1.22.0 (John, 2026-11-25: "Also need to figure out a better way to display this as
-  // the phone version is lacking"; he chose one line per player): on a phone the chart
-  // above becomes one line per skater: his last ten games as squares (blue helped, red
-  // hurt, a deeper color is a bigger amount, hollow when he did not play, the last game
-  // outlined), his average with a trend arrow, and his Game Score in the last game. A tap
-  // opens the line: where the Game Score came from, each of the ten games, and his
-  // NHL.com page. The name in the closed line is plain text, so a tap anywhere on it opens
-  // the line instead of leaving the app; the open line links the page. Wider screens keep
-  // the chart.
-  const GP_SQ_FULL = 1.5, GP_CHIP_FULL = 2;          // a game this far from 0 gets the deepest color
-  function gpTint(v, full, from, to) {
-    if (typeof v !== "number") return "";
-    if (Math.abs(v) < 0.005) return `background:color-mix(in srgb, var(--muted) ${from}%, var(--panel))`;
-    const a = Math.round(from + (to - from) * Math.min(1, Math.abs(v) / full));
-    return `background:color-mix(in srgb, ${v > 0 ? "var(--gs-drive)" : "var(--bad)"} ${a}%, var(--panel))`;
-  }
-  const gpShort = n => { const w = String(n || "").trim().split(/\s+/); return w.length > 1 ? `${w[0][0]}. ${w.slice(1).join(" ")}` : String(n || ""); };
-  const gpDir = t => typeof t.slope !== "number" ? "" : t.slope > 0.02 ? "rising" : t.slope < -0.02 ? "falling" : "flat";
-  const GP_ARROW = { rising: ["up", "▲"], falling: ["dn", "▼"], flat: ["fl", "▬"] };
-  function gpRow(p, games, t, ab, out) {
-    const tr = p.trend && Array.isArray(p.trend.g) && p.trend.n ? p.trend : null, dir = tr ? gpDir(tr) : "", drag = !!(tr && tr.drag);
-    const sq = !tr ? `<span class="gp-none">-</span>` : tr.g.map((v, i) => `<i class="${typeof v !== "number" ? "dnp" : ""}${i === tr.g.length - 1 ? " last" : ""}" style="${gpTint(v, GP_SQ_FULL, 22, 85)}"></i>`).join("");
-    const ar = dir ? `<i class="gp-ar ${GP_ARROW[dir][0]}" aria-hidden="true">${GP_ARROW[dir][1]}</i>` : "";
-    const gs = out ? null : p.gs;
-    const say = `${p.name}: ${out ? "did not play the last game" : "Game Score " + signed(gs) + " in the last game"}${tr ? `; last ${tr.g.length} games average ${signed(tr.avg)}${dir ? ", " + dir : ""}` : ""}${drag ? "; dragging the team down" : ""}. Tap for details.`;
-    const parts = !out && p.cols ? `<dl class="gp-parts">${BOX_COLS.map(([k, n]) => `<dt>${esc(n === "PP" ? "Power play" : n)}</dt><dd style="${gpTint(p.cols[k], 0.75, 12, 42)}">${Math.abs(p.cols[k]) >= 0.005 ? signed(p.cols[k]) : ""}</dd>`).join("")}</dl>`
-      : !out ? `<p class="small">Offense ${signed(p.o.reduce((a, b) => a + b, 0))}, defense ${signed(p.d.reduce((a, b) => a + b, 0))}.</p>` : "";
-    const each = !tr ? "" : `<p class="gp-lab">Last ${tr.g.length} games, oldest first</p><ol class="gp-games">${tr.g.map((v, i) => { const g = games[i] || {};
-      return `<li class="${typeof v === "number" ? "" : "dnp"}" style="${gpTint(v, GP_SQ_FULL, 12, 42)}"><span>${esc(shortDay(g.date))} ${g.home ? "vs" : "at"} ${esc(g.opp || "?")}</span><b>${typeof v === "number" ? signed(v) : "out"}</b></li>`; }).join("")}</ol>
-      <p class="small muted gp-sum">Average ${signed(tr.avg)} over the ${esc(tr.n)} he played${dir ? `; trend ${dir} (${signed(tr.slope, 2)} per game)` : ""}.${drag ? " Dragging the team down: 0.05 or more below zero on average and not climbing." : ""}</p>`;
-    const lastLab = out ? `<p class="gp-out small">${outWhy(p, ab)}</p>` : `<p class="gp-lab">Last game, ${esc(shortDay(t.date))} ${t.home ? "vs" : "at"} ${esc(t.opp)}: Game Score ${signed(gs)}</p>`;
-    return `<details class="gp-row${drag ? " drag" : ""}${out ? " out" : ""}"><summary aria-label="${esc(say)}"><span class="gp-nm">${esc(gpShort(p.name))}</span><span class="gp-sq" aria-hidden="true">${sq}</span><span class="gp-avg">${tr ? signed(tr.avg) : "-"}${ar}</span><b class="gp-gs" style="${out ? "" : gpTint(gs, GP_CHIP_FULL, 14, 42)}">${out ? "-" : signed(gs)}</b></summary>
-      <div class="gp-det"><p class="gp-who">${pname(p.name, p.id)} <span class="small muted">${esc(p.pos || "")}${!out && typeof p.toi === "number" ? `, ${num(p.toi, 1)} minutes on ice` : ""}</span>${drag ? ` <span class="pill bad">Dragging</span>` : ""}</p>
-      ${lastLab}${parts}${each}</div></details>`;
-  }
-  function gpHead(nG) {
-    return `<div class="gp-head"><span>Player</span><span data-tip="${esc(TIPS.gs.Squares || "")}" tabindex="0">Last ${nG} games</span><span data-tip="${esc(TIPS.gs.Avg || "")}" tabindex="0">Avg</span><span data-tip="${esc(TIPS.gs["Last game"] || "")}" tabindex="0">Last game</span></div>`;
-  }
-  function phoneList(fw, dm, games, t, ab) {
-    const nG = games.length, rows = list => list.map(p => gpRow(p, games, t, ab, false)).join("");
-    return `<div class="gs-phone"><p class="small gp-how">One line per skater. The squares are his last ${nG} games, oldest on the left, and the outlined one is the last game: blue helped his team, red hurt it, a deeper color is a bigger amount, and a hollow square is a game he did not play. Avg is his average over the games he played (▲ rising, ▼ falling, ▬ flat). Last game is his Game Score in it. Tap a player to see where it came from.</p>
-      ${gpHead(nG)}${fw.length ? `<p class="gs-grp">Forwards</p>${rows(fw)}` : ""}${dm.length ? `<p class="gs-grp">Defense</p>${rows(dm)}` : ""}</div>`;
+    return `<div class="gs-row out${p.trend.drag ? " drag" : ""}"><span class="gs-name">${pname(p.name, p.id)}${dragTag(p)}</span><b class="gs-val" data-tip="He did not play the team's last game, so he has no Game Score or bars for it. His trend beside it covers the games he did play.">-</b><span class="gs-out-txt small">${outWhy(p, ab)}</span>${gsTrend(p, sc, games)}</div>`;
   }
   // 1.21.0 (John, 2026-11-25: a HockeyStats.com-style box table for My Teams, "build it
   // without the Goals Above Replacement"): every skater's Game Score in six columns that
@@ -874,8 +851,7 @@
       : `No skater is dragging the team down over its last ${nG} games.`}</p>`;
     const othersBox = !others.length ? "" : `<div class="gs-others"><p class="gs-grp">Not in the last game</p>
       <p class="small muted gs-others-how">They played for the ${esc(teamName(ab))} in some of its last ${nG} games but not in the last one, so they have no bars. Their trend covers the same ${nG} games as above.</p>
-      ${others.map(p => gsOutRow(p, ab, sc, games)).join("")}
-      <div class="gs-phone">${gpHead(nG)}${others.map(p => gpRow(p, games, t, ab, true)).join("")}</div></div>`;
+      ${others.map(p => gsOutRow(p, ab, sc, games)).join("")}</div>`;
     const fw = sk.filter(p => p.pos !== "D"), dm = sk.filter(p => p.pos === "D");
     const key = GS_PARTS.map(([k, n]) => `<span class="gs-key" data-tip="${esc((TIPS.gs || {})[n] || n)}"><i class="gs-sw gs-${k}"></i>${esc(n)}</span>`).join("");
     const cells = v => v.map(x => td(signed(x), "n")).join("");
@@ -895,14 +871,13 @@
         : `<p class="small muted">MoneyPuck did not post this game's shot values, so each shot is valued at MoneyPuck's season average for shots of that type from that distance.</p>`)
       : t.pending ? `<p class="small muted gs-pending">The NHL has not published this game's shift charts yet, so only production is scored for now; play driving, special teams and usage are added at the first update after they appear.</p>`
       : `<p class="small muted">Play driving, special teams and usage were not available for this game (the shift charts were missing), so only production is scored.</p>`;
-    return `<details class="lastgame${games ? " has-phone" : ""}" open><summary><span class="lg-title">Last game</span> <span class="small muted">${esc(shortDay(t.date))}, ${t.home ? "vs" : "at"} ${esc(t.opp)}</span></summary>
+    return `<details class="lastgame" open><summary><span class="lg-title">Last game</span> <span class="small muted">${esc(shortDay(t.date))}, ${t.home ? "vs" : "at"} ${esc(t.opp)}</span></summary>
       ${strip}
       <p class="small gs-how"><b>Two bars per player: the top bar is his offense</b> (what he created: goals, assists, shots, chances), <b>the bottom bar his defense</b> (what he stopped: blocks, chances against). Parts right of the center line helped his team; parts left of it hurt. The number beside each name is his Game Score, the two bars added together, in goals-like units: above 0 he helped, below 0 he hurt, 0 is an ordinary game.</p>
       <div class="gs-legend">${key}</div>
       ${dragLine}<div class="gs-chart${games ? " trended" : ""}"><div class="gs-head"><span class="gs-name">Player</span><span class="gs-val" data-tip="${esc(TIPS.gs["Game Score"])}">Game Score</span>
       <div class="gs-sides" style="--z:${((0 - lo) / span * 100).toFixed(2)}%"><span class="hurt" data-tip="Left of the line: the parts of his game that cost his team.">Hurt</span><span class="helped" data-tip="Right of the line: the parts of his game that helped his team.">Helped</span></div>${games ? `<span class="gs-trend-h" data-tip="${esc(TIPS.gs.Trend)}">Last ${nG}</span>` : ""}</div>
       ${group("Forwards", fw.map(p => gsRow(p, lo, span, sc, games)).join(""))}${group("Defense", dm.map(p => gsRow(p, lo, span, sc, games)).join(""))}</div>
-      ${games ? phoneList(fw, dm, games, t, ab) : ""}
       ${gk.length ? `<div class="gs-goalies"><div class="gs-head"><span class="gs-name">Goalie</span><span class="gs-val" data-tip="${esc(TIPS.gs.Goalie)}">Goals saved</span><span></span></div>${gk.map(g => gsGoalie(g, t.pending)).join("")}</div>` : ""}
       ${boxTable(t)}
       ${note}
@@ -1351,6 +1326,8 @@
   }
 
   // ---------- start ----------
+  // 1.22.1: the Last 10 graph depends on the screen width, so turning a phone redraws it
+  if (PHONE_Q) { const redraw = () => { if (D && st.tab === "myteams") render(); }; if (PHONE_Q.addEventListener) PHONE_Q.addEventListener("change", redraw); else if (PHONE_Q.addListener) PHONE_Q.addListener(redraw); }
   $("#ver").textContent = APP_VERSION;
   window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; showInstall(); if (st.tab === "settings") render(); });
   window.addEventListener("appinstalled", () => { installed(); toast("Installed. Open NHL Daily from your home screen or app list."); });
