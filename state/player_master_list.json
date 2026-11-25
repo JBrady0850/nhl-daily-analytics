@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-25",
-"count": 804,
+"count": 803,
 "players": [
 {
 "team": "ANA",
@@ -5187,13 +5187,6 @@
 "team": "VGK",
 "name": "Jeremy Lauzon",
 "player_id": "8478468",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "VGK",
-"name": "Lukas Cormier",
-"player_id": "8482141",
 "position": "D",
 "role": "skater"
 },
