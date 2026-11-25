@@ -59,6 +59,25 @@
     "Injury list: Pavel Buchnevich (STL) DTD to OUT",
     "Injury list: Jimmy Snuggerud (STL) DTD to OUT"
    ]
+  },
+  {
+   "id": "2026-11-25.6",
+   "date": "2026-11-25",
+   "n": 6,
+   "utc": "2026-11-25T19:46:24Z",
+   "why": "Game-day watch: ANA goalie: Laurent Brossoit (Likely) -> Laurent Brossoit (Confirmed), reported by Derek Lee; MTL goalie: Jacob Fowler (no report) -> Jacob Fowler (Confirmed), reported by Eric Engels",
+   "changes": [
+    "ANA goalie: Laurent Brossoit (projected) to Laurent Brossoit (confirmed)",
+    "MTL goalie: Jacob Fowler (projected) to Jacob Fowler (confirmed)",
+    "Injury list: added Conor Garland (CBJ, IR)",
+    "Injury list: added William Trudeau (NSH, IR)",
+    "Injury list: added Logan Stanley (NYI, DTD)",
+    "Injury list: added Declan Carlile (PIT, DTD)",
+    "Injury list: added Nicholas Robertson (PIT, IR)",
+    "Injury list: added Curtis Douglas (SEA, IR)",
+    "Injury list: 1 more changes",
+    "Lines changed: ANA, CBJ, COL, STL"
+   ]
   }
  ]
 }
