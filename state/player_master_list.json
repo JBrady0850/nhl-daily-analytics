@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-25",
-"count": 803,
+"count": 804,
 "players": [
 {
 "team": "ANA",
@@ -2156,6 +2156,13 @@
 "team": "LAK",
 "name": "Joel Edmundson",
 "player_id": "8476441",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "LAK",
+"name": "Kirill Kirsanov",
+"player_id": "8482922",
 "position": "D",
 "role": "skater"
 },

@@ -19,6 +19,17 @@
    "changes": [
     "No change to goalies, picks, results, injuries, lines or Game Scores"
    ]
+  },
+  {
+   "id": "2026-11-25.3",
+   "date": "2026-11-25",
+   "n": 3,
+   "utc": "2026-11-25T18:16:39Z",
+   "why": "Game-day watch: WPG goalie: Nico Daws (Likely) -> Nico Daws (Confirmed), reported by Winnipeg Jets; ANA goalie: Lukas Dostal (no report) -> Laurent Brossoit (Likely), reported by Derek Lee",
+   "changes": [
+    "WPG goalie: Nico Daws (projected) to Nico Daws (confirmed)",
+    "ANA goalie: Lukas Dostal (projected) to Laurent Brossoit (projected)"
+   ]
   }
  ]
 }
