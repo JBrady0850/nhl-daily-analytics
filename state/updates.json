@@ -78,6 +78,16 @@
     "Injury list: 1 more changes",
     "Lines changed: ANA, CBJ, COL, STL"
    ]
+  },
+  {
+   "id": "2026-11-25.7",
+   "date": "2026-11-25",
+   "n": 7,
+   "utc": "2026-11-25T20:01:51Z",
+   "why": "Game-day watch: SJS goalie: Alex Nedeljkovic (no report) -> Alex Nedeljkovic (Confirmed), reported by Sheng Peng",
+   "changes": [
+    "SJS goalie: Alex Nedeljkovic (projected) to Alex Nedeljkovic (confirmed)"
+   ]
   }
  ]
 }
