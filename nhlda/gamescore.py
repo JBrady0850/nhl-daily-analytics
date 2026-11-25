@@ -672,6 +672,38 @@ def add_trends(latest, hist, roster=None):
     return latest
 
 
+# ---------- 1.21.0: the Game Score split into box-score columns ----------
+# John, 2026-11-25: "build it without the Goals Above Replacement" (a HockeyStats.com-style
+# Box WAR table for My Teams, with the columns Goal Creation, On-Ice Offence, On-Ice
+# Defence, PP, Penalties and Other, without its replacement-level total).
+BOX_COLUMNS = ("gc", "on_o", "on_d", "pp", "pen", "other")
+
+
+def box_columns(p):
+    """One skater's Game Score in six columns that add up to it: goal creation (his
+    goals, assists and shots), on-ice offense and defense (5-on-5 play driving), the
+    power play, penalties (drawn minus taken) and other (faceoffs, blocked shots, the
+    penalty kill and the usage adjustment). None without his box counts."""
+    b, o, d = p.get("box"), p.get("o"), p.get("d")
+    if not isinstance(b, dict) or not isinstance(o, list) or not isinstance(d, list) or len(o) < 4 or len(d) < 4:
+        return None
+    cols = {"gc": round(W["g"] * b.get("g", 0) + W["a1"] * b.get("a1", 0) + W["a2"] * b.get("a2", 0)
+                        + W["sog"] * b.get("sog", 0), 2),
+            "on_o": round(o[1], 2), "on_d": round(d[1], 2), "pp": round(o[2], 2),
+            "pen": round(W["pd"] * b.get("pd", 0) - W["pt"] * b.get("pt", 0), 2)}
+    cols["other"] = round(p.get("gs", 0) - sum(cols.values()), 2)     # the rest, so the six add up to his Game Score
+    return {k: cols[k] for k in BOX_COLUMNS}
+
+
+def add_columns(latest):
+    for t in latest.values():
+        for p in t.get("skaters") or []:
+            c = box_columns(p)
+            if c:
+                p["cols"] = c
+    return latest
+
+
 async def recent_finals(f, target_date, game_type_ok=(2, 3)):
     """Every team's last HISTORY_GAMES finished games up to target_date, from the NHL's
     weekly schedule, walking back a week at a time: {ab: [(date, game id), ...]}."""
@@ -801,5 +833,6 @@ async def update(f, session, state_dir, target_date, season_year, game_type_ok=(
     with open(os.path.join(state_dir, HIST_NAME), "w", encoding="utf-8") as fh:
         json.dump(hist, fh, separators=(",", ":"))
     add_trends(latest, hist, roster)
+    add_columns(latest)
     return {"teams": latest,
             "credit": "NHL play-by-play and shift charts; expected goals and season rates from MoneyPuck.com"}

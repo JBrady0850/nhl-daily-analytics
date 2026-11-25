@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.20.0";
+  const APP_VERSION = "1.21.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -747,6 +747,26 @@
   function gsOutRow(p, ab, sc, games) {
     return `<div class="gs-row out${p.trend.drag ? " drag" : ""}"><span class="gs-name">${pname(p.name, p.id)}</span><b class="gs-val" data-tip="He did not play the team's last game, so he has no Game Score or bars for it. His trend beside it covers the games he did play.">-</b><span class="gs-out-txt small">${outWhy(p, ab)}</span>${gsTrend(p, sc, games)}</div>`;
   }
+  // 1.21.0 (John, 2026-11-25: a HockeyStats.com-style box table for My Teams, "build it
+  // without the Goals Above Replacement"): every skater's Game Score in six columns that
+  // add up to it, blue where the part helped and red where it hurt, deeper for bigger
+  // values, blank at zero; forwards, then defense, as in the chart above
+  const BOX_COLS = [["gc", "Goal Creation"], ["on_o", "On-Ice Offense"], ["on_d", "On-Ice Defense"], ["pp", "PP"], ["pen", "Penalties"], ["other", "Other"]];
+  function boxCell(v) {
+    if (typeof v !== "number" || Math.abs(v) < 0.005) return `<td class="n bx"></td>`;
+    const a = Math.round(12 + 28 * Math.min(1, Math.abs(v) / 0.5));       // tint 12% to 40%, full at half a goal
+    return `<td class="n bx ${v > 0 ? "pos" : "neg"}" style="--a:${a}%">${signed(v)}</td>`;
+  }
+  function boxTable(t) {
+    const sk = (t.skaters || []).filter(p => p.cols);
+    if (!sk.length) return "";
+    const row = p => `<tr>${td(esc(p.name))}${BOX_COLS.map(([k]) => boxCell(p.cols[k])).join("")}${td(`<b>${signed(p.gs)}</b>`, "n bx-gs")}</tr>`;
+    const grp = (lab, rows) => rows.length ? `<tr class="grp"><td colspan="${BOX_COLS.length + 2}">${lab}</td></tr>` + rows.map(row).join("") : "";
+    const hd = thT("Player", "The player.") + BOX_COLS.map(([k, n]) => thT(n, (TIPS.box || {})[n] || n, "n")).join("") + thT("Game Score", TIPS.gs["Game Score"], "n");
+    return `<div class="gs-boxwrap"><p class="gs-grp">Game Score by part</p>
+      <p class="small muted gs-box-how">Each column is one part of his Game Score, in goals: blue helped his team, red hurt it, and a deeper color is a bigger part; a blank is zero. The six parts add up to his Game Score.</p>
+      ${tbl(hd, grp("Forwards", sk.filter(p => p.pos !== "D")) + grp("Defense", sk.filter(p => p.pos === "D")), "gs-box")}</div>`;
+  }
   // the goalie is measured in goals saved, not Game Score, so he gets a plain sentence
   // instead of a bar on the skaters' scale
   function gsGoalie(g, waiting) {
@@ -810,6 +830,7 @@
       <div class="gs-sides" style="--z:${((0 - lo) / span * 100).toFixed(2)}%"><span class="hurt" data-tip="Left of the line: the parts of his game that cost his team.">Hurt</span><span class="helped" data-tip="Right of the line: the parts of his game that helped his team.">Helped</span></div>${games ? `<span class="gs-trend-h" data-tip="${esc(TIPS.gs.Trend)}">Last ${nG}</span>` : ""}</div>
       ${group("Forwards", fw.map(p => gsRow(p, lo, span, sc, games)).join(""))}${group("Defense", dm.map(p => gsRow(p, lo, span, sc, games)).join(""))}</div>
       ${gk.length ? `<div class="gs-goalies"><div class="gs-head"><span class="gs-name">Goalie</span><span class="gs-val" data-tip="${esc(TIPS.gs.Goalie)}">Goals saved</span><span></span></div>${gk.map(g => gsGoalie(g, t.pending)).join("")}</div>` : ""}
+      ${boxTable(t)}
       ${note}
       ${othersBox}
       <details class="more"><summary>Numbers</summary>${tbl(hd, rows, "gs-table")}</details>

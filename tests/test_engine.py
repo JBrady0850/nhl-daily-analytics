@@ -1364,6 +1364,32 @@ def test_trend_others_name_every_skater_of_the_last_ten_games():
     check_public({"gamescore": {"teams": latest}})
 
 
+def test_box_columns_split_the_game_score_and_add_up_to_it():
+    """1.21.0 (John, 2026-11-25: "build it without the Goals Above Replacement"): the
+    HockeyStats-style columns come from the app's own Game Score."""
+    from nhlda import gamescore as G
+    # Sam Bennett, FLA 2026-11-21 vs BUF: 3 goals, 1 first assist, 4 shots
+    p = {"gs": 4.21, "o": [3.28, 0.72, -0.04, 0.01], "d": [0.0, 0.27, 0.0, -0.03],
+         "box": {"g": 3, "a1": 1, "a2": 0, "sog": 4, "blk": 0, "pd": 0, "pt": 0}}
+    c = G.box_columns(p)
+    assert list(c) == ["gc", "on_o", "on_d", "pp", "pen", "other"]
+    assert c == {"gc": 3.25, "on_o": 0.72, "on_d": 0.27, "pp": -0.04, "pen": 0.0, "other": 0.01}
+    # penalties drawn and taken get their own column; other keeps faceoffs, blocks, the PK and usage
+    # offense production 0.75 = goal creation 0.62 + one penalty drawn 0.15 - two faceoffs net lost 0.02;
+    # defense production -0.25 = one block 0.05 - two penalties taken 0.30
+    q = {"gs": 0.54, "o": [0.75, -0.1, 0.0, 0.02], "d": [-0.25, 0.05, 0.08, -0.01],
+         "box": {"g": 0, "a1": 0, "a2": 1, "sog": 1, "blk": 1, "pd": 1, "pt": 2}}
+    c = G.box_columns(q)
+    assert c["gc"] == 0.62 and c["pen"] == -0.15
+    assert c["other"] == 0.12          # faceoffs -0.02, block +0.05, penalty kill +0.08, usage +0.02 - 0.01
+    assert abs(sum(c.values()) - q["gs"]) < 1e-9
+    assert G.box_columns({"gs": 0.1, "o": [0, 0, 0, 0], "d": [0, 0, 0, 0]}) is None       # no box counts: no columns
+    latest = {"FLA": {"skaters": [p, {"gs": 0.0}]}}
+    G.add_columns(latest)
+    assert latest["FLA"]["skaters"][0]["cols"]["gc"] == 3.25 and "cols" not in latest["FLA"]["skaters"][1]
+    check_public({"gamescore": {"teams": latest}})
+
+
 def test_names_for_the_trend_come_from_games_rosters_then_the_nhl(tmp_path):
     import asyncio
     from nhlda import gamescore as G
@@ -1452,3 +1478,4 @@ def test_update_scores_missing_older_games_from_the_schedule(tmp_path):
     assert t["game_id"] == 2026020180 and t["trend_games"][0]["opp"] == "CHI"
     assert all(p["trend"]["g"] == [p["gs"]] and p["trend"]["n"] == 1 for p in t["skaters"])
     assert t["trend_others"] == [] and hist["names"]                   # 1.20.0: one game, nobody else; names kept
+    assert all(abs(sum(p["cols"].values()) - p["gs"]) < 0.011 for p in t["skaters"])   # 1.21.0: the six columns

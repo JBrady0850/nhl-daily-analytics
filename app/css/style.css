@@ -289,6 +289,16 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
 .gs-out-txt { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 6px; color: var(--muted); line-height: 1.35; min-width: 0; }
 .gs-out-txt [data-tip] { cursor: help; }
 .gs-out-txt .pill { font-size: .78rem; padding: 2px 6px 0; letter-spacing: .05em; }
+/* 1.21.0: the Game Score by part table; blue helped, red hurt, tint 12% to 40% by size */
+.gs-boxwrap { margin-top: 14px; }
+.gs-boxwrap .gs-grp { margin-top: 0; }
+.gs-box-how { margin: 0 0 6px; }
+table.gs-box td.bx { font-variant-numeric: tabular-nums; }
+table.gs-box td.bx.pos { background: color-mix(in srgb, var(--gs-drive) var(--a), var(--panel)); }
+table.gs-box td.bx.neg { background: color-mix(in srgb, var(--bad) var(--a), var(--panel)); }
+table.gs-box td.bx-gs { white-space: nowrap; }
+table.gs-box th:first-child, table.gs-box td:first-child { position: sticky; left: 0; z-index: 1; background: var(--panel); min-width: 8.5em; }
+table.gs-box tr.grp td { font: 600 .98rem/1 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-top: 10px; }
 table.gs-table tr.grp td { font: 600 .98rem/1 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-top: 10px; }
 /* tablets and narrow windows: the trend sits under the bars, so the plot keeps its width */
 @media (max-width: 960px) {

@@ -496,6 +496,57 @@ LAST_GAME_JS = """(ab) => {
 }"""
 
 
+BOX_JS = """(ab) => {
+  const c = [...document.querySelectorAll('main section.teamcard')].find(s => s.querySelector('.tc-head .tm').textContent.trim() === ab);
+  const t = c && c.querySelector('details.lastgame table.gs-box');
+  if (!t) return null;
+  const rgb = s => { const m = s.match(/[\\d.]+/g).map(Number); return s.startsWith('color(') ? m.slice(0, 3).map(v => v * 255) : m.slice(0, 3); };
+  const lum = s => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; const [r, g, b] = rgb(s); return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
+  const ratio = el => { const cs = getComputedStyle(el), a = lum(cs.color), b = lum(cs.backgroundColor); return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); };
+  const cells = [...t.querySelectorAll('td.bx.pos, td.bx.neg')];
+  return {
+    heads: [...t.querySelectorAll('thead th')].map(h => [h.textContent.trim(), !!h.dataset.tip]),
+    groups: [...t.querySelectorAll('tbody tr.grp')].map(r => r.textContent.trim()),
+    rows: [...t.querySelectorAll('tbody tr:not(.grp)')].map(r => [...r.children].map(td => td.textContent.trim())),
+    classes: [...t.querySelectorAll('tbody tr:not(.grp)')].map(r => [...r.querySelectorAll('td.bx')].map(td => td.classList.contains('pos') ? 'pos' : td.classList.contains('neg') ? 'neg' : '')),
+    worst: cells.length ? Math.min(...cells.map(ratio)) : null,
+    title: (c.querySelector('.gs-boxwrap > .gs-grp') || {textContent: ''}).textContent.trim()};
+}"""
+
+
+def check_box_table(pg, sample, ab):
+    """1.21.0 (John, 2026-11-25: a HockeyStats.com-style box table for My Teams, "build it
+    without the Goals Above Replacement"): every skater's Game Score in six columns that
+    add up to it, colored by sign, readable in both themes."""
+    t = sample["gamescore"]["teams"][ab]
+    sk = [p for p in t["skaters"] if p.get("cols")]
+    if not sk:
+        return []
+    sign = lambda v: ("+" if v > 0 else "") + f"{v:.2f}"
+    keys = ["gc", "on_o", "on_d", "pp", "pen", "other"]
+    order = [p for p in sk if p["pos"] != "D"] + [p for p in sk if p["pos"] == "D"]
+    pg.click('#tabs button[data-tab="myteams"]')
+    out = []
+    for scheme in ("light", "dark"):
+        pg.emulate_media(color_scheme=scheme)
+        got = pg.evaluate(BOX_JS, ab)
+        if not got:
+            return [f"box table {ab}: missing"]
+        want = {"title": "Game Score by part",
+                "heads": [[h, True] for h in ("Player", "Goal Creation", "On-Ice Offense", "On-Ice Defense", "PP", "Penalties", "Other", "Game Score")],
+                "groups": [g for g, rows in (("Forwards", [p for p in sk if p["pos"] != "D"]), ("Defense", [p for p in sk if p["pos"] == "D"])) if rows],
+                "rows": [[p["name"]] + ["" if abs(p["cols"][k]) < 0.005 else sign(p["cols"][k]) for k in keys] + [sign(p["gs"])] for p in order],
+                "classes": [["" if abs(p["cols"][k]) < 0.005 else "pos" if p["cols"][k] > 0 else "neg" for k in keys] for p in order]}
+        out += [f"box table {ab} ({scheme}) {k}: {str(got.get(k))[:160]} (want {str(v)[:160]})" for k, v in want.items() if got.get(k) != v]
+        if got.get("worst") is None or got["worst"] < 4.5:
+            out.append(f"box table {ab} ({scheme}): a colored cell's text reads at {got.get('worst')} to 1 (want 4.5)")
+    pg.emulate_media(color_scheme="light")
+    bad = [p["name"] for p in sk if abs(sum(p["cols"][k] for k in keys) - p["gs"]) > 0.011]
+    if bad:
+        out.append(f"box table {ab}: the columns do not add up to the Game Score for {bad[:3]}")
+    return out
+
+
 def check_now_team(b, site_dir, sample):
     """1.20.0: a skater who missed the last game and is on another team's roster today
     says which team, and a file without trend_others (1.19.0 data) still draws the
@@ -1392,6 +1443,7 @@ def main():
                 fails.extend(f"{name}: {m}" for m in check_win_marker(pg))
                 fails.extend(f"{name}: {m}" for m in check_team_places(pg, sample, "FLA", mob))
                 fails.extend(f"{name}: {m}" for m in check_last_game(pg, sample, "FLA"))
+                fails.extend(f"{name}: {m}" for m in check_box_table(pg, sample, "FLA"))
                 fails.extend(f"{name}: {m}" for m in check_points_leaders(pg, sample, "FLA"))
                 pg.click('#tabs button[data-tab="today"]')
                 if pg.locator("main .due-final").count():
