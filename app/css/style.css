@@ -292,7 +292,12 @@ table.standings tr.cut td { border-top: 3px solid var(--redline); }
 /* 1.21.0: the Game Score by part table; blue helped, red hurt, tint 12% to 40% by size */
 .gs-boxwrap { margin-top: 14px; }
 .gs-boxwrap .gs-grp { margin-top: 0; }
-.gs-box-how { margin: 0 0 6px; }
+.gs-box-how { margin: 0 0 8px; color: var(--muted); }
+.gs-box-how p { margin: 0 0 6px; } .gs-box-how b, .gs-box-how dt { color: var(--ink); font-weight: 600; }
+/* 1.21.1: the columns in plain words, two per line on wide screens */
+.gs-box-key { display: grid; grid-template-columns: max-content minmax(0, 1fr) max-content minmax(0, 1fr); gap: 4px 10px; margin: 0; }
+.gs-box-key dd { margin: 0; }
+@media (max-width: 900px) { .gs-box-key { grid-template-columns: max-content minmax(0, 1fr); } }
 table.gs-box td.bx { font-variant-numeric: tabular-nums; }
 table.gs-box td.bx.pos { background: color-mix(in srgb, var(--gs-drive) var(--a), var(--panel)); }
 table.gs-box td.bx.neg { background: color-mix(in srgb, var(--bad) var(--a), var(--panel)); }

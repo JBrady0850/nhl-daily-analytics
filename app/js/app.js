@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.21.0";
+  const APP_VERSION = "1.21.1";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -752,10 +752,27 @@
   // add up to it, blue where the part helped and red where it hurt, deeper for bigger
   // values, blank at zero; forwards, then defense, as in the chart above
   const BOX_COLS = [["gc", "Goal Creation"], ["on_o", "On-Ice Offense"], ["on_d", "On-Ice Defense"], ["pp", "PP"], ["pen", "Penalties"], ["other", "Other"]];
+  // 1.21.1 (John: "a clear explanation needs to be also included so users know exactly
+  // what it is or does"): what the table is, how to read a row, a worked example from the
+  // team's own top row, and each column in plain words (the headings keep the exact weights)
+  const BOX_PLAIN = {
+    gc: "His own scoring: goals, first and second assists, and shots on goal.",
+    on_o: "The scoring chances and goals his team created at 5 on 5 while he was on the ice, compared with an average team in the same ice time.",
+    on_d: "The scoring chances and goals his team allowed at 5 on 5 while he was on the ice. Above 0 means fewer than an average team would allow.",
+    pp: "How his team scored on the power play while he was on the ice. Power-play time without a goal is a little below 0.",
+    pen: "Penalties he drew, which help his team, minus penalties he took.",
+    other: "Faceoffs won and lost, blocked shots, the penalty kill, and a small adjustment for how strong his teammates and opponents were."
+  };
   function boxCell(v) {
     if (typeof v !== "number" || Math.abs(v) < 0.005) return `<td class="n bx"></td>`;
     const a = Math.round(12 + 28 * Math.min(1, Math.abs(v) / 0.5));       // tint 12% to 40%, full at half a goal
     return `<td class="n bx ${v > 0 ? "pos" : "neg"}" style="--a:${a}%">${signed(v)}</td>`;
+  }
+  function boxExample(sk) {
+    const p = sk.slice().sort((a, b) => b.gs - a.gs)[0];
+    if (!p) return "";
+    const parts = BOX_COLS.filter(([k]) => Math.abs(p.cols[k]) >= 0.005).map(([k, n]) => `${signed(p.cols[k])} ${n.replace("PP", "power play").toLowerCase()}`);
+    return parts.length ? ` <span class="gs-box-ex">For example, ${esc(p.name)}'s ${signed(p.gs)} is ${parts.join(", ")}.</span>` : "";
   }
   function boxTable(t) {
     const sk = (t.skaters || []).filter(p => p.cols);
@@ -764,7 +781,11 @@
     const grp = (lab, rows) => rows.length ? `<tr class="grp"><td colspan="${BOX_COLS.length + 2}">${lab}</td></tr>` + rows.map(row).join("") : "";
     const hd = thT("Player", "The player.") + BOX_COLS.map(([k, n]) => thT(n, (TIPS.box || {})[n] || n, "n")).join("") + thT("Game Score", TIPS.gs["Game Score"], "n");
     return `<div class="gs-boxwrap"><p class="gs-grp">Game Score by part</p>
-      <p class="small muted gs-box-how">Each column is one part of his Game Score, in goals: blue helped his team, red hurt it, and a deeper color is a bigger part; a blank is zero. The six parts add up to his Game Score.</p>
+      <div class="small gs-box-how">
+        <p><b>What it shows:</b> where each skater's Game Score in this game came from. Game Score is this app's measure of what a player added to his team in one game, in goals-like units (a goal he scores adds 0.75): above 0 he helped, below 0 he hurt, and 0 is an ordinary game. This table splits that one number into six parts.</p>
+        <p><b>How to read it:</b> read across a row. Each cell is how much that part of his game added or cost: blue helped his team, red hurt it, and the deeper the color, the bigger the amount. A blank means that part was zero. The six parts add up to the Game Score in the last column.${boxExample(sk)}</p>
+        <dl class="gs-box-key">${BOX_COLS.map(([k, n]) => `<dt>${esc(n)}</dt><dd>${esc(BOX_PLAIN[k])}</dd>`).join("")}</dl>
+      </div>
       ${tbl(hd, grp("Forwards", sk.filter(p => p.pos !== "D")) + grp("Defense", sk.filter(p => p.pos === "D")), "gs-box")}</div>`;
   }
   // the goalie is measured in goals saved, not Game Score, so he gets a plain sentence

@@ -510,7 +510,11 @@ BOX_JS = """(ab) => {
     rows: [...t.querySelectorAll('tbody tr:not(.grp)')].map(r => [...r.children].map(td => td.textContent.trim())),
     classes: [...t.querySelectorAll('tbody tr:not(.grp)')].map(r => [...r.querySelectorAll('td.bx')].map(td => td.classList.contains('pos') ? 'pos' : td.classList.contains('neg') ? 'neg' : '')),
     worst: cells.length ? Math.min(...cells.map(ratio)) : null,
-    title: (c.querySelector('.gs-boxwrap > .gs-grp') || {textContent: ''}).textContent.trim()};
+    title: (c.querySelector('.gs-boxwrap > .gs-grp') || {textContent: ''}).textContent.trim(),
+    // 1.21.1: the explanation above the table
+    how: [...c.querySelectorAll('.gs-boxwrap .gs-box-how > p')].map(p => p.textContent.replace(/\\s+/g, ' ').trim()),
+    key: [...c.querySelectorAll('.gs-boxwrap .gs-box-key dt')].map(d => [d.textContent.trim(), (d.nextElementSibling && d.nextElementSibling.tagName === 'DD') ? d.nextElementSibling.textContent.trim().length > 20 : false]),
+    ex: (c.querySelector('.gs-boxwrap .gs-box-ex') || {textContent: ''}).textContent.trim()};
 }"""
 
 
@@ -540,6 +544,18 @@ def check_box_table(pg, sample, ab):
         out += [f"box table {ab} ({scheme}) {k}: {str(got.get(k))[:160]} (want {str(v)[:160]})" for k, v in want.items() if got.get(k) != v]
         if got.get("worst") is None or got["worst"] < 4.5:
             out.append(f"box table {ab} ({scheme}): a colored cell's text reads at {got.get('worst')} to 1 (want 4.5)")
+        # 1.21.1 (John: "a clear explanation needs to be also included so users know exactly
+        # what it is or does"): what it shows, how to read it, an example, every column in words
+        names = ["Goal Creation", "On-Ice Offense", "On-Ice Defense", "PP", "Penalties", "Other"]
+        top = max(sk, key=lambda p: p["gs"])
+        ex = "For example, {}'s {} is {}.".format(top["name"], sign(top["gs"]), ", ".join(
+            f"{sign(top['cols'][k])} {n.replace('PP', 'power play').lower()}" for k, n in zip(keys, names) if abs(top["cols"][k]) >= 0.005))
+        how = got.get("how") or []
+        if len(how) != 2 or not how[0].startswith("What it shows: where each skater's Game Score") \
+                or not how[1].startswith("How to read it: read across a row.") or not how[1].endswith(ex):
+            out.append(f"box table {ab} ({scheme}): explanation {[h[:70] for h in how]} (want what it shows, how to read it, ending {ex!r})")
+        if got.get("key") != [[n, True] for n in names] or got.get("ex") != ex:
+            out.append(f"box table {ab} ({scheme}): column key {got.get('key')} or example {got.get('ex')!r}")
     pg.emulate_media(color_scheme="light")
     bad = [p["name"] for p in sk if abs(sum(p["cols"][k] for k in keys) - p["gs"]) > 0.011]
     if bad:
