@@ -30,16 +30,44 @@
    }
   },
   {
+   "matchup": "NJD @ CBJ",
+   "home_win_prob": 0.3989,
+   "tier": "HIGH",
+   "gate_cleared": true,
+   "market": {
+    "home_prob": 0.4206,
+    "away_prob": 0.5794,
+    "books": 6
+   },
+   "model_home_win_prob": 0.3772,
+   "home_pillars": {
+    "p1_form": -0.666,
+    "p2_absence": -6.827,
+    "p3_motivation": 0.0,
+    "p4_gvi": -0.239,
+    "p5_friction": 0.0,
+    "adj_raa": 42.268
+   },
+   "away_pillars": {
+    "p1_form": 9.225,
+    "p2_absence": 0.132,
+    "p3_motivation": 0.0,
+    "p4_gvi": 3.19,
+    "p5_friction": 0.0,
+    "adj_raa": 62.547
+   }
+  },
+  {
    "matchup": "WPG @ BOS",
-   "home_win_prob": 0.5981,
+   "home_win_prob": 0.5966,
    "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5926,
-    "away_prob": 0.4074,
+    "home_prob": 0.5934,
+    "away_prob": 0.4066,
     "books": 6
    },
-   "model_home_win_prob": 0.6037,
+   "model_home_win_prob": 0.5998,
    "home_pillars": {
     "p1_form": 4.472,
     "p2_absence": -3.011,
@@ -52,37 +80,9 @@
     "p1_form": -6.691,
     "p2_absence": -4.997,
     "p3_motivation": 0.0,
-    "p4_gvi": 0.088,
+    "p4_gvi": 0.719,
     "p5_friction": -1.11,
-    "adj_raa": 37.291
-   }
-  },
-  {
-   "matchup": "NJD @ CBJ",
-   "home_win_prob": 0.4046,
-   "tier": "HIGH",
-   "gate_cleared": false,
-   "market": {
-    "home_prob": 0.4197,
-    "away_prob": 0.5803,
-    "books": 6
-   },
-   "model_home_win_prob": 0.3895,
-   "home_pillars": {
-    "p1_form": -0.666,
-    "p2_absence": -4.831,
-    "p3_motivation": 0.0,
-    "p4_gvi": -0.239,
-    "p5_friction": 0.0,
-    "adj_raa": 44.264
-   },
-   "away_pillars": {
-    "p1_form": 9.225,
-    "p2_absence": 0.132,
-    "p3_motivation": 0.0,
-    "p4_gvi": 3.19,
-    "p5_friction": 0.0,
-    "adj_raa": 62.547
+    "adj_raa": 37.921
    }
   },
   {
@@ -255,15 +255,15 @@
   },
   {
    "matchup": "CAR @ TBL",
-   "home_win_prob": 0.4547,
+   "home_win_prob": 0.4502,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4637,
-    "away_prob": 0.5363,
+    "home_prob": 0.4675,
+    "away_prob": 0.5325,
     "books": 6
    },
-   "model_home_win_prob": 0.4458,
+   "model_home_win_prob": 0.4328,
    "home_pillars": {
     "p1_form": 7.071,
     "p2_absence": -4.391,
@@ -276,9 +276,9 @@
     "p1_form": 20.0,
     "p2_absence": -1.563,
     "p3_motivation": 0.0,
-    "p4_gvi": -4.596,
+    "p4_gvi": -2.566,
     "p5_friction": 0.0,
-    "adj_raa": 63.841
+    "adj_raa": 65.871
    }
   },
   {
