@@ -31,6 +31,9 @@ jobs:
           fi
   deploy:
     needs: check
+    concurrency:                 # one queue with the Daily data deploy (see daily.yml)
+      group: pages-deploy
+      cancel-in-progress: false
     if: needs.check.outputs.enabled == 'true'
     runs-on: ubuntu-24.04
     environment:

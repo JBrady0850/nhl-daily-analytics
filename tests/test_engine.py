@@ -1191,6 +1191,10 @@ def test_pages_deploy_is_retried_and_runs_without_a_build_when_the_site_lags():
         assert "steps.deployment.outputs.page_url || steps.again.outputs.page_url" in wf
     wf = open(os.path.join(ROOT, ".github", "workflows", "daily.yml"), encoding="utf-8").read()
     assert "deploy: ${{ steps.due.outputs.deploy }}" in wf
+    # 2026-11-25: the two deploy jobs share one queue, so an older checkout never lands last
+    for name in ("daily.yml", "pages.yml"):
+        text = open(os.path.join(ROOT, ".github", "workflows", name), encoding="utf-8").read()
+        assert re.search(r"concurrency:\s*(#[^\n]*)?\n\s+group: pages-deploy\n\s+cancel-in-progress: false", text), name
     assert "needs: [when, build]" in wf
     assert "if: ${{ !cancelled() && (needs.build.result == 'success' || needs.when.outputs.deploy == 'true') }}" in wf
 

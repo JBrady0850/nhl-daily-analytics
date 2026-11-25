@@ -91,6 +91,13 @@ jobs:
           git push -q
   pages:
     needs: [when, build]
+    # 2026-11-25: this job checked out main at 15:46, before the 1.21.2 push, and deployed
+    # at 15:48:23, after pages.yml had deployed 1.21.2, so the site went back to 1.21.1.
+    # Both deploy jobs now wait in one queue; the later one checks out main only after
+    # the earlier one has finished, so the last deploy always carries the newest main.
+    concurrency:
+      group: pages-deploy
+      cancel-in-progress: false
     # after a build, or with no build when the site is behind the repository (the guard's deploy=true)
     if: ${{ !cancelled() && (needs.build.result == 'success' || needs.when.outputs.deploy == 'true') }}
     runs-on: ubuntu-24.04
