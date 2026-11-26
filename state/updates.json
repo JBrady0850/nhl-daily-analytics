@@ -170,6 +170,22 @@
     "Injury list: William Wallinder (DET) DTD to OUT",
     "Lines changed: UTA"
    ]
+  },
+  {
+   "id": "2026-11-25.14",
+   "date": "2026-11-25",
+   "n": 14,
+   "utc": "2026-11-26T02:32:50Z",
+   "why": "Game-day watch: CHI goalie: Spencer Knight (no report) -> Spencer Knight (Confirmed), reported by Ben Pope; SEA goalie: Joey Daccord (Likely) -> Joey Daccord (Confirmed), reported by Ben Pope",
+   "changes": [
+    "Injury list: added Tyler Bertuzzi (CHI, OUT)",
+    "Injury list: added Pontus Holmberg (TBL, DTD)",
+    "Injury list: removed Conor Garland (CBJ)",
+    "Injury list: removed Anton Frondell (CHI)",
+    "Injury list: removed Oskar Back (DAL)",
+    "Injury list: removed William Trudeau (NSH)",
+    "Injury list: 3 more changes"
+   ]
   }
  ]
 }
