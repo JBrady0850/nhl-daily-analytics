@@ -157,6 +157,19 @@
     "Injury list: Oskar Back (DAL) LTIR to IR",
     "Lines changed: STL, TBL"
    ]
+  },
+  {
+   "id": "2026-11-25.13",
+   "date": "2026-11-25",
+   "n": 13,
+   "utc": "2026-11-26T00:46:41Z",
+   "why": "Game-day watch: UTA goalie: Karel Vejmelka (no report) -> Karel Vejmelka (Confirmed), reported by Utah Mammoth; UTA lineup changed on Daily Faceoff (Utah Mammoth); NSH goalie: Juuse Saros (no report) -> Juuse Saros (Confirmed), reported by @PredsNHL",
+   "changes": [
+    "UTA goalie: Karel Vejmelka (projected) to Karel Vejmelka (confirmed)",
+    "NSH goalie: Juuse Saros (projected) to Juuse Saros (confirmed)",
+    "Injury list: William Wallinder (DET) DTD to OUT",
+    "Lines changed: UTA"
+   ]
   }
  ]
 }
