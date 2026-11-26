@@ -186,6 +186,26 @@
     "Injury list: removed William Trudeau (NSH)",
     "Injury list: 3 more changes"
    ]
+  },
+  {
+   "id": "2026-11-26.1",
+   "date": "2026-11-26",
+   "n": 1,
+   "utc": "2026-11-26T15:02:20Z",
+   "why": "Scheduled update (9:00 AM Central)",
+   "changes": [
+    "First update for Thu, Nov 26: 0 games",
+    "New Game Score (latest finished game): ANA, BOS, BUF, CAR, CBJ, CGY, CHI, COL, DAL, DET, FLA, MIN, MTL, NJD, NSH, NYI, NYR, OTT, PHI, PIT, SEA, SJS, STL, TBL, UTA, VAN, WPG, WSH",
+    "Season record: 14 more games settled (399 in all)",
+    "Model learning cycle 36 run",
+    "Injury list: added Denton Mateychuk (CBJ, DTD)",
+    "Injury list: added Kaiden Guhle (MTL, DTD)",
+    "Injury list: Leo Carlsson (ANA) OUT to DTD",
+    "Injury list: Tyson Kozak (BUF) OUT to DTD",
+    "Injury list: Nikolaj Ehlers (CAR) OUT to DTD",
+    "Injury list: K'Andre Miller (CAR) OUT to DTD",
+    "Injury list: 9 more changes"
+   ]
   }
  ]
 }
