@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-26",
-"count": 804,
+"count": 806,
 "players": [
 {
 "team": "ANA",
@@ -1365,6 +1365,13 @@
 "team": "COL",
 "name": "Jaden Schwartz",
 "player_id": "8475768",
+"position": "L",
+"role": "skater"
+},
+{
+"team": "COL",
+"name": "Taylor Makar",
+"player_id": "8482953",
 "position": "L",
 "role": "skater"
 },
@@ -3141,6 +3148,13 @@
 },
 {
 "team": "NYR",
+"name": "Juuso Parssinen",
+"player_id": "8481704",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "NYR",
 "name": "Matt Rempe",
 "player_id": "8482460",
 "position": "C",
@@ -4030,6 +4044,13 @@
 },
 {
 "team": "SJS",
+"name": "Cam Lund",
+"player_id": "8483481",
+"position": "C",
+"role": "skater"
+},
+{
+"team": "SJS",
 "name": "Macklin Celebrini",
 "player_id": "8484801",
 "position": "C",
@@ -4100,8 +4121,8 @@
 },
 {
 "team": "SJS",
-"name": "Libor Hajek",
-"player_id": "8479333",
+"name": "Luca Cagnoni",
+"player_id": "8484152",
 "position": "D",
 "role": "skater"
 },
@@ -4172,13 +4193,6 @@
 "team": "SJS",
 "name": "Adam Gaudette",
 "player_id": "8478874",
-"position": "R",
-"role": "skater"
-},
-{
-"team": "SJS",
-"name": "Brett Leason",
-"player_id": "8481517",
 "position": "R",
 "role": "skater"
 },
@@ -4898,13 +4912,6 @@
 },
 {
 "team": "UTA",
-"name": "Ben McCartney",
-"player_id": "8481827",
-"position": "L",
-"role": "skater"
-},
-{
-"team": "UTA",
 "name": "Daniil But",
 "player_id": "8484388",
 "position": "L",
@@ -4942,6 +4949,13 @@
 "team": "UTA",
 "name": "Kailer Yamamoto",
 "player_id": "8479977",
+"position": "R",
+"role": "skater"
+},
+{
+"team": "UTA",
+"name": "Yegor Borikov",
+"player_id": "8485594",
 "position": "R",
 "role": "skater"
 },
