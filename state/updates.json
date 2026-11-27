@@ -457,6 +457,19 @@
     "Injury list: Owen Tippett (PHI) DTD to OUT",
     "Lines changed: CHI, COL"
    ]
+  },
+  {
+   "id": "2026-11-27.17",
+   "date": "2026-11-27",
+   "n": 17,
+   "utc": "2026-11-27T22:16:45Z",
+   "why": "Game-day watch: NYR lineup changed on Daily Faceoff (Mollie Walker); CHI goalie: Spencer Knight (no report) -> Spencer Knight (Confirmed), reported by Ben Pope; CHI lineup changed on Daily Faceoff (Jack Bushman)",
+   "changes": [
+    "CHI goalie: Spencer Knight (projected) to Spencer Knight (confirmed)",
+    "Injury list: added Filip Chytil (VAN, DTD)",
+    "Injury list: Gabriel Perreault (NYR) OUT to IR",
+    "Lines changed: CHI, NYR"
+   ]
   }
  ]
 }
