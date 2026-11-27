@@ -312,6 +312,17 @@
     "Injury list: Zach Benson (BUF) DTD to OUT",
     "Lines changed: CAR, EDM"
    ]
+  },
+  {
+   "id": "2026-11-27.8",
+   "date": "2026-11-27",
+   "n": 8,
+   "utc": "2026-11-27T17:01:09Z",
+   "why": "Game-day watch: EDM goalie: Tristan Jarry (no report) -> Tristan Jarry (Confirmed), reported by Edmonton Oilers; BOS lineup changed on Daily Faceoff (Joe McDonald)",
+   "changes": [
+    "EDM goalie: Tristan Jarry (projected) to Tristan Jarry (confirmed)",
+    "Lines changed: BOS, OTT, PIT"
+   ]
   }
  ]
 }

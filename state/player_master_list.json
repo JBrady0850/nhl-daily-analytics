@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-27",
-"count": 805,
+"count": 804,
 "players": [
 {
 "team": "ANA",
@@ -1338,6 +1338,14 @@
 "position": "L",
 "role": "skater",
 "jersey": 26
+},
+{
+"team": "CHI",
+"name": "Dillon Boucher",
+"player_id": "8485554",
+"position": "L",
+"role": "skater",
+"jersey": 36
 },
 {
 "team": "CHI",
@@ -3925,14 +3933,6 @@
 },
 {
 "team": "OTT",
-"name": "Sammy Blais",
-"player_id": "8478104",
-"position": "L",
-"role": "skater",
-"jersey": 79
-},
-{
-"team": "OTT",
 "name": "Warren Foegele",
 "player_id": "8477998",
 "position": "L",
@@ -3986,14 +3986,6 @@
 "position": "R",
 "role": "skater",
 "jersey": 62
-},
-{
-"team": "OTT",
-"name": "Tyler Boucher",
-"player_id": "8482674",
-"position": "R",
-"role": "skater",
-"jersey": 54
 },
 {
 "team": "PHI",
