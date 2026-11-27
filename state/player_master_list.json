@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-27",
-"count": 806,
+"count": 807,
 "players": [
 {
 "team": "ANA",
@@ -3669,6 +3669,13 @@
 "name": "Tyson Foerster",
 "player_id": "8482159",
 "position": "R",
+"role": "skater"
+},
+{
+"team": "PIT",
+"name": "Atley Calvert",
+"player_id": "8483833",
+"position": "C",
 "role": "skater"
 },
 {
