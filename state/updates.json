@@ -440,6 +440,23 @@
     "Injury list: added Chris Tanev (TOR, DTD)",
     "Lines changed: ANA, SJS"
    ]
+  },
+  {
+   "id": "2026-11-27.16",
+   "date": "2026-11-27",
+   "n": 16,
+   "utc": "2026-11-27T21:46:04Z",
+   "why": "Game-day watch: CHI lineup changed on Daily Faceoff (Projected)",
+   "changes": [
+    "Final: DAL 3, STL 5, the pick lost",
+    "Final: UTA 6, NSH 5 in a shootout, the pick lost",
+    "New Game Score (latest finished game): DAL, NSH, STL, UTA",
+    "Injury list: added Martin Necas (COL, OUT)",
+    "Injury list: removed Marc Gatcomb (VGK)",
+    "Injury list: Tyler Bertuzzi (CHI) DTD to OUT",
+    "Injury list: Owen Tippett (PHI) DTD to OUT",
+    "Lines changed: CHI, COL"
+   ]
   }
  ]
 }
