@@ -386,6 +386,27 @@
     "Injury list: Zach Hyman (EDM) DTD to OUT",
     "Lines changed: CHI, PHI, SEA, SJS"
    ]
+  },
+  {
+   "id": "2026-11-27.13",
+   "date": "2026-11-27",
+   "n": 13,
+   "utc": "2026-11-27T19:46:04Z",
+   "why": "Game-day watch: VAN goalie: Kevin Lankinen (no report) -> Leevi Merilainen (Confirmed), reported by Brendan Batchelor; PHI lineup changed on Daily Faceoff (Jackie Spiegel); TBL goalie: Andrei Vasilevskiy (no report) -> Dennis Hildeby (Confirmed), reported by Gabby Shirley; TBL lineup changed on D...",
+   "changes": [
+    "VAN goalie: Kevin Lankinen (projected) to Leevi Meril\u00e4inen (confirmed)",
+    "DET goalie: Daniil Tarasov (projected) to John Gibson (confirmed)",
+    "DET @ CBJ pick: DET 51.9% to CBJ 51.8%",
+    "TBL goalie: Andrei Vasilevskiy (projected) to Dennis Hildeby (confirmed)",
+    "OTT @ TBL: TBL win chance 54.2% to 50.2%",
+    "PIT @ BUF pick: BUF 50.1% to PIT 50.1%",
+    "Injury list: added David Pastrnak (BOS, DTD)",
+    "Injury list: added Patrick Kane (CHI, IR)",
+    "Injury list: removed Oskar Back (DAL)",
+    "Injury list: removed Victor Hedman (TBL)",
+    "Injury list: removed Vincent Desharnais (WSH)",
+    "3 more changes"
+   ]
   }
  ]
 }
