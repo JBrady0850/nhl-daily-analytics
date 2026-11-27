@@ -369,6 +369,23 @@
     "Injury list: Jimmy Snuggerud (STL) DTD to IR",
     "Lines changed: CGY, NJD, STL, UTA"
    ]
+  },
+  {
+   "id": "2026-11-27.12",
+   "date": "2026-11-27",
+   "n": 12,
+   "utc": "2026-11-27T18:46:41Z",
+   "why": "Game-day watch: PHI goalie: Dan Vladar (no report) -> Dan Vladar (Confirmed), reported by Siobhan Nolan; PHI lineup changed on Daily Faceoff (Projected); SJS goalie: Yaroslav Askarov (no report) -> Yaroslav Askarov (Confirmed), reported by Curtis Pashelka; SEA goalie: Joey Daccord (no report) -> ...",
+   "changes": [
+    "SJS goalie: Yaroslav Askarov (projected) to Yaroslav Askarov (confirmed)",
+    "PHI goalie: Dan Vladar (projected) to Dan Vladar (confirmed)",
+    "SEA goalie: Joey Daccord (projected) to Philipp Grubauer (projected)",
+    "Injury list: added Matvei Michkov (PHI, OUT)",
+    "Injury list: removed Pavel Buchnevich (STL)",
+    "Injury list: removed Connor McMichael (STL)",
+    "Injury list: Zach Hyman (EDM) DTD to OUT",
+    "Lines changed: CHI, PHI, SEA, SJS"
+   ]
   }
  ]
 }

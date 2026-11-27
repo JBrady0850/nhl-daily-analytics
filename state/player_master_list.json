@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-27",
-"count": 805,
+"count": 804,
 "players": [
 {
 "team": "ANA",
@@ -1354,14 +1354,6 @@
 "position": "L",
 "role": "skater",
 "jersey": 12
-},
-{
-"team": "CHI",
-"name": "Landon Slaggert",
-"player_id": "8482172",
-"position": "L",
-"role": "skater",
-"jersey": 84
 },
 {
 "team": "CHI",
