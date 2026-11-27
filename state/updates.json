@@ -285,6 +285,19 @@
     "CHI goalie: Spencer Knight (rotation guess) to Spencer Knight (projected)",
     "30 more changes"
    ]
+  },
+  {
+   "id": "2026-11-27.6",
+   "date": "2026-11-27",
+   "n": 6,
+   "utc": "2026-11-27T16:34:55Z",
+   "why": "Run by hand",
+   "changes": [
+    "PIT @ BUF: BUF win chance 53.0% to 50.9%",
+    "Injury list: added Noah Ostlund (BUF, DTD)",
+    "Injury list: added Zach Benson (BUF, DTD)",
+    "Lines changed: BUF, NYR"
+   ]
   }
  ]
 }
