@@ -2665,6 +2665,13 @@
 },
 {
 "team": "NJD",
+"name": "Anton Silaev",
+"player_id": "8484987",
+"position": "D",
+"role": "skater"
+},
+{
+"team": "NJD",
 "name": "Brenden Dillon",
 "player_id": "8475455",
 "position": "D",
@@ -2751,13 +2758,6 @@
 "team": "NJD",
 "name": "Connor Brown",
 "player_id": "8477015",
-"position": "R",
-"role": "skater"
-},
-{
-"team": "NJD",
-"name": "Lenni Hameenaho",
-"player_id": "8484177",
 "position": "R",
 "role": "skater"
 },

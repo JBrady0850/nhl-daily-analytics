@@ -59,7 +59,7 @@
   },
   {
    "matchup": "CGY @ NJD",
-   "home_win_prob": 0.6574,
+   "home_win_prob": 0.6573,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
@@ -67,14 +67,14 @@
     "away_prob": 0.3079,
     "books": 6
    },
-   "model_home_win_prob": 0.6227,
+   "model_home_win_prob": 0.6225,
    "home_pillars": {
     "p1_form": 10.094,
-    "p2_absence": -0.665,
+    "p2_absence": -0.699,
     "p3_motivation": 0.0,
     "p4_gvi": 1.187,
     "p5_friction": 0.0,
-    "adj_raa": 60.616
+    "adj_raa": 60.582
    },
    "away_pillars": {
     "p1_form": -0.7,
@@ -143,12 +143,12 @@
   },
   {
    "matchup": "WPG @ NYI",
-   "home_win_prob": 0.5683,
+   "home_win_prob": 0.5677,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5345,
-    "away_prob": 0.4655,
+    "home_prob": 0.5332,
+    "away_prob": 0.4668,
     "books": 6
    },
    "model_home_win_prob": 0.6022,
