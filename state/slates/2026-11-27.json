@@ -3,7 +3,7 @@
  "games": [
   {
    "matchup": "VGK @ SJS",
-   "home_win_prob": 0.3348,
+   "home_win_prob": 0.3465,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
@@ -11,7 +11,7 @@
     "away_prob": 0.6507,
     "books": 6
    },
-   "model_home_win_prob": 0.3203,
+   "model_home_win_prob": 0.3437,
    "home_pillars": {
     "p1_form": -11.944,
     "p2_absence": -6.081,
@@ -24,9 +24,9 @@
     "p1_form": 10.135,
     "p2_absence": 0.214,
     "p3_motivation": 0.0,
-    "p4_gvi": -0.126,
+    "p4_gvi": -4.167,
     "p5_friction": 0.555,
-    "adj_raa": 60.778
+    "adj_raa": 56.736
    }
   },
   {
@@ -311,12 +311,12 @@
   },
   {
    "matchup": "COL @ MIN",
-   "home_win_prob": 0.4929,
+   "home_win_prob": 0.4922,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5196,
-    "away_prob": 0.4804,
+    "home_prob": 0.5183,
+    "away_prob": 0.4817,
     "books": 6
    },
    "model_home_win_prob": 0.4662,

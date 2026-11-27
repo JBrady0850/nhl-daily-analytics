@@ -422,6 +422,24 @@
     "Injury list: Erik Cernak (TBL) DTD to OUT",
     "Lines changed: MIN, OTT, PHI, VAN"
    ]
+  },
+  {
+   "id": "2026-11-27.15",
+   "date": "2026-11-27",
+   "n": 15,
+   "utc": "2026-11-27T20:46:04Z",
+   "why": "Game-day watch: VGK goalie: Adin Hill (no report) -> Carter Hart (Confirmed), reported by Max Miller; SJS lineup changed on Daily Faceoff (Max Miller); LAK goalie: Darcy Kuemper (no report) -> Darcy Kuemper (Confirmed), reported by Jared Shafran; ANA lineup changed on Daily Faceoff (Zach Cavanagh...",
+   "changes": [
+    "VGK goalie: Adin Hill (projected) to Carter Hart (confirmed)",
+    "Final: CGY 3, NJD 5, the pick won",
+    "Final: TOR 3, BOS 1, the pick lost",
+    "LAK goalie: Darcy Kuemper (projected) to Darcy Kuemper (confirmed)",
+    "COL goalie: Mackenzie Blackwood (projected) to Mackenzie Blackwood (confirmed)",
+    "MIN goalie: Jesper Wallstedt (projected) to Jesper Wallstedt (confirmed)",
+    "New Game Score (latest finished game): BOS, CGY, NJD, TOR",
+    "Injury list: added Chris Tanev (TOR, DTD)",
+    "Lines changed: ANA, SJS"
+   ]
   }
  ]
 }
