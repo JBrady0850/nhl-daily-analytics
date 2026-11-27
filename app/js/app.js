@@ -4,7 +4,7 @@
    stats window) stay in this browser (localStorage). */
 (function () {
   "use strict";
-  const APP_VERSION = "1.22.1";
+  const APP_VERSION = "1.23.0";
   const REPO = "https://github.com/JBrady0850/nhl-daily-analytics";
   const PUBLIC_URL = "https://jbrady0850.github.io/nhl-daily-analytics/";
   const KEY = "nda:v1";
@@ -154,6 +154,9 @@
     const pid = /^\d{6,8}$/.test(String(id == null ? "" : id)) ? String(id) : "";
     return pid ? `<a class="plink" href="${NHL_PLAYER}${pid}" target="_blank" rel="noopener noreferrer">${esc(name)}<span class="sr"> (official NHL.com page and stats, opens in a new window)</span></a>` : esc(name);
   };
+  // 1.23.0 (John, 2026-11-27: "On my teams add the jersey numbers for all players"): the
+  // number before each player's name on My Teams, as on the back of his jersey
+  const jno = n => n == null || n === "" ? "" : `<span class="jno" data-tip="Jersey number ${esc(n)}.">#${esc(n)}</span>&nbsp;`;   // kept on the line with the first name
   const emptyCard = (msg) => `<div class="card empty">${EMPTY_NET}<p>${msg}</p></div>`;
 
   // ---------- definitions: hover with a mouse, tap on a touch screen, or Tab to it ----------
@@ -606,7 +609,7 @@
   }
 
   // ---------- lines ----------
-  function linesTable(L) {
+  function linesTable(L, nums) {
     const w = st.win;
     if (!L || L.error || !(L.lines || []).length) return `<p class="muted small">Lines are not available for this team right now${L && L.error ? ` (${esc(L.error)})` : ""}.</p>`;
     const groups = (L.lines || []).map(x => ["F" + x.line, x]).concat((L.pairs || []).map(x => ["D" + x.pair, x]));
@@ -632,7 +635,7 @@
         // the badge reads Points leader; its definition says forward or defenseman
         const ptsTip = (TIPS.leader || {})[fwd ? "F" : "D"] || TIPS.pills["POINTS LEADER"] || "";
         const ptsTag = pl.top > 0 && s.p === pl.top ? ` <span class="pill gold" data-tip="${esc(ptsTip + (pl.n > 1 && TIPS.pills._tied ? " " + TIPS.pills._tied : ""))}">Points leader${pl.n > 1 ? " (tied)" : ""}</span>` : "";
-        return `<tr class="${lead.points ? "lead" : ""}">${td(i === 0 ? `<span class="unit">${esc(unit)}</span>` : "")}${td(esc(p.pos), "hm")}${td(pname(p.name, p.nhl_id) + " " + status + ptsTag + pimTag)}${td(esc(p.pp || ""), "hm")}
+        return `<tr class="${lead.points ? "lead" : ""}">${td(i === 0 ? `<span class="unit">${esc(unit)}</span>` : "")}${td(esc(p.pos), "hm")}${td((nums ? jno(p.num) : "") + pname(p.name, p.nhl_id) + " " + status + ptsTag + pimTag)}${td(esc(p.pp || ""), "hm")}
           ${td(esc(s.gp ?? "-"), "n")}${td(esc(s.g ?? "-"), "n")}${td(esc(s.a ?? "-"), "n")}${td(`<b>${esc(s.p ?? "-")}</b>`, "n")}${td(esc(s.sog ?? "-"), "n")}${td(esc(s.ppp ?? "-"), "n hm")}${td(mmss(s.toi_sec_pg), "n hm")}${td(esc(s.pim ?? "-"), "n")}</tr>`;
       }).join("");
       const t = (x.totals || {})[w] || {};
@@ -756,7 +759,7 @@
   const dragTag = p => p.trend && p.trend.drag && PHONE_Q && PHONE_Q.matches ? ` <span class="pill bad">Dragging</span>` : "";
   function gsRow(p, lo, span, sc, games) {
     const say = (lab, v) => `${lab} ${GS_PARTS.map(([, n], i) => `${n.toLowerCase()} ${signed(v[i])}`).join(", ")}`;
-    return `<div class="gs-row${p.trend && p.trend.drag ? " drag" : ""}"><span class="gs-name">${pname(p.name, p.id)}${dragTag(p)}</span><b class="gs-val" data-tip="Game Score ${signed(p.gs)}: offense ${signed(p.o.reduce((a, b) => a + b, 0))} plus defense ${signed(p.d.reduce((a, b) => a + b, 0))}. Above 0 he helped his team; below 0 he hurt it.">${signed(p.gs)}</b>
+    return `<div class="gs-row${p.trend && p.trend.drag ? " drag" : ""}"><span class="gs-name">${jno(p.num)}${pname(p.name, p.id)}${dragTag(p)}</span><b class="gs-val" data-tip="Game Score ${signed(p.gs)}: offense ${signed(p.o.reduce((a, b) => a + b, 0))} plus defense ${signed(p.d.reduce((a, b) => a + b, 0))}. Above 0 he helped his team; below 0 he hurt it.">${signed(p.gs)}</b>
       <div class="gs-bars" role="img" aria-label="${esc(p.name)}: ${signed(p.gs)}. ${esc(say("Offense", p.o))}. ${esc(say("Defense", p.d))}.">
       <div class="gs-plot" style="--z:${((0 - lo) / span * 100).toFixed(2)}%"><span class="gs-trk o">${gsTrack(p.o, "offense", lo, span)}</span><span class="gs-trk d">${gsTrack(p.d, "defense", lo, span)}</span></div></div>${games ? gsTrend(p, sc, games) : ""}</div>`;
   }
@@ -773,7 +776,7 @@
     return `<span>Did not play the last game</span>`;
   }
   function gsOutRow(p, ab, sc, games) {
-    return `<div class="gs-row out${p.trend.drag ? " drag" : ""}"><span class="gs-name">${pname(p.name, p.id)}${dragTag(p)}</span><b class="gs-val" data-tip="He did not play the team's last game, so he has no Game Score or bars for it. His trend beside it covers the games he did play.">-</b><span class="gs-out-txt small">${outWhy(p, ab)}</span>${gsTrend(p, sc, games)}</div>`;
+    return `<div class="gs-row out${p.trend.drag ? " drag" : ""}"><span class="gs-name">${jno(p.num)}${pname(p.name, p.id)}${dragTag(p)}</span><b class="gs-val" data-tip="He did not play the team's last game, so he has no Game Score or bars for it. His trend beside it covers the games he did play.">-</b><span class="gs-out-txt small">${outWhy(p, ab)}</span>${gsTrend(p, sc, games)}</div>`;
   }
   // 1.21.0 (John, 2026-11-25: a HockeyStats.com-style box table for My Teams, "build it
   // without the Goals Above Replacement"): every skater's Game Score in six columns that
@@ -805,7 +808,7 @@
   function boxTable(t) {
     const sk = (t.skaters || []).filter(p => p.cols);
     if (!sk.length) return "";
-    const row = p => `<tr>${td(esc(p.name))}${BOX_COLS.map(([k]) => boxCell(p.cols[k])).join("")}${td(`<b>${signed(p.gs)}</b>`, "n bx-gs")}</tr>`;
+    const row = p => `<tr>${td(jno(p.num) + esc(p.name))}${BOX_COLS.map(([k]) => boxCell(p.cols[k])).join("")}${td(`<b>${signed(p.gs)}</b>`, "n bx-gs")}</tr>`;
     const grp = (lab, rows) => rows.length ? `<tr class="grp"><td colspan="${BOX_COLS.length + 2}"><span class="grp-lab">${lab}</span></td></tr>` + rows.map(row).join("") : "";
     const hd = thT("Player", "The player.") + BOX_COLS.map(([k, n]) => thT(n, (TIPS.box || {})[n] || n, "n")).join("") + thT("Game Score", TIPS.gs["Game Score"], "n");
     return `<div class="gs-boxwrap"><p class="gs-grp">Game Score by part</p>
@@ -822,7 +825,7 @@
     const has = typeof g.gsax === "number";
     const say = !has ? `Faced ${esc(g.shots)} shots and allowed ${esc(g.ga)} goals; ${waiting ? "goals saved above expected comes with MoneyPuck's shot values for this game" : "expected goals were not available for this game"}.`
       : `Allowed ${esc(g.ga)} goal${g.ga === 1 ? "" : "s"} on ${esc(g.shots)} shots. An average goalie would have allowed ${num(g.xga, 2)} on those shots, so he ${g.gsax >= 0 ? "saved" : "allowed"} ${num(Math.abs(g.gsax), 2)} goals more than expected.`;
-    return `<div class="gs-row gk"><span class="gs-name">${pname(g.name, g.id)}</span><b class="gs-val" data-tip="Goals saved above expected: the goals an average goalie would have allowed on his shots minus the goals he allowed. Above 0 he stopped more than expected.">${has ? signed(g.gsax) : "-"}</b><span class="gs-gk-txt small">${say}</span></div>`;
+    return `<div class="gs-row gk"><span class="gs-name">${jno(g.num)}${pname(g.name, g.id)}</span><b class="gs-val" data-tip="Goals saved above expected: the goals an average goalie would have allowed on his shots minus the goals he allowed. Above 0 he stopped more than expected.">${has ? signed(g.gsax) : "-"}</b><span class="gs-gk-txt small">${say}</span></div>`;
   }
   function lastGame(ab) {
     const t = ((D.gamescore || {}).teams || {})[ab];
@@ -856,8 +859,8 @@
     const key = GS_PARTS.map(([k, n]) => `<span class="gs-key" data-tip="${esc((TIPS.gs || {})[n] || n)}"><i class="gs-sw gs-${k}"></i>${esc(n)}</span>`).join("");
     const cells = v => v.map(x => td(signed(x), "n")).join("");
     const tcells = p => !games ? "" : td(p.trend ? signed(p.trend.avg) : "-", "n") + td(p.trend ? esc(p.trend.n) : "-", "n") + td(p.trend && typeof p.trend.slope === "number" ? signed(p.trend.slope) : "-", "n");
-    const rows = sk.map(p => `<tr>${td(esc(p.name))}${td(esc(p.pos))}${td(p.toi == null ? "-" : num(p.toi, 1), "n hm")}${td(`<b>${signed(p.gs)}</b>`, "n")}${cells(p.o)}${cells(p.d)}${tcells(p)}</tr>`).join("")
-      + (others.length ? `<tr class="grp"><td colspan="15">Not in the last game</td></tr>` + others.map(p => `<tr class="out">${td(esc(p.name))}${td(esc(p.pos))}${td("-", "n hm")}${td("-", "n")}${"<td class=\"n\">-</td>".repeat(8)}${tcells(p)}</tr>`).join("") : "");
+    const rows = sk.map(p => `<tr>${td(jno(p.num) + esc(p.name))}${td(esc(p.pos))}${td(p.toi == null ? "-" : num(p.toi, 1), "n hm")}${td(`<b>${signed(p.gs)}</b>`, "n")}${cells(p.o)}${cells(p.d)}${tcells(p)}</tr>`).join("")
+      + (others.length ? `<tr class="grp"><td colspan="15">Not in the last game</td></tr>` + others.map(p => `<tr class="out">${td(jno(p.num) + esc(p.name))}${td(esc(p.pos))}${td("-", "n hm")}${td("-", "n")}${"<td class=\"n\">-</td>".repeat(8)}${tcells(p)}</tr>`).join("") : "");
     const hd = thT("Player", "The player. His name in the chart above opens his NHL.com page.") + thT("Pos", TIPS.heads.Pos) + thT("TOI", "Time on ice in the game, minutes.", "n hm") + thT("Game Score", TIPS.gs["Game Score"], "n") +
       ["Production", "Play driving", "Special teams", "Usage"].map(n => thT("O " + n.split(" ")[0], `Offense, ${n.toLowerCase()}: ${TIPS.gs[n]}`, "n")).join("") +
       ["Production", "Play driving", "Special teams", "Usage"].map(n => thT("D " + n.split(" ")[0], `Defense, ${n.toLowerCase()}: ${TIPS.gs[n]}`, "n")).join("") +
@@ -895,7 +898,7 @@
     const tonight = !g ? `<p class="small muted">No game today.</p>`
       : r ? `<div class="today-line"><p class="small">Today: ${esc(g.away)} @ ${esc(g.home)}, final: ${esc(g.away)} ${esc(r.away_score)}, ${esc(g.home)} ${esc(r.home_score)}${per}.</p>${proj ? `<p class="row small">${proj} <span class="pill ${r.pick === "win" ? "win" : "loss"}">${r.pick === "win" ? "Win" : "Loss"}</span></p>` : ""}</div>`
       : `<p class="row small today-line">Today: ${esc(g.away)} @ ${esc(g.home)}, ${esc(localTime(g.start_utc))}. ${proj}</p>${dueLine(g)}`;
-    return `<section class="card edge teamcard" style="${teamVars(ab)}"><div class="tc-head">${badge(ab, "xl", true)}<div><h2>${esc(t.name || ab)}</h2><span class="small muted">${t.record ? esc(t.record) + ", " + esc(t.pts) + " pts" : ""}${t.division ? ", " + esc(t.division) : ""}</span></div></div>${standPlaces(ab)}${tonight}${lastGame(ab)}${linesTable((D.lines || {})[ab])}</section>`;
+    return `<section class="card edge teamcard" style="${teamVars(ab)}"><div class="tc-head">${badge(ab, "xl", true)}<div><h2>${esc(t.name || ab)}</h2><span class="small muted">${t.record ? esc(t.record) + ", " + esc(t.pts) + " pts" : ""}${t.division ? ", " + esc(t.division) : ""}</span></div></div>${standPlaces(ab)}${tonight}${lastGame(ab)}${linesTable((D.lines || {})[ab], true)}</section>`;
   }
   function vMyTeams() {
     const body = st.teams.length ? st.teams.map(teamCard).join("") : `<div class="card empty">No teams picked yet. Choose any of the 32 teams below.</div>`;

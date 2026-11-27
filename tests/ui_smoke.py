@@ -580,6 +580,53 @@ def check_trend_columns(pg, sample, ab):
     return out[:4]
 
 
+JERSEY_JS = """(ab) => {
+  const c = [...document.querySelectorAll('main section.teamcard')].find(s => s.querySelector('.tc-head .tm').textContent.trim() === ab);
+  if (!c) return null;
+  const num = el => { const j = el && el.querySelector('.jno'); return j ? [j.textContent.trim(), j.dataset.tip || '', !!(j.nextElementSibling && j.nextElementSibling.matches('a.plink')) || j.parentElement.matches('td')] : null; };
+  const nm = el => { const a = el.querySelector('a.plink'); return a ? a.childNodes[0].textContent.trim() : el.textContent.replace(/^#\\d+\\s*/, '').trim(); };
+  const lg = c.querySelector('details.lastgame');
+  return {
+    chart: [...lg.querySelectorAll('.gs-chart .gs-row .gs-name, .gs-goalies .gs-row .gs-name, .gs-others .gs-row .gs-name')].map(e => [nm(e), num(e)]),
+    box: [...lg.querySelectorAll('table.gs-box tbody tr:not(.grp) td:first-child')].map(e => [nm(e), num(e)]),
+    numbers: [...lg.querySelectorAll('table.gs-table tbody tr:not(.grp) td:first-child')].map(e => [nm(e), num(e)]),
+    lines: [...c.querySelectorAll(':scope > .tablewrap table tbody tr:not(.tot) td:nth-child(3)')].map(e => [nm(e), num(e)])};
+}"""
+
+
+def check_jersey_numbers(pg, sample, ab):
+    """1.23.0 (John, 2026-11-27: "On my teams add the jersey numbers for all players"):
+    every player on a My Teams card shows "#<number>" before his name, with a
+    definition, wherever the data has his number (the chart, the goalies, Not in the last
+    game, Game Score by part, Numbers and the lines); the Lines tab is unchanged."""
+    t = sample["gamescore"]["teams"][ab]
+    pg.click('#tabs button[data-tab="myteams"]')
+    pg.wait_for_timeout(40)
+    got = pg.evaluate(JERSEY_JS, ab)
+    if not got:
+        return [f"jersey numbers {ab}: no card"]
+    def want(p):
+        return None if p.get("num") is None else [f"#{p['num']}", f"Jersey number {p['num']}.", True]
+    order = [p for p in t["skaters"] if p["pos"] != "D"] + [p for p in t["skaters"] if p["pos"] == "D"]
+    others = [p for p in t.get("trend_others") or [] if p["trend"]["n"]]
+    lines = [p for grp in ("lines", "pairs") for ln in sample["lines"][ab][grp] for p in ln["players"]]
+    exp = {"chart": [[p["name"], want(p)] for p in order + t["goalies"] + others],
+           "box": [[p["name"], want(p)] for p in order if p.get("cols")],
+           "numbers": [[p["name"], want(p)] for p in order + others],
+           "lines": [[p["name"], want(p)] for p in lines]}
+    out = []
+    for k, v in exp.items():
+        if got[k] != v:
+            bad = [(g, w) for g, w in zip(got[k], v) if g != w][:2]
+            out.append(f"jersey numbers {ab} {k}: {len(got[k])} rows for {len(v)}; first differences {bad}")
+    if not any(w for _, w in exp["chart"]) or not any(w is None for _, w in exp["chart"] + exp["lines"]):
+        out.append("jersey numbers: the sample needs players with and without a number")
+    pg.click('#tabs button[data-tab="lines"]')
+    if pg.locator("main .jno").count():
+        out.append("jersey numbers: the Lines tab shows them too (My Teams only)")
+    return out
+
+
 UPDATE_JS = """() => {
   const sub = document.querySelector('main p.sub'), b = sub && sub.querySelector('button.upd-no');
   const f = document.getElementById('dver'), w = document.getElementById('dver-w');
@@ -635,7 +682,7 @@ def check_box_table(pg, sample, ab):
         want = {"title": "Game Score by part",
                 "heads": [[h, True] for h in ("Player", "Goal Creation", "On-Ice Offense", "On-Ice Defense", "PP", "Penalties", "Other", "Game Score")],
                 "groups": [g for g, rows in (("Forwards", [p for p in sk if p["pos"] != "D"]), ("Defense", [p for p in sk if p["pos"] == "D"])) if rows],
-                "rows": [[p["name"]] + ["" if abs(p["cols"][k]) < 0.005 else sign(p["cols"][k]) for k in keys] + [sign(p["gs"])] for p in order],
+                "rows": [[(f"#{p['num']}\xa0" if p.get("num") is not None else "") + p["name"]] + ["" if abs(p["cols"][k]) < 0.005 else sign(p["cols"][k]) for k in keys] + [sign(p["gs"])] for p in order],
                 "classes": [["" if abs(p["cols"][k]) < 0.005 else "pos" if p["cols"][k] > 0 else "neg" for k in keys] for p in order]}
         out += [f"box table {ab} ({scheme}) {k}: {str(got.get(k))[:160]} (want {str(v)[:160]})" for k, v in want.items() if got.get(k) != v]
         if got.get("worst") is None or got["worst"] < 4.5:
@@ -1561,6 +1608,7 @@ def main():
                 fails.extend(f"{name}: {m}" for m in check_box_table(pg, sample, "FLA"))
                 fails.extend(f"{name}: {m}" for m in check_trend_columns(pg, sample, "FLA"))
                 fails.extend(f"{name}: {m}" for m in check_update_number(pg, sample))
+                fails.extend(f"{name}: {m}" for m in check_jersey_numbers(pg, sample, "FLA"))
                 fails.extend(f"{name}: {m}" for m in check_points_leaders(pg, sample, "FLA"))
                 pg.click('#tabs button[data-tab="today"]')
                 if pg.locator("main .due-final").count():

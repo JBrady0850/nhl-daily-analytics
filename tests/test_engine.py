@@ -1400,11 +1400,11 @@ def test_names_for_the_trend_come_from_games_rosters_then_the_nhl(tmp_path):
     hist = {"season": 2026, "teams": {}}
     G.hist_add(hist, 2026020100, {"date": "2026-10-10", "inputs": "full", "teams": {"FLA": {
         "opp": "BOS", "home": True, "result": "W",
-        "skaters": [{"id": 8477493, "name": "Aleksander Barkov", "pos": "C", "gs": 0.5}, {"id": 11, "gs": 0.1},
+        "skaters": [{"id": 8477493, "name": "Aleksander Barkov", "pos": "C", "num": 16, "gs": 0.5}, {"id": 11, "gs": 0.1},
                     {"id": 12, "gs": 0.0}, {"id": 13, "gs": -0.1}]}}})
-    assert hist["names"] == {"8477493": ["Aleksander Barkov", "C"]}
+    assert hist["names"] == {"8477493": ["Aleksander Barkov", "C", 16]}          # 1.23.0: with his jersey number
     master = {"season": "20262027", "players": [{"team": "FLA", "name": "Roster Name", "player_id": "11",
-                                                 "position": "D", "role": "skater"}]}
+                                                 "position": "D", "role": "skater", "jersey": 3}]}
     json.dump(master, open(tmp_path / "player_master_list.json", "w", encoding="utf-8"))
     roster = G.load_roster(str(tmp_path))
     assert roster["11"]["team"] == "FLA" and G.load_roster(str(tmp_path / "none")) is None
@@ -1414,15 +1414,30 @@ def test_names_for_the_trend_come_from_games_rosters_then_the_nhl(tmp_path):
         async def get(self, url, **kw):
             self.asked.append(url)
             if url.endswith("/player/12/landing"):
-                return {"firstName": {"default": "Page"}, "lastName": {"default": "Name"}, "position": "R"}
+                return {"firstName": {"default": "Page"}, "lastName": {"default": "Name"}, "position": "R", "sweaterNumber": 27}
             return None                                                 # the NHL did not answer for 13
     f = Landing()
     asyncio.run(G.fill_names(f, hist, roster))
-    assert hist["names"]["11"] == ["Roster Name", "D"] and hist["names"]["12"] == ["Page Name", "R"]
+    assert hist["names"]["11"] == ["Roster Name", "D", 3] and hist["names"]["12"] == ["Page Name", "R", 27]
     assert "13" not in hist["names"] and len(f.asked) == 2                  # only the two nobody had named
     f.asked.clear()
     asyncio.run(G.fill_names(f, hist, roster, limit=0))
     assert f.asked == []
+    # 1.23.0: a named player with no number, on no roster today, is looked up once for it
+    hist["names"]["14"] = ["Old Name", "C"]
+    hist["teams"]["FLA"][0]["gs"]["14"] = 0.2
+    class Number(Landing):
+        asked = []
+        async def get(self, url, **kw):
+            self.asked.append(url)
+            return {"firstName": {"default": "Old"}, "lastName": {"default": "Name"}, "position": "C", "sweaterNumber": 44} if "/player/14/" in url else None
+    f = Number()
+    asyncio.run(G.fill_names(f, hist, roster))
+    assert hist["names"]["14"] == ["Old Name", "C", 44] and any("/player/14/" in u for u in f.asked)
+    assert not any("/player/11/" in u for u in f.asked)                     # on a roster: its number comes from there
+    f.asked.clear()
+    asyncio.run(G.fill_names(f, hist, roster))
+    assert not any("/player/14/" in u for u in f.asked)                     # once only
 
 
 TOI_HTML = """<table>
@@ -1611,3 +1626,32 @@ def test_sample_data_carries_the_update_number():
     assert all(isinstance(x, str) and x for x in u["changes"]) and u["why"]
     doc = open(os.path.join(ROOT, "docs", "DATA.md"), encoding="utf-8").read()
     assert "| `update` |" in doc and "| `update_log` |" in doc
+
+
+# 1.23.0 (John, 2026-11-27): "On my teams add the jersey numbers for all players"
+def test_jersey_numbers_reach_the_lines_the_game_score_and_the_missing_players():
+    from nhlda import gamescore as G
+    from nhlda.build import jersey_numbers
+    roster = {"8478403": {"team": "FLA", "jersey": 13}, "8477932": {"team": "FLA", "jersey": 5},
+              "8480000": {"team": "TBL", "jersey": 77}}
+    lines = {"FLA": {"lines": [{"players": [{"name": "Sam Reinhart", "nhl_id": 8478403}, {"name": "No Id"}]}],
+                     "pairs": [{"players": [{"name": "Aaron Ekblad", "nhl_id": "8477932"}]}]}}
+    jersey_numbers(lines, roster)
+    assert [p["num"] for p in lines["FLA"]["lines"][0]["players"]] == [13, None]
+    assert lines["FLA"]["pairs"][0]["players"][0]["num"] == 5
+    jersey_numbers(lines, None)                                              # no rosters: no numbers, no error
+    assert lines["FLA"]["pairs"][0]["players"][0]["num"] is None
+    # the number he wore in the game wins; then the one kept with his name; then today's roster
+    hist = {"names": {"8480000": ["Moved Player", "C", 21], "8481111": ["Old Name", "D"]}}
+    latest = {"FLA": {"skaters": [{"id": 8478403, "num": 99}, {"id": 8477932, "num": None}],
+                      "goalies": [{"id": 8475683}],
+                      "trend_others": [{"id": 8480000}, {"id": 8481111}]}}
+    G.add_numbers(latest, hist, roster)
+    t = latest["FLA"]
+    assert [p["num"] for p in t["skaters"]] == [99, 5] and t["goalies"][0]["num"] is None
+    assert [p["num"] for p in t["trend_others"]] == [21, None]
+    # the play-by-play's roster carries the number into every scored skater and goalie
+    src = open(os.path.join(ROOT, "nhlda", "gamescore.py"), encoding="utf-8").read()
+    assert '"num": r.get("sweaterNumber")' in src and src.count('"num": info.get("num")') == 2
+    core = open(os.path.join(ROOT, "nhlda", "core.py"), encoding="utf-8").read()
+    assert '"role", "jersey")' in core

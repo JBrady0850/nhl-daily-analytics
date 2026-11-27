@@ -260,7 +260,7 @@ def breakdown(pbp, shift_rows, shots, rates, quality, box=None, goalie_xg=None, 
     full = onice_ok and not estimated
     roster = {}
     for r in pbp.get("rosterSpots") or []:
-        roster[r["playerId"]] = {"team": r["teamId"], "pos": r.get("positionCode") or "",
+        roster[r["playerId"]] = {"team": r["teamId"], "pos": r.get("positionCode") or "", "num": r.get("sweaterNumber"),
                                  "name": f"{(r.get('firstName') or {}).get('default', '')} {(r.get('lastName') or {}).get('default', '')}".strip()}
     L, Lg, Lpp = rates["xg"], rates["g"], rates["pp"]
 
@@ -395,7 +395,7 @@ def breakdown(pbp, shift_rows, shots, rates, quality, box=None, goalie_xg=None, 
                 faced = s.get("ga_g", 0) + s.get("sv_g", 0)
                 if faced:
                     xga = (goalie_xg or {}).get(pid, s.get("xga_g", 0.0))
-                    gk.append({"id": pid, "name": info["name"], "pos": "G", "shots": int(faced),     # GSAx: MoneyPuck's values only
+                    gk.append({"id": pid, "name": info["name"], "pos": "G", "num": info.get("num"), "shots": int(faced),     # GSAx: MoneyPuck's values only
                                "ga": int(s.get("ga_g", 0)), "xga": round(xga, 2) if full else None,
                                "gsax": round(xga - s.get("ga_g", 0), 2) if full else None})
                 continue
@@ -421,7 +421,7 @@ def breakdown(pbp, shift_rows, shots, rates, quality, box=None, goalie_xg=None, 
                     d_use = -W["use"] * t5 * ((L - tma) + (L - opf))
             o = [round(v, 2) for v in (o_prod, o_drv, o_st, o_use)]
             dd = [round(v, 2) for v in (d_prod, d_drv, d_st, d_use)]
-            sk.append({"id": pid, "name": info["name"], "pos": info["pos"],
+            sk.append({"id": pid, "name": info["name"], "pos": info["pos"], "num": info.get("num"),
                        "toi": round((otoi if otoi else toi.get(pid, 0)) / 60, 1) if (otoi or onice_ok) else None,
                        "gs": round(sum(o) + sum(dd), 2), "o": o, "d": dd,
                        "box": {k: int(s.get(k, 0)) for k in ("g", "a1", "a2", "sog", "blk", "pd", "pt")}})
@@ -563,7 +563,9 @@ def hist_add(hist, gid, game):
     for ab, entry in (game.get("teams") or {}).items():
         for p in entry.get("skaters") or []:
             if p.get("name"):
-                names[str(p["id"])] = [p["name"], p.get("pos") or ""]
+                old = names.get(str(p["id"])) or []
+                num = p.get("num") if p.get("num") is not None else (old[2] if len(old) > 2 else None)
+                names[str(p["id"])] = [p["name"], p.get("pos") or "", num]     # 1.23.0: and his jersey number
         rows = [r for r in hist["teams"].get(ab, []) if r["game"] != int(gid)]
         rows.append({"game": int(gid), "date": game.get("date"), "opp": entry.get("opp"),
                      "home": bool(entry.get("home")), "result": entry.get("result"),
@@ -623,13 +625,18 @@ async def fill_names(f, hist, roster, limit=NAMES_FETCH_MAX):
     (hist_add), then today's rosters, then the NHL's player page (api-web, a few a run,
     kept in the history so each player is looked up once)."""
     names = hist.setdefault("names", {})
-    want = sorted({pid for rows in (hist.get("teams") or {}).values() for r in rows for pid in r.get("gs") or {}
-                   if pid not in names})
+    looked = set(hist.setdefault("num_looked", []))
+    every = {pid for rows in (hist.get("teams") or {}).values() for r in rows for pid in r.get("gs") or {}}
+    want = sorted(pid for pid in every if pid not in names)
     for pid in list(want):
         r = (roster or {}).get(pid)
         if r and r.get("name"):
-            names[pid] = [r["name"], r.get("position") or ""]
+            names[pid] = [r["name"], r.get("position") or "", r.get("jersey")]
             want.remove(pid)
+    # 1.23.0: a named player with no jersey number who is on no NHL roster today is looked
+    # up on his player page once, for the number
+    want += sorted(pid for pid in every if pid in names and pid not in looked and not (roster or {}).get(pid)
+                   and (len(names[pid]) < 3 or names[pid][2] is None))
     want = want[:limit]
     for i in range(0, len(want), 4):
         chunk = want[i:i + 4]
@@ -639,8 +646,29 @@ async def fill_names(f, hist, roster, limit=NAMES_FETCH_MAX):
                 continue
             name = f"{(d.get('firstName') or {}).get('default', '')} {(d.get('lastName') or {}).get('default', '')}".strip()
             if name:
-                names[pid] = [name, d.get("position") or ""]
+                names[pid] = [name, d.get("position") or "", d.get("sweaterNumber")]
+                looked.add(pid)
+    hist["num_looked"] = sorted(looked)
     return names
+
+
+def add_numbers(latest, hist, roster=None):
+    """1.23.0 (John, 2026-11-27: "On my teams add the jersey numbers for all players"):
+    every skater and goalie of each team's latest game, and every player in
+    trend_others, gets num: the number he wore in that game (the play-by-play's roster),
+    else the one saved with his name in the history, else today's NHL roster; None when
+    none of them has it."""
+    names = (hist or {}).get("names") or {}
+    def known(pid):
+        n = names.get(str(pid)) or []
+        if len(n) > 2 and n[2] is not None:
+            return n[2]
+        return ((roster or {}).get(str(pid)) or {}).get("jersey")
+    for t in latest.values():
+        for p in (t.get("skaters") or []) + (t.get("goalies") or []) + (t.get("trend_others") or []):
+            if p.get("num") is None:
+                p["num"] = known(p.get("id"))
+    return latest
 
 
 def add_trends(latest, hist, roster=None):
@@ -839,6 +867,7 @@ async def update(f, session, state_dir, target_date, season_year, game_type_ok=(
     with open(os.path.join(state_dir, HIST_NAME), "w", encoding="utf-8") as fh:
         json.dump(hist, fh, separators=(",", ":"))
     add_trends(latest, hist, roster)
+    add_numbers(latest, hist, roster)
     add_columns(latest)
     return {"teams": latest,
             "credit": "NHL play-by-play and shift charts; expected goals and season rates from MoneyPuck.com"}

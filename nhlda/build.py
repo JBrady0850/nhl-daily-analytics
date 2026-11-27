@@ -56,6 +56,17 @@ STARTED_STATES = {"LIVE", "CRIT", "FINAL", "OFF"}
 FINAL_STATES = {"FINAL", "OFF"}
 
 
+def jersey_numbers(lines, roster):
+    """Set num (the jersey number on today's NHL roster, or None) on every player of
+    every team's lines and pairs. roster: {player id: master-list entry} or None."""
+    for t in (lines or {}).values():
+        for grp in ("lines", "pairs"):
+            for ln in (t or {}).get(grp) or []:
+                for p in ln.get("players") or []:
+                    p["num"] = ((roster or {}).get(str(p.get("nhl_id") or "")) or {}).get("jersey")
+    return lines
+
+
 def previous_games(out_dir, target_date):
     """Today's priced games from the file the last update wrote, keyed by game id
     (matchup when there is no id). Empty when that file is for another day."""
@@ -360,6 +371,9 @@ async def build(target_date, state_dir, out_dir, teams=None, use_dfo=True):
         except Exception as exc:  # noqa: BLE001
             problems.append(f"lines: {exc}")
             lines, lines_status = {}, {"error": str(exc)[:160]}
+        # 1.23.0 (John, 2026-11-27: "On my teams add the jersey numbers for all players"):
+        # each player in the lines gets num from today's NHL rosters
+        jersey_numbers(lines, GS.load_roster(state_dir))
         # 1.13.3: say so when Daily Faceoff refused this update, and what was used instead
         sg = (intel_status or {}).get("starting_goalies") or {}
         note = dfo_note(bool(sg.get("refused")), bool(lines_status.get("refused")),

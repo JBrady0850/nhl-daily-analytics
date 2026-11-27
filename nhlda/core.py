@@ -970,7 +970,7 @@ async def refresh_master_list(f: Fetcher, season, state_dir):
             if not p["player_id"] or not p["name"] or p["player_id"] in seen:
                 continue
             seen.add(p["player_id"])
-            players.append({k: p.get(k) for k in ("team", "name", "player_id", "position", "role")})
+            players.append({k: p.get(k) for k in ("team", "name", "player_id", "position", "role", "jersey")})   # 1.23.0: jersey
     players.sort(key=lambda p: (p["team"], p["position"] or "", p["name"]))
     if len(players) > 300:                     # never overwrite a good list with a failed fetch
         json.dump({"season": season, "generated": dt.date.today().isoformat(),
