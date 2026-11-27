@@ -339,6 +339,19 @@
     "Injury list: Leo Carlsson (ANA) DTD to IR",
     "Lines changed: OTT, UTA"
    ]
+  },
+  {
+   "id": "2026-11-27.10",
+   "date": "2026-11-27",
+   "n": 10,
+   "utc": "2026-11-27T17:46:22Z",
+   "why": "Game-day watch: TOR lineup changed on Daily Faceoff (David Alter); BOS lineup changed on Daily Faceoff (Belle Fraser); CBJ goalie: Jet Greaves (Confirmed) -> Jet Greaves (Confirmed), reported by Aaron Portzline; UTA goalie: Karel Vejmelka (no report) -> Karel Vejmelka (Confirmed), reported by Bro...",
+   "changes": [
+    "UTA goalie: Karel Vejmelka (projected) to Karel Vejmelka (confirmed)",
+    "NSH goalie: Juuse Saros (projected) to Juuse Saros (confirmed)",
+    "Injury list: added Dakota Joshua (TOR, OUT)",
+    "Lines changed: BOS, TOR"
+   ]
   }
  ]
 }
