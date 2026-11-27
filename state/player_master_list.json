@@ -1,7 +1,7 @@
 {
 "season": "20262027",
 "generated": "2026-11-27",
-"count": 807,
+"count": 805,
 "players": [
 {
 "team": "ANA",
@@ -1050,13 +1050,6 @@
 "team": "CHI",
 "name": "Connor Bedard",
 "player_id": "8484144",
-"position": "C",
-"role": "skater"
-},
-{
-"team": "CHI",
-"name": "Dominic Toninato",
-"player_id": "8476952",
 "position": "C",
 "role": "skater"
 },
@@ -5523,13 +5516,6 @@
 "team": "WSH",
 "name": "Jakob Chychrun",
 "player_id": "8479345",
-"position": "D",
-"role": "skater"
-},
-{
-"team": "WSH",
-"name": "Justin Holl",
-"player_id": "8475718",
 "position": "D",
 "role": "skater"
 },

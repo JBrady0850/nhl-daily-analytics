@@ -264,6 +264,27 @@
    "changes": [
     "No change to goalies, picks, results, injuries, lines or Game Scores"
    ]
+  },
+  {
+   "id": "2026-11-27.5",
+   "date": "2026-11-27",
+   "n": 5,
+   "utc": "2026-11-27T16:31:18Z",
+   "why": "Game-day watch: VAN goalie: nothing saved -> Kevin Lankinen (no report); PHI goalie: nothing saved -> Dan Vladar (no report); VGK goalie: nothing saved -> Adin Hill (no report); SJS goalie: nothing saved -> Yaroslav Askarov (no report); CGY goalie: nothing saved -> Dustin Wolf (no report); CGY li...",
+   "changes": [
+    "VAN goalie: Leevi Meril\u00e4inen (rotation guess) to Kevin Lankinen (projected)",
+    "PHI goalie: Joseph Woll (rotation guess) to Dan Vladar (projected)",
+    "VGK goalie: Carter Hart (rotation guess) to Adin Hill (projected)",
+    "SJS goalie: Alex Nedeljkovic (rotation guess) to Yaroslav Askarov (projected)",
+    "CGY goalie: Dustin Wolf (rotation guess) to Dustin Wolf (projected)",
+    "NJD goalie: Connor Hellebuyck (rotation guess) to Jake Allen (confirmed)",
+    "CGY @ NJD: NJD win chance 65.5% to 62.8%",
+    "SEA goalie: Joey Daccord (rotation guess) to Joey Daccord (projected)",
+    "EDM goalie: Devon Levi (rotation guess) to Tristan Jarry (projected)",
+    "NYR goalie: Joonas Korpisalo (rotation guess) to Dylan Garand (projected)",
+    "CHI goalie: Spencer Knight (rotation guess) to Spencer Knight (projected)",
+    "30 more changes"
+   ]
   }
  ]
 }
