@@ -7,8 +7,8 @@
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.3494,
-    "away_prob": 0.6506,
+    "home_prob": 0.3493,
+    "away_prob": 0.6507,
     "books": 6
    },
    "model_home_win_prob": 0.3203,
@@ -255,12 +255,12 @@
   },
   {
    "matchup": "LAK @ ANA",
-   "home_win_prob": 0.5129,
+   "home_win_prob": 0.514,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.4756,
-    "away_prob": 0.5244,
+    "home_prob": 0.4778,
+    "away_prob": 0.5222,
     "books": 6
    },
    "model_home_win_prob": 0.5501,
