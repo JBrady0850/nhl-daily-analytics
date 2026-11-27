@@ -59,12 +59,12 @@
   },
   {
    "matchup": "CGY @ NJD",
-   "home_win_prob": 0.6573,
+   "home_win_prob": 0.6553,
    "tier": "HIGH",
    "gate_cleared": true,
    "market": {
-    "home_prob": 0.6921,
-    "away_prob": 0.3079,
+    "home_prob": 0.6881,
+    "away_prob": 0.3119,
     "books": 6
    },
    "model_home_win_prob": 0.6225,
@@ -87,12 +87,12 @@
   },
   {
    "matchup": "NYR @ CHI",
-   "home_win_prob": 0.4157,
-   "tier": "MODERATE",
+   "home_win_prob": 0.4146,
+   "tier": "HIGH",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.3932,
-    "away_prob": 0.6068,
+    "home_prob": 0.391,
+    "away_prob": 0.609,
     "books": 6
    },
    "model_home_win_prob": 0.4382,
@@ -143,12 +143,12 @@
   },
   {
    "matchup": "WPG @ NYI",
-   "home_win_prob": 0.5677,
+   "home_win_prob": 0.5658,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5332,
-    "away_prob": 0.4668,
+    "home_prob": 0.5294,
+    "away_prob": 0.4706,
     "books": 6
    },
    "model_home_win_prob": 0.6022,
@@ -227,12 +227,12 @@
   },
   {
    "matchup": "PIT @ BUF",
-   "home_win_prob": 0.5551,
+   "home_win_prob": 0.5549,
    "tier": "MODERATE",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.5803,
-    "away_prob": 0.4197,
+    "home_prob": 0.5799,
+    "away_prob": 0.4201,
     "books": 6
    },
    "model_home_win_prob": 0.5298,
@@ -367,12 +367,12 @@
   },
   {
    "matchup": "DET @ CBJ",
-   "home_win_prob": 0.5069,
+   "home_win_prob": 0.5071,
    "tier": "LOW",
    "gate_cleared": false,
    "market": {
-    "home_prob": 0.544,
-    "away_prob": 0.456,
+    "home_prob": 0.5444,
+    "away_prob": 0.4556,
     "books": 6
    },
    "model_home_win_prob": 0.4698,
