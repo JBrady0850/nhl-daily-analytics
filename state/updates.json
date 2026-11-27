@@ -352,6 +352,23 @@
     "Injury list: added Dakota Joshua (TOR, OUT)",
     "Lines changed: BOS, TOR"
    ]
+  },
+  {
+   "id": "2026-11-27.11",
+   "date": "2026-11-27",
+   "n": 11,
+   "utc": "2026-11-27T18:01:39Z",
+   "why": "Game-day watch: DAL goalie: Jake Oettinger (no report) -> Casey DeSmith (Confirmed), reported by Mike Heika; STL goalie: Joel Hofer (no report) -> Joel Hofer (Confirmed), reported by Lou Korac; STL lineup changed on Daily Faceoff (St. Louis Blues); WSH goalie: Logan Thompson (no report) -> Logan ...",
+   "changes": [
+    "OTT goalie: Linus Ullmark (projected) to Linus Ullmark (confirmed)",
+    "DAL goalie: Jake Oettinger (projected) to Casey DeSmith (confirmed)",
+    "STL goalie: Joel Hofer (projected) to Joel Hofer (confirmed)",
+    "DAL @ STL: DAL win chance 56.5% to 53.7%",
+    "WSH goalie: Logan Thompson (projected) to Logan Thompson (confirmed)",
+    "Injury list: removed Morgan Frost (CGY)",
+    "Injury list: Jimmy Snuggerud (STL) DTD to IR",
+    "Lines changed: CGY, NJD, STL, UTA"
+   ]
   }
  ]
 }
