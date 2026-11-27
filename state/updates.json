@@ -470,6 +470,26 @@
     "Injury list: Gabriel Perreault (NYR) OUT to IR",
     "Lines changed: CHI, NYR"
    ]
+  },
+  {
+   "id": "2026-11-27.18",
+   "date": "2026-11-27",
+   "n": 18,
+   "utc": "2026-11-27T22:47:36Z",
+   "why": "Scheduled update (4:45 PM Central)",
+   "changes": [
+    "Final: VAN 2, PHI 5, the pick won",
+    "Final: DET 2, CBJ 0, the pick lost",
+    "Final: OTT 6, TBL 2, the pick lost",
+    "New Game Score (latest finished game): CBJ, DET, OTT, PHI, TBL, VAN",
+    "Injury list: removed Conor Garland (CBJ)",
+    "Injury list: removed Mathieu Olivier (CBJ)",
+    "Injury list: removed Matthew Savoie (EDM)",
+    "Injury list: removed William Trudeau (NSH)",
+    "Injury list: removed Gabriel Perreault (NYR)",
+    "Injury list: removed Nicholas Robertson (PIT)",
+    "Injury list: 3 more changes"
+   ]
   }
  ]
 }
