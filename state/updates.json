@@ -323,6 +323,22 @@
     "EDM goalie: Tristan Jarry (projected) to Tristan Jarry (confirmed)",
     "Lines changed: BOS, OTT, PIT"
    ]
+  },
+  {
+   "id": "2026-11-27.9",
+   "date": "2026-11-27",
+   "n": 9,
+   "utc": "2026-11-27T17:31:07Z",
+   "why": "Game-day watch: CGY goalie: Dustin Wolf (no report) -> Devin Cooley (Confirmed), reported by Eric Francis; UTA lineup changed on Daily Faceoff (Projected); FLA goalie: Jacob Markstrom (no report) -> Jacob Markstrom (Confirmed), reported by Doug Plagens; PIT goalie: Sergei Murashov (no report) -> ...",
+   "changes": [
+    "CGY goalie: Dustin Wolf (projected) to Devin Cooley (confirmed)",
+    "FLA goalie: Jacob Markstrom (projected) to Jacob Markstrom (confirmed)",
+    "PIT goalie: Sergei Murashov (projected) to Sergei Murashov (confirmed)",
+    "Injury list: removed Andre Burakovsky (OTT)",
+    "Injury list: removed Hayden Hodgson (OTT)",
+    "Injury list: Leo Carlsson (ANA) DTD to IR",
+    "Lines changed: OTT, UTA"
+   ]
   }
  ]
 }
