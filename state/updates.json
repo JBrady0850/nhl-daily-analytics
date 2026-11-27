@@ -298,6 +298,20 @@
     "Injury list: added Zach Benson (BUF, DTD)",
     "Lines changed: BUF, NYR"
    ]
+  },
+  {
+   "id": "2026-11-27.7",
+   "date": "2026-11-27",
+   "n": 7,
+   "utc": "2026-11-27T16:46:35Z",
+   "why": "Game-day watch: BOS goalie: Jeremy Swayman (no report) -> Jeremy Swayman (Confirmed), reported by Mitchell Clinton",
+   "changes": [
+    "BOS goalie: Jeremy Swayman (projected) to Jeremy Swayman (confirmed)",
+    "Injury list: removed Justin Danforth (BUF)",
+    "Injury list: Noah Ostlund (BUF) DTD to OUT",
+    "Injury list: Zach Benson (BUF) DTD to OUT",
+    "Lines changed: CAR, EDM"
+   ]
   }
  ]
 }
